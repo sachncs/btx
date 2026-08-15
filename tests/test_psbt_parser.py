@@ -345,18 +345,18 @@ VALID_DER = bytes.fromhex(
 
 
 class TestPsbtExtractSignatures:
-    def __rx(self, num: int) -> bytes:
+    def rx(self, num: int) -> bytes:
         return build_raw_tx(num_inputs=num, num_outputs=num)
 
     def test_no_sigs(self):
-        tx_bytes = self.__rx(1)
+        tx_bytes = self.rx(1)
         psbt = Psbt(tx=tx_bytes, inputs=(PsbtInput(),), outputs=(PsbtOutput(),))
         coll = psbt_extract_signatures(psbt)
         assert isinstance(coll, SignatureCollection)
         assert len(coll) == 0
 
     def test_valid_partial_sig(self):
-        tx_bytes = self.__rx(1)
+        tx_bytes = self.rx(1)
         sig = VALID_DER + bytes([0x01])
         inp = PsbtInput(partial_sigs={VALID_PUBKEY: sig})
         psbt = Psbt(tx=tx_bytes, inputs=(inp,), outputs=(PsbtOutput(),))
@@ -369,7 +369,7 @@ class TestPsbtExtractSignatures:
         assert rec.amount == 0
 
     def test_invalid_pubkey_skipped(self):
-        tx_bytes = self.__rx(1)
+        tx_bytes = self.rx(1)
         sig = VALID_DER + bytes([0x01])
         inp = PsbtInput(partial_sigs={b"\x00" * 10: sig})
         psbt = Psbt(tx=tx_bytes, inputs=(inp,), outputs=(PsbtOutput(),))
@@ -377,14 +377,14 @@ class TestPsbtExtractSignatures:
         assert len(coll) == 0
 
     def test_short_sig_skipped(self):
-        tx_bytes = self.__rx(1)
+        tx_bytes = self.rx(1)
         inp = PsbtInput(partial_sigs={VALID_PUBKEY: b"\x00"})
         psbt = Psbt(tx=tx_bytes, inputs=(inp,), outputs=(PsbtOutput(),))
         coll = psbt_extract_signatures(psbt)
         assert len(coll) == 0
 
     def test_invalid_der_skipped(self):
-        tx_bytes = self.__rx(1)
+        tx_bytes = self.rx(1)
         sig = b"\x30\x02\x02\x01\x00" + bytes([0x01])
         inp = PsbtInput(partial_sigs={VALID_PUBKEY: sig})
         psbt = Psbt(tx=tx_bytes, inputs=(inp,), outputs=(PsbtOutput(),))
@@ -392,7 +392,7 @@ class TestPsbtExtractSignatures:
         assert len(coll) == 0
 
     def test_with_input_values(self):
-        tx_bytes = self.__rx(2)
+        tx_bytes = self.rx(2)
         sig = VALID_DER + bytes([0x01])
         inp0 = PsbtInput(partial_sigs={VALID_PUBKEY: sig})
         inp1 = PsbtInput(partial_sigs={VALID_PUBKEY: sig})
@@ -407,7 +407,7 @@ class TestPsbtExtractSignatures:
         assert coll[1].amount == 200
 
     def test_finalized_script_sig(self):
-        tx_bytes = self.__rx(1)
+        tx_bytes = self.rx(1)
         sig_element = VALID_DER + bytes([0x01])
         from btx.encoding.sec import serialize_sec
         from btx.script.parser import serialize_script
@@ -424,7 +424,7 @@ class TestPsbtExtractSignatures:
         assert coll[0].public_key == pubkey_point
 
     def test_finalized_no_bytes_elements(self):
-        tx_bytes = self.__rx(1)
+        tx_bytes = self.rx(1)
         from btx.script.parser import serialize_script
 
         script_sig = serialize_script([0x00, 0x51])
@@ -434,7 +434,7 @@ class TestPsbtExtractSignatures:
         assert len(coll) == 0
 
     def test_finalized_invalid_der_in_script(self):
-        tx_bytes = self.__rx(1)
+        tx_bytes = self.rx(1)
         from btx.script.parser import serialize_script
 
         script_sig = serialize_script([b"\x00\x01"])
@@ -444,7 +444,7 @@ class TestPsbtExtractSignatures:
         assert len(coll) == 0
 
     def test_multiple_partial_sigs_same_input(self):
-        tx_bytes = self.__rx(1)
+        tx_bytes = self.rx(1)
         sig = VALID_DER + bytes([0x01])
         pubkey2 = bytes.fromhex(
             "0379be667ef9dcbbac55a06295ce870b07029bfcdb2dce28d959f2815b16f81798"
@@ -460,7 +460,7 @@ class TestPsbtExtractSignatures:
         assert len(coll) == 2
 
     def test_no_sigs_with_input_values_fallback(self):
-        tx_bytes = self.__rx(1)
+        tx_bytes = self.rx(1)
         psbt = Psbt(tx=tx_bytes, inputs=(PsbtInput(),), outputs=(PsbtOutput(),))
         coll = psbt_extract_signatures(psbt, input_values=[500])
         assert len(coll) == 0

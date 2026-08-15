@@ -44,7 +44,7 @@ def encode_der(r: int, s: int, s_high_ok: bool = False) -> bytes:
     if not s_high_ok and s > half_order:
         s = CURVE_ORDER - s
 
-    def __encode_int(value: int) -> bytes:
+    def encode_int(value: int) -> bytes:
         """Encode an integer as a DER INTEGER tag.
 
         Args:
@@ -59,8 +59,8 @@ def encode_der(r: int, s: int, s_high_ok: bool = False) -> bytes:
             raw = b"\x00" + raw
         return bytes([0x02, len(raw)]) + raw
 
-    r_enc = __encode_int(r)
-    s_enc = __encode_int(s)
+    r_enc = encode_int(r)
+    s_enc = encode_int(s)
     content = r_enc + s_enc
     return bytes([0x30, len(content)]) + content
 

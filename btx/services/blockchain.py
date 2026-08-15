@@ -666,14 +666,14 @@ def batch_fetch_transactions(
     if provider is None:
         provider = blockstream_provider()
 
-    def _fetch_one(txid: str) -> tuple[str, str]:
+    def fetch_one(txid: str) -> tuple[str, str]:
         validate_txid(txid)
         hex_data = provider.get_transaction_hex(txid)
         return txid, hex_data
 
     results: dict[str, str] = {}
     with ThreadPoolExecutor(max_workers=max_workers) as executor:
-        futures = {executor.submit(_fetch_one, txid): txid for txid in txids}
+        futures = {executor.submit(fetch_one, txid): txid for txid in txids}
         for future in as_completed(futures):
             txid, hex_data = future.result()
             results[txid] = hex_data
@@ -707,7 +707,7 @@ def batch_enrich_transactions(
     if provider is None:
         provider = blockstream_provider()
 
-    def _enrich_one(tx_hex: str) -> tuple[list[bytes], list[int]]:
+    def enrich_one(tx_hex: str) -> tuple[list[bytes], list[int]]:
         return enrich_transaction(tx_hex, provider=provider)
 
     results: list[tuple[list[bytes], list[int]]] = []
@@ -747,11 +747,11 @@ async def async_batch_fetch_transactions(
     if provider is None:
         provider = blockstream_provider()
 
-    async def _fetch_one(txid: str) -> tuple[str, str]:
+    async def fetch_one(txid: str) -> tuple[str, str]:
         hex_data = await provider.async_get_transaction_hex(txid)
         return txid, hex_data
 
-    tasks = [_fetch_one(txid) for txid in txids]
+    tasks = [fetch_one(txid) for txid in txids]
     results = await asyncio.gather(*tasks)
     return dict(results)
 

@@ -44,10 +44,10 @@ class TransactionBuilder:
         """
         if version < 0:
             raise ValueError(f"Version must be non-negative, got {version}.")
-        self.__version: int = version
-        self.__lock_time: int = 0
-        self.__inputs: list[dict[str, object]] = []
-        self.__outputs: list[dict[str, object]] = []
+        self.version: int = version
+        self.lock_time: int = 0
+        self.inputs: list[dict[str, object]] = []
+        self.outputs: list[dict[str, object]] = []
 
     def add_input(
         self,
@@ -69,7 +69,7 @@ class TransactionBuilder:
         Returns:
             ``self`` for chaining.
         """
-        self.__inputs.append(
+        self.inputs.append(
             {
                 "txid": txid,
                 "vout": vout,
@@ -90,7 +90,7 @@ class TransactionBuilder:
         Returns:
             ``self`` for chaining.
         """
-        self.__outputs.append(
+        self.outputs.append(
             {
                 "value": value,
                 "script_pubkey": script_pubkey,
@@ -112,7 +112,7 @@ class TransactionBuilder:
         """
         if lock_time < 0:
             raise ValueError(f"Lock time must be non-negative, got {lock_time}.")
-        self.__lock_time = lock_time
+        self.lock_time = lock_time
         return self
 
     def build(self) -> Tx:
@@ -125,13 +125,13 @@ class TransactionBuilder:
             ValueError: If no inputs or no outputs are defined, or if any
                 field fails model validation.
         """
-        if not self.__inputs:
+        if not self.inputs:
             raise ValueError("At least one input is required.")
-        if not self.__outputs:
+        if not self.outputs:
             raise ValueError("At least one output is required.")
 
         txins: list[TxIn] = []
-        for inp in self.__inputs:
+        for inp in self.inputs:
             txid = inp["txid"]
             vout = inp["vout"]
             script_sig = inp["script_sig"]
@@ -162,7 +162,7 @@ class TransactionBuilder:
             )
 
         txouts: list[TxOut] = []
-        for out_data in self.__outputs:
+        for out_data in self.outputs:
             value = out_data["value"]
             script_pubkey = out_data["script_pubkey"]
             if not isinstance(value, int):
@@ -172,10 +172,10 @@ class TransactionBuilder:
             txouts.append(TxOut(value=value, script_pubkey=script_pubkey))
 
         return Tx(
-            version=self.__version,
+            version=self.version,
             inputs=tuple(txins),
             outputs=tuple(txouts),
-            lock_time=self.__lock_time,
+            lock_time=self.lock_time,
         )
 
 

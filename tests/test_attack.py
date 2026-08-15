@@ -23,7 +23,7 @@ from btx.signature.linearization.coefficients import (
 )
 
 
-def __sign(d: int, k: int, z: int) -> tuple[int, int]:
+def sign(d: int, k: int, z: int) -> tuple[int, int]:
     """Sign a message hash ``z`` with private key ``d`` and nonce ``k``."""
     k = k % CURVE_ORDER
     R = multiply(k, GENERATOR_POINT)
@@ -42,8 +42,8 @@ def test_recover_from_nonce_reuse() -> None:
     z1 = 0xAAAA
     z2 = 0xBBBB
 
-    r, s1 = __sign(d, k, z1)
-    r2, s2 = __sign(d, k, z2)
+    r, s1 = sign(d, k, z1)
+    r2, s2 = sign(d, k, z2)
     assert r == r2, "same nonce must produce same r"
 
     lin1 = derive_linear_coefficients(r, s1, z1)
@@ -58,8 +58,8 @@ def test_recover_from_nonce_reuse_different_r() -> None:
     """SameNonceError when r values differ."""
     k1 = 0x1111111111111111111111111111111111111111111111111111111111111111
     k2 = 0x2222222222222222222222222222222222222222222222222222222222222222
-    r1, s1 = __sign(1, k1, 0xAAAA)
-    r2, s2 = __sign(1, k2, 0xBBBB)
+    r1, s1 = sign(1, k1, 0xAAAA)
+    r2, s2 = sign(1, k2, 0xBBBB)
 
     lin1 = derive_linear_coefficients(r1, s1, 0xAAAA)
     lin2 = derive_linear_coefficients(r2, s2, 0xBBBB)
@@ -77,8 +77,8 @@ def test_recover_from_related_nonces() -> None:
     z1 = 0xAAAA
     z2 = 0xBBBB
 
-    r1, s1 = __sign(d, k1, z1)
-    r2, s2 = __sign(d, k2, z2)
+    r1, s1 = sign(d, k1, z1)
+    r2, s2 = sign(d, k2, z2)
 
     lin1 = derive_linear_coefficients(r1, s1, z1)
     lin2 = derive_linear_coefficients(r2, s2, z2)
