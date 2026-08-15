@@ -192,7 +192,6 @@ from btx.script import (
 )
 from btx.services import (
     BlockchainInfoProvider,
-    BlockchainProvider,
     BlockstreamProvider,
     GenericHttpProvider,
     MempoolSpaceProvider,
@@ -263,7 +262,6 @@ from btx.transaction import (
 __all__ = [
     "BtxError",
     "BlockchainInfoProvider",
-    "BlockchainProvider",
     "BlockstreamProvider",
     "CurveBackend",
     "CURVE_A",

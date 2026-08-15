@@ -67,10 +67,6 @@ class SameNonceError(NonceRecoveryError):
     """Signatures have different ``r`` values; cannot recover nonce."""
 
 
-class NoNonceReuseError(NonceRecoveryError):
-    """Raised when no nonce reuse can be detected in a collection of signatures."""
-
-
 @dataclass(frozen=True, slots=True)
 class RecoveredKey:
     """Result of a successful private-key and nonce recovery.

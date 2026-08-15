@@ -2,9 +2,8 @@
 # SPDX-License-Identifier: MIT
 """Blockchain data fetching with pluggable backends.
 
-Provides a :class:`BlockchainProvider` :class:`~typing.Protocol` and
-concrete implementations for the Blockstream, blockchain.info, and
-Mempool.space APIs, plus convenience functions to enrich raw
+Provides concrete implementations for the Blockstream, blockchain.info,
+and Mempool.space APIs, plus convenience functions to enrich raw
 transactions with the UTXO data they need for sighash computation
 (``scriptPubKey`` and value of every input's previous output).
 
@@ -43,7 +42,7 @@ import json
 import logging
 import ssl
 import time
-from typing import TYPE_CHECKING, Any, Protocol, runtime_checkable
+from typing import TYPE_CHECKING, Any
 from urllib.error import HTTPError, URLError
 from urllib.request import Request, urlopen
 
@@ -62,94 +61,6 @@ RETRY_BACKOFF = 1.0  # seconds
 RETRYABLE_STATUSES = {429, 500, 502, 503, 504}
 TXID_PATTERN = "0123456789abcdefABCDEF"
 SSL_CONTEXT = ssl.create_default_context()
-
-
-@runtime_checkable
-class BlockchainProvider(Protocol):
-    """Protocol for blockchain data providers.
-
-    Implementations fetch transaction data and UTXO information from
-    a blockchain explorer API.  All methods raise ``OSError`` on
-    network or HTTP errors, and ``ValueError`` on malformed responses.
-    """
-
-    def get_transaction_hex(self, txid: str) -> str:
-        """Fetch a raw transaction in hex format.
-
-        Args:
-            txid: The 64-character transaction ID (hash).
-
-        Returns:
-            The raw transaction as a hex-encoded string.
-
-        Raises:
-            OSError: On network or HTTP errors.
-            ValueError: If the response is malformed.
-        """
-        ...
-
-    def get_utxo_script_pubkey(self, txid: str, vout: int) -> bytes:
-        """Fetch the ``scriptPubKey`` of a specific UTXO.
-
-        Args:
-            txid: The transaction ID containing the output.
-            vout: The output index.
-
-        Returns:
-            The ``scriptPubKey`` as raw bytes.
-
-        Raises:
-            OSError: On network or HTTP errors.
-            ValueError: If the output does not exist.
-        """
-        ...
-
-    def get_utxo_value(self, txid: str, vout: int) -> int:
-        """Fetch the value (in satoshis) of a specific UTXO.
-
-        Args:
-            txid: The transaction ID containing the output.
-            vout: The output index.
-
-        Returns:
-            The value in satoshis.
-
-        Raises:
-            OSError: On network or HTTP errors.
-            ValueError: If the output does not exist.
-        """
-        ...
-
-    def broadcast_transaction(self, tx_hex: str) -> str:
-        """Broadcast a raw transaction to the Bitcoin network.
-
-        Args:
-            tx_hex: The raw transaction as a hex-encoded string.
-
-        Returns:
-            The txid of the broadcast transaction as a string.
-
-        Raises:
-            OSError: On network or HTTP errors.
-            ValueError: If the transaction is invalid.
-        """
-        ...
-
-    async def async_get_transaction_hex(self, txid: str) -> str:
-        """Async version of :meth:`get_transaction_hex`."""
-        ...
-
-    async def async_get_utxo_script_pubkey(self, txid: str, vout: int) -> bytes:
-        """Async version of :meth:`get_utxo_script_pubkey`."""
-        ...
-
-    async def async_get_utxo_value(self, txid: str, vout: int) -> int:
-        """Async version of :meth:`get_utxo_value`."""
-        ...
-
-    async def async_broadcast_transaction(self, tx_hex: str) -> str:
-        """Async version of :meth:`broadcast_transaction`."""
-        ...
 
 
 # ── Template-Method base for providers ────────────────────────────────

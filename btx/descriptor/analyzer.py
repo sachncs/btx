@@ -79,10 +79,8 @@ def analyze_descriptor(expr: str) -> DescriptorInfo:
         raise
 
     keys: list[str] = []
-    has_timelock = False
-    has_hash_lock = False
     satisfaction = 0
-    collect_info(ast, keys, has_timelock=has_timelock, has_hash_lock=has_hash_lock)
+    collect_info(ast, keys)
 
     satisfaction = estimate_satisfaction(ast)
     return DescriptorInfo(
@@ -97,28 +95,22 @@ def analyze_descriptor(expr: str) -> DescriptorInfo:
 def collect_info(
     node: DescriptorNode,
     keys: list[str],
-    has_timelock: bool,
-    has_hash_lock: bool,
 ) -> None:
-    """Walk a descriptor AST, collecting keys and feature flags.
+    """Walk a descriptor AST, collecting public keys.
 
     The function mutates *keys* in place by appending every public-key
-    string it finds in the subtree.  The *has_timelock* and
-    *has_hash_lock* parameters are accepted for symmetry with the
-    historical signature but are no longer populated here — feature
-    detection is performed separately by :func:`contains_op`.
+    string it finds in the subtree.  Feature detection (timelocks,
+    hash locks) is performed separately by :func:`contains_op`.
 
     Args:
         node: The descriptor AST node to walk.
         keys: Output list, mutated in place with discovered keys.
-        has_timelock: Accepted for API symmetry; not modified.
-        has_hash_lock: Accepted for API symmetry; not modified.
     """
     for arg in node.args:
         if isinstance(arg, str) and PUBKEY_PATTERN.match(arg):
             keys.append(arg)
         elif isinstance(arg, DescriptorNode):
-            collect_info(arg, keys, has_timelock, has_hash_lock)
+            collect_info(arg, keys)
 
 
 def contains_op(node: DescriptorNode, op: str) -> bool:

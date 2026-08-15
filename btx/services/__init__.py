@@ -21,7 +21,6 @@ importing only the curve / signature / script layers.
 
 from btx.services.blockchain import (
     BlockchainInfoProvider,
-    BlockchainProvider,
     BlockstreamProvider,
     GenericHttpProvider,
     MempoolSpaceProvider,
@@ -41,7 +40,6 @@ from btx.services.serializer import (
 
 __all__ = [
     "BlockchainInfoProvider",
-    "BlockchainProvider",
     "BlockstreamProvider",
     "GenericHttpProvider",
     "MempoolSpaceProvider",
