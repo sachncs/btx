@@ -7,7 +7,8 @@ The CLI is a thin wrapper around the library's Python API.  Each
 command:
 
 1. Calls :func:`configure_logging` to enable structured (JSON) logging
-   at the level selected by the ``BITCOIN_LOG_LEVEL`` env var.
+   at the level selected by the ``BTX_LOG_LEVEL`` env var (the legacy
+   ``BITCOIN_LOG_LEVEL`` name still works with a :class:`DeprecationWarning`).
 2. Resolves the transaction hex via :func:`read_tx_hex` (either a
    positional argument or ``--input-file``).
 3. Invokes the corresponding library function
@@ -29,6 +30,7 @@ import io
 import json
 import logging
 import os
+import warnings
 from collections.abc import Sequence
 from datetime import UTC, datetime
 from pathlib import Path
@@ -74,8 +76,10 @@ class JSONFormatter(logging.Formatter):
 def configure_logging() -> None:
     """Configure structured (JSON) logging for the btx CLI.
 
-    Log level is read from the ``BITCOIN_LOG_LEVEL`` environment variable
-    (default: ``WARNING``).
+    Log level is read from the ``BTX_LOG_LEVEL`` environment variable
+    (default: ``WARNING``).  The legacy ``BITCOIN_LOG_LEVEL`` variable
+    still works as a fallback; if it is set without ``BTX_LOG_LEVEL``,
+    a :class:`DeprecationWarning` is emitted.
 
     Idempotent — safe to call from multiple commands.  Subsequent
     calls become no-ops once :data:`LOGGING_CONFIGURED` flips to
@@ -92,8 +96,20 @@ def configure_logging() -> None:
     handler = logging.StreamHandler()
     handler.setFormatter(JSONFormatter())
     root = logging.getLogger("btx")
-    level = os.getenv("BITCOIN_LOG_LEVEL", "WARNING").upper()
-    root.setLevel(level)
+    new_level = os.getenv("BTX_LOG_LEVEL")
+    legacy_level = os.getenv("BITCOIN_LOG_LEVEL")
+    if new_level is None and legacy_level is not None:
+        warnings.warn(
+            "BITCOIN_LOG_LEVEL is deprecated; use BTX_LOG_LEVEL instead.",
+            DeprecationWarning,
+            stacklevel=2,
+        )
+        level = legacy_level
+    elif new_level is None:
+        level = "WARNING"
+    else:
+        level = new_level
+    root.setLevel(level.upper())
     LOGGING_CONFIGURED = True
 
 
