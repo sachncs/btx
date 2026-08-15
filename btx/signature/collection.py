@@ -14,8 +14,9 @@ mutating the receiver.
 
 from __future__ import annotations
 
-from collections.abc import Iterator
+from collections.abc import Callable, Iterator
 from dataclasses import dataclass
+from typing import Any
 
 from btx.signature.record import Record
 
@@ -44,20 +45,17 @@ class SignatureCollection:
         """Return the record at *index*."""
         return self.records[index]
 
-    def sort_records(self, *, key: str = "input_index") -> SignatureCollection:
-        """Return a new collection sorted by the given attribute.
+    def sort_records(
+        self, key: Callable[[Record], Any]
+    ) -> SignatureCollection:
+        """Return a new collection sorted by *key*.
 
         Args:
-            key: Attribute name to sort by (default: ``"input_index"``).
+            key: A callable that maps each ``Record`` to a sortable
+                value (e.g. ``attrgetter("input_index")``).
 
         Returns:
             A new ``SignatureCollection`` with sorted records.
-
-        Raises:
-            ValueError: If *key* is not a valid attribute of ``Record``.
         """
-        if not hasattr(self.records[0], key) if self.records else False:
-            valid = [a for a in dir(Record) if not a.startswith("_")]
-            raise ValueError(f"Invalid sort key {key!r}. Valid options: {valid}")
-        sorted_records = tuple(sorted(self.records, key=lambda r: getattr(r, key)))
+        sorted_records = tuple(sorted(self.records, key=key))
         return SignatureCollection(records=sorted_records)

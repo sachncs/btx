@@ -4,6 +4,8 @@
 
 from __future__ import annotations
 
+from operator import attrgetter
+
 import pytest
 
 from btx.curve import GENERATOR_POINT
@@ -108,13 +110,13 @@ class TestCollectionCoverage:
             amount=0,
         )
         coll = SignatureCollection(records=(rec1, rec2))
-        sorted_coll = coll.sort_records()
+        sorted_coll = coll.sort_records(key=attrgetter("input_index"))
         assert sorted_coll[0].input_index == 0
         assert sorted_coll[1].input_index == 1
 
-    def test_sort_records_invalid_key(self) -> None:
-        rec = Record(
-            txid=b"\x00" * 32,
+    def test_sort_records_with_callable(self) -> None:
+        rec1 = Record(
+            txid=b"\x01" * 32,
             input_index=0,
             signature=b"\x30\x06\x02\x01\x01\x02\x01\x01",
             public_key=GENERATOR_POINT,
@@ -122,9 +124,20 @@ class TestCollectionCoverage:
             sighash_flag=0x01,
             amount=0,
         )
-        coll = SignatureCollection(records=(rec,))
-        with pytest.raises(ValueError, match="Invalid sort key"):
-            coll.sort_records(key="nonexistent")
+        rec2 = Record(
+            txid=b"\x02" * 32,
+            input_index=0,
+            signature=b"\x30\x06\x02\x01\x01\x02\x01\x01",
+            public_key=GENERATOR_POINT,
+            script_type="p2wpkh",
+            sighash_flag=0x01,
+            amount=0,
+        )
+        coll = SignatureCollection(records=(rec1, rec2))
+        # Sort by script_type
+        sorted_coll = coll.sort_records(key=lambda r: r.script_type)
+        assert sorted_coll[0].script_type == "p2pkh"
+        assert sorted_coll[1].script_type == "p2wpkh"
 
     def test_linearize_with_collection(self) -> None:
         recs = [
