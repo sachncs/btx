@@ -2,15 +2,12 @@
 # SPDX-License-Identifier: MIT
 """Fluent builder for constructing and editing PSBTs (BIP-174).
 
-Provides :class:`PsbtEditor` and the mutable helper classes
-:class:`MutableInput` / :class:`MutableOutput` for programmatic
-construction, signing, and finalisation of :class:`Psbt` instances.
-
-The editor mutates its own ``inputs`` / ``outputs`` lists freely and
-returns ``self`` from every setter for chaining.  Calling
-:meth:`PsbtEditor.build` snapshots the current state into a frozen
-:class:`Psbt`, after which the editor can be discarded or reused for
-further edits.
+Provides :class:`PsbtEditor` for programmatic construction, signing,
+and finalisation of :class:`Psbt` instances.  The editor stores its
+in-progress state as frozen :class:`PsbtInput` / :class:`PsbtOutput`
+dataclasses and uses :func:`dataclasses.replace` to update individual
+fields, preserving the immutability contract of the underlying
+types.  Calling :meth:`PsbtEditor.build` returns a frozen :class:`Psbt`.
 
 Typical usage:
 
@@ -27,39 +24,20 @@ Typical usage:
 
 from __future__ import annotations
 
-from dataclasses import dataclass, field
+import dataclasses
 from typing import Self
 
 from btx.psbt.models import Psbt, PsbtInput, PsbtOutput
 from btx.transaction.parser import parse_tx
 
 
-@dataclass
-class MutableInput:
-    """Mutable analogue of ``PsbtInput`` for incremental construction."""
-
-    non_witness_utxo: bytes | None = None
-    witness_utxo: bytes | None = None
-    partial_sigs: dict[bytes, bytes] = field(default_factory=dict)
-    sighash_type: int | None = None
-    redeem_script: bytes | None = None
-    witness_script: bytes | None = None
-    bip32_derivations: dict[bytes, bytes] = field(default_factory=dict)
-    final_script_sig: bytes | None = None
-    final_script_witness: tuple[bytes, ...] | None = None
-
-
-@dataclass
-class MutableOutput:
-    """Mutable analogue of ``PsbtOutput`` for incremental construction."""
-
-    redeem_script: bytes | None = None
-    witness_script: bytes | None = None
-    bip32_derivations: dict[bytes, bytes] = field(default_factory=dict)
-
-
 class PsbtEditor:
     """Fluent builder for constructing and editing PSBTs.
+
+    The editor stores in-progress state as frozen
+    :class:`PsbtInput` / :class:`PsbtOutput` dataclasses.  Each
+    mutator replaces the affected element via
+    :func:`dataclasses.replace`, preserving hashability.
 
     Use :meth:`from_tx` to create an editor from an unsigned transaction,
     or construct directly from an existing ``Psbt``.
@@ -73,28 +51,8 @@ class PsbtEditor:
         """
         self.tx: bytes = psbt.tx
         self.unknown: dict[bytes, bytes] = dict(psbt.unknown)
-        self.inputs: list[MutableInput] = [
-            MutableInput(
-                non_witness_utxo=inp.non_witness_utxo,
-                witness_utxo=inp.witness_utxo,
-                partial_sigs=dict(inp.partial_sigs),
-                sighash_type=inp.sighash_type,
-                redeem_script=inp.redeem_script,
-                witness_script=inp.witness_script,
-                bip32_derivations=dict(inp.bip32_derivations),
-                final_script_sig=inp.final_script_sig,
-                final_script_witness=inp.final_script_witness,
-            )
-            for inp in psbt.inputs
-        ]
-        self.outputs: list[MutableOutput] = [
-            MutableOutput(
-                redeem_script=out.redeem_script,
-                witness_script=out.witness_script,
-                bip32_derivations=dict(out.bip32_derivations),
-            )
-            for out in psbt.outputs
-        ]
+        self.inputs: list[PsbtInput] = list(psbt.inputs)
+        self.outputs: list[PsbtOutput] = list(psbt.outputs)
 
     @staticmethod
     def from_tx(tx: bytes) -> PsbtEditor:
@@ -117,6 +75,14 @@ class PsbtEditor:
         )
         return PsbtEditor(psbt)
 
+    def _replace_input(self, vin: int, **changes: object) -> None:
+        """Replace the input at *vin* via :func:`dataclasses.replace`."""
+        self.inputs[vin] = dataclasses.replace(self.inputs[vin], **changes)
+
+    def _replace_output(self, vout: int, **changes: object) -> None:
+        """Replace the output at *vout* via :func:`dataclasses.replace`."""
+        self.outputs[vout] = dataclasses.replace(self.outputs[vout], **changes)
+
     def set_input_utxo(
         self,
         vin: int,
@@ -134,11 +100,10 @@ class PsbtEditor:
         Returns:
             ``self`` for chaining.
         """
-        inp = self.inputs[vin]
         if non_witness_utxo is not None:
-            inp.non_witness_utxo = non_witness_utxo
+            self._replace_input(vin, non_witness_utxo=non_witness_utxo)
         if witness_utxo is not None:
-            inp.witness_utxo = witness_utxo
+            self._replace_input(vin, witness_utxo=witness_utxo)
         return self
 
     def set_input_redeem_script(self, vin: int, script: bytes) -> Self:
@@ -151,7 +116,7 @@ class PsbtEditor:
         Returns:
             ``self`` for chaining.
         """
-        self.inputs[vin].redeem_script = script
+        self._replace_input(vin, redeem_script=script)
         return self
 
     def set_input_witness_script(self, vin: int, script: bytes) -> Self:
@@ -164,7 +129,7 @@ class PsbtEditor:
         Returns:
             ``self`` for chaining.
         """
-        self.inputs[vin].witness_script = script
+        self._replace_input(vin, witness_script=script)
         return self
 
     def set_input_sighash_type(self, vin: int, flag: int) -> Self:
@@ -177,7 +142,7 @@ class PsbtEditor:
         Returns:
             ``self`` for chaining.
         """
-        self.inputs[vin].sighash_type = flag
+        self._replace_input(vin, sighash_type=flag)
         return self
 
     def add_input_partial_sig(self, vin: int, pubkey: bytes, sig: bytes) -> Self:
@@ -191,7 +156,10 @@ class PsbtEditor:
         Returns:
             ``self`` for chaining.
         """
-        self.inputs[vin].partial_sigs[pubkey] = sig
+        inp = self.inputs[vin]
+        new_sigs = dict(inp.partial_sigs)
+        new_sigs[pubkey] = sig
+        self._replace_input(vin, partial_sigs=new_sigs)
         return self
 
     def set_output_redeem_script(self, vout: int, script: bytes) -> Self:
@@ -204,7 +172,7 @@ class PsbtEditor:
         Returns:
             ``self`` for chaining.
         """
-        self.outputs[vout].redeem_script = script
+        self._replace_output(vout, redeem_script=script)
         return self
 
     def set_output_witness_script(self, vout: int, script: bytes) -> Self:
@@ -217,7 +185,7 @@ class PsbtEditor:
         Returns:
             ``self`` for chaining.
         """
-        self.outputs[vout].witness_script = script
+        self._replace_output(vout, witness_script=script)
         return self
 
     def sign_input(
@@ -294,7 +262,9 @@ class PsbtEditor:
         sig = sign_tx_input(
             tx, vin, private_key, script=script_code, value=value, sighash_flag=flag
         )
-        inp.partial_sigs[pubkey] = sig
+        new_sigs = dict(inp.partial_sigs)
+        new_sigs[pubkey] = sig
+        self._replace_input(vin, partial_sigs=new_sigs)
         return self
 
     def finalize_input(
@@ -314,11 +284,10 @@ class PsbtEditor:
         Returns:
             ``self`` for chaining.
         """
-        inp = self.inputs[vin]
         if final_script_sig is not None:
-            inp.final_script_sig = final_script_sig
+            self._replace_input(vin, final_script_sig=final_script_sig)
         if final_witness is not None:
-            inp.final_script_witness = final_witness
+            self._replace_input(vin, final_script_witness=final_witness)
         return self
 
     def build(self) -> Psbt:
@@ -327,31 +296,9 @@ class PsbtEditor:
         Returns:
             A new frozen ``Psbt`` instance reflecting all edits.
         """
-        inputs = tuple(
-            PsbtInput(
-                non_witness_utxo=inp.non_witness_utxo,
-                witness_utxo=inp.witness_utxo,
-                partial_sigs=dict(inp.partial_sigs),
-                sighash_type=inp.sighash_type,
-                redeem_script=inp.redeem_script,
-                witness_script=inp.witness_script,
-                bip32_derivations=dict(inp.bip32_derivations),
-                final_script_sig=inp.final_script_sig,
-                final_script_witness=inp.final_script_witness,
-            )
-            for inp in self.inputs
-        )
-        outputs = tuple(
-            PsbtOutput(
-                redeem_script=out.redeem_script,
-                witness_script=out.witness_script,
-                bip32_derivations=dict(out.bip32_derivations),
-            )
-            for out in self.outputs
-        )
         return Psbt(
             tx=self.tx,
-            inputs=inputs,
-            outputs=outputs,
+            inputs=tuple(self.inputs),
+            outputs=tuple(self.outputs),
             unknown=dict(self.unknown),
         )

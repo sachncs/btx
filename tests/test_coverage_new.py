@@ -14,7 +14,8 @@ from btx.curve.params import FIELD_PRIME
 from btx.encoding.der import encode_der
 from btx.encoding.hasher import hash256, sha256
 from btx.psbt import Psbt, PsbtEditor, PsbtInput, PsbtOutput
-from btx.psbt.editor import MutableInput, MutableOutput
+from btx.psbt.editor import PsbtEditor
+from btx.psbt.models import PsbtInput, PsbtOutput
 from btx.script import (
     build_p2pkh,
     build_p2wpkh,
@@ -1175,34 +1176,34 @@ class TestPsbtEditor:
         assert psbt.inputs[0].sighash_type == 1
 
 
-class TestMutableInput:
+class TestPsbtInputDefaults:
     def test_defaults(self) -> None:
-        mi = MutableInput()
-        assert mi.non_witness_utxo is None
-        assert mi.witness_utxo is None
-        assert mi.partial_sigs == {}
-        assert mi.sighash_type is None
+        pi = PsbtInput()
+        assert pi.non_witness_utxo is None
+        assert pi.witness_utxo is None
+        assert pi.partial_sigs == {}
+        assert pi.sighash_type is None
 
     def test_with_values(self) -> None:
-        mi = MutableInput(
+        pi = PsbtInput(
             non_witness_utxo=b"\x01",
             witness_utxo=b"\x02",
             partial_sigs={b"\x03": b"\x04"},
             sighash_type=1,
         )
-        assert mi.non_witness_utxo == b"\x01"
-        assert mi.sighash_type == 1
+        assert pi.non_witness_utxo == b"\x01"
+        assert pi.sighash_type == 1
 
 
-class TestMutableOutput:
+class TestPsbtOutputDefaults:
     def test_defaults(self) -> None:
-        mo = MutableOutput()
-        assert mo.redeem_script is None
-        assert mo.witness_script is None
+        po = PsbtOutput()
+        assert po.redeem_script is None
+        assert po.witness_script is None
 
     def test_with_values(self) -> None:
-        mo = MutableOutput(redeem_script=b"\x01", witness_script=b"\x02")
-        assert mo.redeem_script == b"\x01"
+        po = PsbtOutput(redeem_script=b"\x01", witness_script=b"\x02")
+        assert po.redeem_script == b"\x01"
 
 
 # ===================================================================
