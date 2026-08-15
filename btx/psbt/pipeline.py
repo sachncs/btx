@@ -7,10 +7,11 @@ parallel (with ``ProcessPoolExecutor`` for CPU-bound work) and
 :func:`process_psbt_batch_with` for parsing and then applying a
 caller-supplied transform to each result.
 
-Both functions return a :class:`PsbtBatchResult` aggregating the
-successfully parsed PSBTs alongside any errors, so a single malformed
-file does not abort the whole batch.  Each batch is tagged with a
-short request ID (UUID4 first 12 hex digits) for log correlation.
+Both functions return a :class:`~btx.signature.pipeline.BatchResult`
+aggregating the successfully parsed PSBTs alongside any errors, so a
+single malformed file does not abort the whole batch.  Each batch is
+tagged with a short request ID (UUID4 first 12 hex digits) for log
+correlation.
 
 The worker function :func:`parse_psbt_worker` is intentionally
 defined at module scope so it can be pickled and dispatched across
@@ -23,31 +24,12 @@ import logging
 import uuid
 from collections.abc import Callable, Sequence
 from concurrent.futures import ProcessPoolExecutor, as_completed
-from dataclasses import dataclass, field
 
 from btx.psbt.models import Psbt
 from btx.psbt.parser import parse_psbt_from_file
+from btx.signature.pipeline import BatchResult
 
 logger = logging.getLogger(__name__)
-
-
-@dataclass(frozen=True, slots=True)
-class PsbtBatchResult:
-    """Result of batch-processing multiple PSBT files.
-
-    Attributes:
-        psbts: Successfully parsed ``Psbt`` instances.
-        errors: Pairs of ``(path, error_message)`` for each failed file.
-        total: Number of files submitted.
-        successful: Number successfully parsed.
-        failed: Number that raised an exception.
-    """
-
-    psbts: list[Psbt] = field(default_factory=list)
-    errors: list[tuple[str, str]] = field(default_factory=list)
-    total: int = 0
-    successful: int = 0
-    failed: int = 0
 
 
 def parse_psbt_worker(path: str) -> Psbt | tuple[str, str]:
@@ -77,7 +59,7 @@ def process_psbt_batch(
     *,
     max_workers: int = 1,
     request_id: str | None = None,
-) -> PsbtBatchResult:
+) -> BatchResult:
     """Parse multiple PSBT files, optionally in parallel.
 
     Args:
@@ -87,7 +69,7 @@ def process_psbt_batch(
         request_id: Optional correlation ID for logging.
 
     Returns:
-        A ``PsbtBatchResult`` aggregating all parsed PSBTs and errors.
+        A ``BatchResult`` aggregating all parsed PSBTs and errors.
     """
     rid = request_id or uuid.uuid4().hex[:12]
     logger.info(
@@ -122,9 +104,9 @@ def process_psbt_batch(
                     all_psbts.append(worker_result)
         successful = len(all_psbts)
 
-    batch_result = PsbtBatchResult(
-        psbts=all_psbts,
-        errors=errors,
+    batch_result = BatchResult(
+        items=tuple(all_psbts),
+        errors=tuple(errors),
         total=len(paths),
         successful=successful,
         failed=len(paths) - successful,
@@ -144,7 +126,7 @@ def process_psbt_batch_with(
     *,
     max_workers: int = 1,
     request_id: str | None = None,
-) -> PsbtBatchResult:
+) -> BatchResult:
     """Parse and transform multiple PSBTs in parallel.
 
     *transform* is called on each successfully parsed PSBT and may
@@ -158,19 +140,20 @@ def process_psbt_batch_with(
         request_id: Optional correlation ID.
 
     Returns:
-        A ``PsbtBatchResult`` with the transformed Psbts.
+        A ``BatchResult`` with the transformed Psbts.
     """
     raw = process_psbt_batch(paths, max_workers=max_workers, request_id=request_id)
     transformed: list[Psbt] = []
-    for psbt in raw.psbts:
+    new_errors: list[tuple[str, str]] = list(raw.errors)
+    for psbt in raw.items:
         try:
             transformed.append(transform(psbt))
         except Exception as exc:
             logger.warning("Transform failed for one PSBT: %s", exc)
-            raw.errors.append(("<transform>", str(exc)))
-    return PsbtBatchResult(
-        psbts=transformed,
-        errors=raw.errors,
+            new_errors.append(("<transform>", str(exc)))
+    return BatchResult(
+        items=tuple(transformed),
+        errors=tuple(new_errors),
         total=raw.total,
         successful=len(transformed),
         failed=raw.total - len(transformed),
@@ -178,7 +161,6 @@ def process_psbt_batch_with(
 
 
 __all__ = [
-    "PsbtBatchResult",
     "process_psbt_batch",
     "process_psbt_batch_with",
 ]

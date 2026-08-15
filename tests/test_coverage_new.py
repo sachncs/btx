@@ -488,7 +488,7 @@ class TestPipeline:
         tx = make_test_tx()
         raw = serialize_tx(tx)
         result = batch_extract([raw.hex()])
-        assert result.total_transactions == 1
+        assert result.total == 1
         assert result.successful == 0
         assert result.failed == 1
         assert "No signatures found" in result.errors[0][1]
@@ -506,7 +506,7 @@ class TestPipeline:
         result = batch_extract(
             [serialize_tx(tx1).hex(), serialize_tx(tx2).hex()],
         )
-        assert result.total_transactions == 2
+        assert result.total == 2
         assert result.failed == 2
 
     def test_batch_extract_with_utxo(self) -> None:
@@ -593,8 +593,8 @@ class TestPipeline:
             sighash_flag=1,
             amount=0,
         )
-        result1 = BatchResult(records=[r1], total_transactions=1, successful=1)
-        result2 = BatchResult(records=[r2], total_transactions=1, successful=1)
+        result1 = BatchResult(items=(r1,), total=1, successful=1)
+        result2 = BatchResult(items=(r2,), total=1, successful=1)
         merged = merge_records([result1, result2])
         assert len(merged) == 2
 
@@ -608,7 +608,7 @@ class TestPipeline:
             sighash_flag=1,
             amount=0,
         )
-        result = BatchResult(records=[rec, rec], total_transactions=2, successful=2)
+        result = BatchResult(items=(rec, rec), total=2, successful=2)
         merged = merge_records([result])
         assert len(merged) == 1
 
@@ -743,7 +743,7 @@ class TestPipeline:
         tx2 = Tx(2, (txin2,), (txout,), 0)
         raw = serialize_legacy_tx(tx2)
         result = batch_extract([raw, raw], max_workers=2)
-        assert result.total_transactions == 2
+        assert result.total == 2
         assert result.successful == 2
         assert result.failed == 0
 
@@ -776,7 +776,7 @@ class TestPipeline:
             fpath = f.name
         try:
             result = batch_extract_from_file(fpath)
-            assert result.total_transactions == 2
+            assert result.total == 2
             assert result.successful == 2
         finally:
             import os

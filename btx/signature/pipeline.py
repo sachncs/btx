@@ -121,19 +121,22 @@ def generate_request_id() -> str:
 class BatchResult:
     """Result of processing multiple transactions.
 
+    Unified batch-result type used by both signature and PSBT
+    pipelines.  ``items`` carries the per-pipeline payload (records
+    for signatures, PSBTs for PSBTs).
+
     Attributes:
-        records: All successfully extracted ``Record`` instances.
-        errors: Pairs of ``(txid_or_hex, error_message)`` for each
-            failed transaction.
-        total_transactions: Total number of transactions submitted.
-        successful: Number of transactions that were processed
-            without error.
-        failed: Number of transactions that raised an exception.
+        items: Successfully processed items (records or PSBTs).
+        errors: Pairs of ``(txid_or_path, error_message)`` for each
+            failed item.
+        total: Total number of items submitted.
+        successful: Number of items processed without error.
+        failed: Number of items that raised an exception.
     """
 
-    records: list[Record] = field(default_factory=list)
-    errors: list[tuple[str, str]] = field(default_factory=list)
-    total_transactions: int = 0
+    items: tuple = ()
+    errors: tuple[tuple[str, str], ...] = ()
+    total: int = 0
     successful: int = 0
     failed: int = 0
 
@@ -346,9 +349,9 @@ def batch_extract(
                         successful += 1
 
     batch_result = BatchResult(
-        records=all_records,
-        errors=errors,
-        total_transactions=n,
+        items=tuple(all_records),
+        errors=tuple(errors),
+        total=n,
         successful=successful,
         failed=n - successful,
     )
@@ -356,8 +359,8 @@ def batch_extract(
         "[%s] Batch complete: %d / %d successful, %d errors.",
         rid,
         batch_result.successful,
-        batch_result.total_transactions,
-        len(batch_result.errors),
+batch_result.total,
+            len(batch_result.errors),
     )
     return batch_result
 
@@ -421,7 +424,7 @@ def merge_records(results: Sequence[BatchResult]) -> list[Record]:
     merged: list[Record] = []
 
     for result in results:
-        for rec in result.records:
+        for rec in result.items:
             key = (rec.txid, rec.input_index)
             if key not in seen:
                 seen.add(key)
