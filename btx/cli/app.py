@@ -55,22 +55,38 @@ configuration.  Mutated only through :func:`configure_logging`.
 """
 
 
-class JSONFormatter(logging.Formatter):
-    """Produces JSON log entries for structured ingestion (ELK, Datadog, etc.)."""
+def format_json(record: logging.LogRecord) -> str:
+    """Format a :class:`logging.LogRecord` as a JSON string.
+
+    Produces structured log entries suitable for ingestion by log
+    aggregators (ELK, Datadog, etc.).
+
+    Args:
+        record: The log record to serialize.
+
+    Returns:
+        A JSON-encoded string with the standard structured fields.
+    """
+    return json.dumps(
+        {
+            "timestamp": datetime.fromtimestamp(record.created, tz=UTC).isoformat(),
+            "level": record.levelname,
+            "logger": record.name,
+            "module": record.module,
+            "function": record.funcName,
+            "line": record.lineno,
+            "message": record.getMessage(),
+        },
+        default=str,
+    )
+
+
+class JsonFormatter(logging.Formatter):
+    """Logging formatter that delegates to :func:`format_json`."""
 
     def format(self, record: logging.LogRecord) -> str:
-        return json.dumps(
-            {
-                "timestamp": datetime.fromtimestamp(record.created, tz=UTC).isoformat(),
-                "level": record.levelname,
-                "logger": record.name,
-                "module": record.module,
-                "function": record.funcName,
-                "line": record.lineno,
-                "message": record.getMessage(),
-            },
-            default=str,
-        )
+        """Format *record* by delegating to :func:`format_json`."""
+        return format_json(record)
 
 
 def configure_logging() -> None:
@@ -87,14 +103,14 @@ def configure_logging() -> None:
 
     Side effects:
         Sets the module-level :data:`LOGGING_CONFIGURED` flag and
-        installs a :class:`JSONFormatter` handler on the ``btx``
+        installs a :class:`JsonFormatter` handler on the ``btx``
         logger.
     """
     global LOGGING_CONFIGURED
     if LOGGING_CONFIGURED:
         return
     handler = logging.StreamHandler()
-    handler.setFormatter(JSONFormatter())
+    handler.setFormatter(JsonFormatter())
     root = logging.getLogger("btx")
     new_level = os.getenv("BTX_LOG_LEVEL")
     legacy_level = os.getenv("BITCOIN_LOG_LEVEL")
