@@ -6,7 +6,7 @@ from __future__ import annotations
 
 import pytest
 
-from bitcoin import (
+from btx import (
     SIGHASH_ALL,
     SIGHASH_ANYONECANPAY,
     SIGHASH_NONE,
@@ -23,7 +23,7 @@ from bitcoin import (
     sighash_segwit,
     sighash_taproot,
 )
-from bitcoin.curve import GENERATOR
+from btx.curve import GENERATOR
 
 
 class TestExtractSignatures:

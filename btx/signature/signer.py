@@ -31,12 +31,12 @@ from __future__ import annotations
 import hmac
 from typing import TYPE_CHECKING
 
-from bitcoin.curve import CURVE_ORDER, GENERATOR, multiply
-from bitcoin.encoding.der import encode_der
-from bitcoin.signature.extraction.engine import compute_sighash
+from btx.curve import CURVE_ORDER, GENERATOR, multiply
+from btx.encoding.der import encode_der
+from btx.signature.extraction.engine import compute_sighash
 
 if TYPE_CHECKING:
-    from bitcoin.transaction.models import Tx
+    from btx.transaction.models import Tx
 
 HASH_BYTE_LENGTH = 32
 HMAC_DRBG_MAX_RETRIES = 1000

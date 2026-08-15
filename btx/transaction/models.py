@@ -30,7 +30,7 @@ from dataclasses import dataclass
 from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
-    from bitcoin.transaction.tx_services import TxRbf, TxSerializer, TxSighash
+    from btx.transaction.tx_services import TxRbf, TxSerializer, TxSighash
 
 
 @dataclass(frozen=True, slots=True)
@@ -135,7 +135,7 @@ class Tx:
         Returns:
             A ``TxSerializer`` instance bound to this transaction.
         """
-        from bitcoin.transaction.tx_services import TxSerializer
+        from btx.transaction.tx_services import TxSerializer
 
         return TxSerializer(self)
 
@@ -146,7 +146,7 @@ class Tx:
         Returns:
             A ``TxRbf`` instance bound to this transaction.
         """
-        from bitcoin.transaction.tx_services import TxRbf
+        from btx.transaction.tx_services import TxRbf
 
         return TxRbf(self)
 
@@ -157,7 +157,7 @@ class Tx:
         Returns:
             A ``TxSighash`` instance bound to this transaction.
         """
-        from bitcoin.transaction.tx_services import TxSighash
+        from btx.transaction.tx_services import TxSighash
 
         return TxSighash(self)
 
@@ -177,8 +177,8 @@ class Tx:
         Returns:
             32-byte transaction hash.
         """
-        from bitcoin.encoding.hasher import hash256
-        from bitcoin.services.serializer import serialize_legacy_tx
+        from btx.encoding.hasher import hash256
+        from btx.services.serializer import serialize_legacy_tx
 
         return hash256(serialize_legacy_tx(self))
 
@@ -190,7 +190,7 @@ class Tx:
         Returns:
             32-byte witness transaction hash.
         """
-        from bitcoin.encoding.hasher import hash256
-        from bitcoin.services.serializer import serialize_tx
+        from btx.encoding.hasher import hash256
+        from btx.services.serializer import serialize_tx
 
         return hash256(serialize_tx(self))

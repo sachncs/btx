@@ -1,6 +1,6 @@
 # Copyright (c) 2026 secp contributors
 # SPDX-License-Identifier: MIT
-"""Exception hierarchy for the bitcoin package.
+"""Exception hierarchy for the btx package.
 
 A small tree of domain exceptions rooted at :exc:`BitcoinError`,
 which itself inherits from :exc:`ValueError` so it integrates
@@ -32,7 +32,7 @@ __all__ = [
 
 
 class BitcoinError(ValueError):
-    """Base exception for all bitcoin package errors."""
+    """Base exception for all btx package errors."""
 
 
 class NotInvertible(BitcoinError):  # noqa: N818

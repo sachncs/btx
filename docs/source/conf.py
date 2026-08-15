@@ -1,4 +1,4 @@
-"""Sphinx configuration for the bitcoin library documentation."""
+"""Sphinx configuration for the btx library documentation."""
 
 from __future__ import annotations
 
@@ -7,12 +7,12 @@ import sys
 
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "..")))
 
-import bitcoin  # noqa: E402
+import btx  # noqa: E402
 
-project = "bitcoin"
+project = "btx"
 copyright = "2026, secp contributors"
 author = "secp contributors"
-release = bitcoin.__version__
+release = btx.__version__
 
 extensions = [
     "sphinx.ext.autodoc",

@@ -13,8 +13,8 @@ all extractor plugins must satisfy, plus a tiny in-memory registry:
 
 The five built-in extractors (Legacy, P2WPKH, P2WSH, P2SH-SegWit,
 Taproot) are registered automatically by
-:func:`bitcoin.signature.extraction.engine.register_builtin_extractors`,
-which is called by :func:`~bitcoin.signature.extraction.engine.extract_signatures`
+:func:`btx.signature.extraction.engine.register_builtin_extractors`,
+which is called by :func:`~btx.signature.extraction.engine.extract_signatures`
 on first use.  External code can register additional plugins to
 support new script types without modifying this library.
 """
@@ -23,8 +23,8 @@ from __future__ import annotations
 
 from typing import Protocol, runtime_checkable
 
-from bitcoin.signature.record import Record
-from bitcoin.transaction.models import Tx, TxIn
+from btx.signature.record import Record
+from btx.transaction.models import Tx, TxIn
 
 
 @runtime_checkable
@@ -67,7 +67,7 @@ class ExtractorPlugin(Protocol):
             value: The UTXO value in satoshis (for SegWit sighash).
 
         Returns:
-            A list of :class:`~bitcoin.signature.record.Record`
+            A list of :class:`~btx.signature.record.Record`
             instances.  Returning an empty list means "no signatures
             discovered" rather than "plugin does not apply".
         """

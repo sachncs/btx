@@ -3,7 +3,7 @@
 """Engine for canonical sorting of extracted signature records.
 
 Provides :func:`linearize_signatures`, which returns a new list of
-:class:`~bitcoin.signature.record.Record` instances sorted by
+:class:`~btx.signature.record.Record` instances sorted by
 ``(txid, input_index)``.  The sort key is exposed separately as
 :func:`record_sort_key` so callers can use the same ordering in their
 own code.
@@ -24,7 +24,7 @@ from __future__ import annotations
 from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
-    from bitcoin.signature.record import Record
+    from btx.signature.record import Record
 
 
 def linearize_signatures(records: list[Record]) -> list[Record]:

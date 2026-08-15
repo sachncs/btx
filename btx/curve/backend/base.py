@@ -16,8 +16,8 @@ primitive needed by the rest of the library:
 - :meth:`~CurveBackend.serialize_sec` – SEC-1 public-key serializer.
 
 Backends are typically used through the module-level dispatch in
-:mod:`bitcoin.curve.dispatch`, which exposes a process-wide singleton
-that callers can swap with :func:`~bitcoin.curve.dispatch.set_backend`.
+:mod:`btx.curve.dispatch`, which exposes a process-wide singleton
+that callers can swap with :func:`~btx.curve.dispatch.set_backend`.
 """
 
 from __future__ import annotations
@@ -26,7 +26,7 @@ from abc import ABC, abstractmethod
 from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
-    from bitcoin.curve.point import Point
+    from btx.curve.point import Point
 
 
 class CurveBackend(ABC):

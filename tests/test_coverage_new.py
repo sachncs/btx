@@ -9,17 +9,17 @@ from unittest.mock import MagicMock, patch
 
 import pytest
 
-from bitcoin.curve import GENERATOR, multiply
-from bitcoin.curve.params import FIELD_PRIME
-from bitcoin.encoding.der import encode_der
-from bitcoin.encoding.hasher import hash256, sha256
-from bitcoin.psbt import Psbt, PsbtEditor, PsbtInput, PsbtOutput
-from bitcoin.psbt.editor import MutableInput, MutableOutput
-from bitcoin.script import (
+from btx.curve import GENERATOR, multiply
+from btx.curve.params import FIELD_PRIME
+from btx.encoding.der import encode_der
+from btx.encoding.hasher import hash256, sha256
+from btx.psbt import Psbt, PsbtEditor, PsbtInput, PsbtOutput
+from btx.psbt.editor import MutableInput, MutableOutput
+from btx.script import (
     build_p2pkh,
     build_p2wpkh,
 )
-from bitcoin.script.classifier import (
+from btx.script.classifier import (
     MULTISIG,
     NON_STANDARD,
     P2PK,
@@ -38,13 +38,13 @@ from bitcoin.script.classifier import (
     is_p2sh,
     parse_p2pkh_script_sig,
 )
-from bitcoin.script.taproot import (
+from btx.script.taproot import (
     TaprootScriptPath,
     extract_taproot_scripts,
     get_x_only_pubkey,
     parse_taproot_witness_stack,
 )
-from bitcoin.services.blockchain import (
+from btx.services.blockchain import (
     BlockchainInfoProvider,
     BlockstreamProvider,
     MempoolSpaceProvider,
@@ -52,9 +52,9 @@ from bitcoin.services.blockchain import (
     fetch_and_extract,
     fetch_text,
 )
-from bitcoin.services.serializer import serialize_legacy_tx, serialize_tx
-from bitcoin.sighash.flag import SIGHASH_ALL
-from bitcoin.signature import (
+from btx.services.serializer import serialize_legacy_tx, serialize_tx
+from btx.sighash.flag import SIGHASH_ALL
+from btx.signature import (
     Record,
     batch_extract,
     batch_extract_from_file,
@@ -64,16 +64,16 @@ from bitcoin.signature import (
     sign_tx_input,
     verify_sig,
 )
-from bitcoin.signature.batch_verify import batch_verify
-from bitcoin.signature.extraction.plugins import (
+from btx.signature.batch_verify import batch_verify
+from btx.signature.extraction.plugins import (
     ExtractorPlugin,
     get_plugin,
     list_plugins,
     register_plugin,
     unregister_plugin,
 )
-from bitcoin.signature.pipeline import BatchResult
-from bitcoin.transaction import (
+from btx.signature.pipeline import BatchResult
+from btx.transaction import (
     OutPoint,
     TransactionBuilder,
     Tx,
@@ -85,7 +85,7 @@ from bitcoin.transaction import (
     make_tx,
     tx_from_dict,
 )
-from bitcoin.transaction.models import EMPTY_WITNESS
+from btx.transaction.models import EMPTY_WITNESS
 
 # ── helpers ────────────────────────────────────────────────────────
 
@@ -549,10 +549,10 @@ class TestPipeline:
         assert result.failed == 2
 
     def test_batch_extract_from_file_with_comments(self, tmp_path: object) -> None:
-        from bitcoin.script import build_p2pkh
-        from bitcoin.script.parser import serialize_script
-        from bitcoin.services.serializer import serialize_legacy_tx
-        from bitcoin.transaction.models import OutPoint, Tx, TxIn, TxOut, Witness
+        from btx.script import build_p2pkh
+        from btx.script.parser import serialize_script
+        from btx.services.serializer import serialize_legacy_tx
+        from btx.transaction.models import OutPoint, Tx, TxIn, TxOut, Witness
 
         priv = 42
         txin = TxIn(OutPoint(b"\x01" * 32, 0), b"", 0xFFFFFFFF, Witness(()))
@@ -678,7 +678,7 @@ class TestPipeline:
 
     def test_extract_r_from_record_schnorr(self) -> None:
         """extract_r_from_record handles 64-byte Schnorr signatures."""
-        from bitcoin.signature.pipeline import extract_r_from_record
+        from btx.signature.pipeline import extract_r_from_record
 
         r_val = 42
         sig_64 = r_val.to_bytes(32, "big") + b"\x00" * 32
@@ -695,7 +695,7 @@ class TestPipeline:
 
     def test_extract_r_from_record_der(self) -> None:
         """extract_r_from_record handles DER-encoded ECDSA signatures."""
-        from bitcoin.signature.pipeline import extract_r_from_record
+        from btx.signature.pipeline import extract_r_from_record
 
         rec = Record(
             txid=b"\x01" * 32,
@@ -710,7 +710,7 @@ class TestPipeline:
 
     def test_extract_r_from_record_bad(self) -> None:
         """extract_r_from_record returns None for invalid sigs."""
-        from bitcoin.signature.pipeline import extract_r_from_record
+        from btx.signature.pipeline import extract_r_from_record
 
         rec = Record(
             txid=b"\x01" * 32,
@@ -725,11 +725,11 @@ class TestPipeline:
 
     def test_batch_extract_threaded(self) -> None:
         """batch_extract with multiple workers processes successfully."""
-        from bitcoin.script import build_p2pkh
-        from bitcoin.script.parser import serialize_script
-        from bitcoin.services.serializer import serialize_legacy_tx
-        from bitcoin.signature.pipeline import batch_extract
-        from bitcoin.transaction.models import OutPoint, Tx, TxIn, TxOut, Witness
+        from btx.script import build_p2pkh
+        from btx.script.parser import serialize_script
+        from btx.services.serializer import serialize_legacy_tx
+        from btx.signature.pipeline import batch_extract
+        from btx.transaction.models import OutPoint, Tx, TxIn, TxOut, Witness
 
         priv = 42
         txin = TxIn(OutPoint(b"\x01" * 32, 0), b"", 0xFFFFFFFF, Witness(()))
@@ -750,11 +750,11 @@ class TestPipeline:
         """batch_extract_from_file reads hex txs from a file (2)."""
         import tempfile
 
-        from bitcoin.script import build_p2pkh
-        from bitcoin.script.parser import serialize_script
-        from bitcoin.services.serializer import serialize_legacy_tx
-        from bitcoin.signature.pipeline import batch_extract_from_file
-        from bitcoin.transaction.models import OutPoint, Tx, TxIn, TxOut, Witness
+        from btx.script import build_p2pkh
+        from btx.script.parser import serialize_script
+        from btx.services.serializer import serialize_legacy_tx
+        from btx.signature.pipeline import batch_extract_from_file
+        from btx.transaction.models import OutPoint, Tx, TxIn, TxOut, Witness
 
         priv = 42
         txin = TxIn(OutPoint(b"\x01" * 32, 0), b"", 0xFFFFFFFF, Witness(()))
@@ -804,7 +804,7 @@ def make_tx_json(txid: str) -> dict:
 class TestBlockstreamProvider:
     def test_get_transaction_hex(self) -> None:
         with patch(
-            "bitcoin.services.blockchain.fetch_text",
+            "btx.services.blockchain.fetch_text",
             return_value="01000000...",
         ) as mock_fetch:
             p = BlockstreamProvider()
@@ -858,7 +858,7 @@ class TestBlockstreamProvider:
 
     def test_fetch_tx_json_invalid_json(self) -> None:
         with patch(
-            "bitcoin.services.blockchain.fetch_text",
+            "btx.services.blockchain.fetch_text",
             return_value="not json",
         ):
             p = BlockstreamProvider()
@@ -869,7 +869,7 @@ class TestBlockstreamProvider:
 class TestBlockchainInfoProvider:
     def test_get_transaction_hex(self) -> None:
         with patch(
-            "bitcoin.services.blockchain.fetch_text",
+            "btx.services.blockchain.fetch_text",
             return_value="01000000...",
         ):
             p = BlockchainInfoProvider()
@@ -935,7 +935,7 @@ class TestBlockchainInfoProvider:
 class TestMempoolSpaceProvider:
     def test_get_transaction_hex(self) -> None:
         with patch(
-            "bitcoin.services.blockchain.fetch_text",
+            "btx.services.blockchain.fetch_text",
             return_value="01000000...",
         ):
             p = MempoolSpaceProvider()
@@ -992,7 +992,7 @@ class TestFetchText:
         from http.client import HTTPMessage
         from urllib.error import HTTPError
 
-        with patch("bitcoin.services.blockchain.urlopen") as mock:
+        with patch("btx.services.blockchain.urlopen") as mock:
             mock.side_effect = HTTPError(
                 "http://example.com",
                 404,
@@ -1006,7 +1006,7 @@ class TestFetchText:
     def test_url_error(self) -> None:
         from urllib.error import URLError
 
-        with patch("bitcoin.services.blockchain.urlopen") as mock:
+        with patch("btx.services.blockchain.urlopen") as mock:
             mock.side_effect = URLError("connection failed")
             with pytest.raises(OSError, match="URL error"):
                 fetch_text("http://example.com")
@@ -1015,13 +1015,13 @@ class TestFetchText:
         mock_resp = MagicMock()
         mock_resp.read.return_value = b"response data"
         mock_resp.__enter__.return_value = mock_resp
-        with patch("bitcoin.services.blockchain.urlopen", return_value=mock_resp):
+        with patch("btx.services.blockchain.urlopen", return_value=mock_resp):
             result = fetch_text("http://example.com")
             assert result == "response data"
 
     def test_fetch_tx_json_invalid_json(self) -> None:
         with patch(
-            "bitcoin.services.blockchain.fetch_text",
+            "btx.services.blockchain.fetch_text",
             return_value="not json",
         ):
             p = MempoolSpaceProvider()
@@ -1044,7 +1044,7 @@ class TestEnrichTransaction:
         tx = make_test_tx()
         raw = serialize_tx(tx).hex()
         with patch(
-            "bitcoin.services.blockchain.fetch_text",
+            "btx.services.blockchain.fetch_text",
             return_value="01000000...",
         ):
             with pytest.raises((OSError, ValueError)):
@@ -1534,7 +1534,7 @@ class TestRBF:
 
 
 # ===================================================================
-# Point caching (bitcoin/curve/operations.py)
+# Point caching (btx/curve/operations.py)
 # ===================================================================
 
 
@@ -1555,7 +1555,7 @@ class TestMultiplyCache:
 
 class TestSchnorrAdditional:
     def test_lift_x_invalid(self) -> None:
-        from bitcoin.signature.schnorr import lift_x as lift_x_fn
+        from btx.signature.schnorr import lift_x as lift_x_fn
 
         assert lift_x_fn(FIELD_PRIME) is None
         # Find a non-QR x
@@ -1567,19 +1567,19 @@ class TestSchnorrAdditional:
                 return
 
     def test_verify_schnorr_bad_lengths(self) -> None:
-        from bitcoin.signature.schnorr import verify_schnorr_sig as vss
+        from btx.signature.schnorr import verify_schnorr_sig as vss
 
         assert not vss(b"\x00" * 31, b"\x00" * 64, b"\x00" * 32)
         assert not vss(b"\x00" * 32, b"\x00" * 63, b"\x00" * 32)
         assert not vss(b"\x00" * 32, b"\x00" * 64, b"\x00" * 31)
 
     def test_verify_schnorr_bad_pubkey(self) -> None:
-        from bitcoin.signature.schnorr import verify_schnorr_sig as vss
+        from btx.signature.schnorr import verify_schnorr_sig as vss
 
         assert not vss(b"\xff" * 32, b"\x00" * 64, b"\x00" * 32)
 
     def test_verify_schnorr_bad_r(self) -> None:
-        from bitcoin.signature.schnorr import verify_schnorr_sig as vss
+        from btx.signature.schnorr import verify_schnorr_sig as vss
 
         assert not vss(
             b"\x00" * 32,
@@ -1619,7 +1619,7 @@ class TestSignerEdge:
 
 class TestPsbtExtractSignatures:
     def test_psbt_extract_signatures(self) -> None:
-        from bitcoin.psbt.parser import psbt_extract_signatures
+        from btx.psbt.parser import psbt_extract_signatures
 
         tx = make_test_tx()
         raw = serialize_legacy_tx(tx)

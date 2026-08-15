@@ -3,16 +3,16 @@
 """Miniscript descriptor compiler and analyzer.
 
 Supports a subset of the Bitcoin Miniscript language (see
-https://bitcoin.sipa.be/miniscript/) for expressing spending
+https://btx.sipa.be/miniscript/) for expressing spending
 conditions and converting them to:
 
 - **Bitcoin Script** – :func:`compile_descriptor` from
-  :mod:`bitcoin.descriptor.compiler` produces an assembly-style string
+  :mod:`btx.descriptor.compiler` produces an assembly-style string
   with placeholders for keys and hashes.  The internal helpers
   :func:`split_args` and :func:`emit_script` are also re-exported for
   callers that want to drive the compiler from a pre-parsed AST.
 - **Structured analysis** – :func:`analyze_descriptor` from
-  :mod:`bitcoin.descriptor.analyzer` extracts the script type, public
+  :mod:`btx.descriptor.analyzer` extracts the script type, public
   keys, timelock / hash-lock flags, and an estimate of the minimum
   satisfaction size.  The internal helpers :func:`collect_info`,
   :func:`collect_keys`, :func:`contains_op`, :func:`estimate_satisfaction`,
@@ -30,7 +30,7 @@ descriptor patterns used in production wallets, but not a full
 Miniscript implementation.
 """
 
-from bitcoin.descriptor.analyzer import (
+from btx.descriptor.analyzer import (
     ESTIMATED_SATISFACTION,
     DescriptorInfo,
     analyze_descriptor,
@@ -41,7 +41,7 @@ from bitcoin.descriptor.analyzer import (
     extract_keys,
     sorted_unique,
 )
-from bitcoin.descriptor.compiler import (
+from btx.descriptor.compiler import (
     DescriptorError,
     DescriptorNode,
     compile_descriptor,

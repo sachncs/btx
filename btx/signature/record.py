@@ -26,10 +26,10 @@ from __future__ import annotations
 from dataclasses import dataclass
 from typing import TYPE_CHECKING
 
-from bitcoin.encoding.der import decode_der
+from btx.encoding.der import decode_der
 
 if TYPE_CHECKING:
-    from bitcoin.curve.point import Point
+    from btx.curve.point import Point
 
 
 @dataclass(frozen=True, slots=True)

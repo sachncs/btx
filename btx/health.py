@@ -28,8 +28,8 @@ from typing import Any
 
 def check_backend() -> dict[str, Any]:
     """Return status of curve backends."""
-    from bitcoin.curve.backend.libsec import LibsecpBackend
-    from bitcoin.curve.backend.native import NativeBackend
+    from btx.curve.backend.libsec import LibsecpBackend
+    from btx.curve.backend.native import NativeBackend
 
     status: dict[str, Any] = {}
     try:
@@ -56,16 +56,16 @@ def check_backend() -> dict[str, Any]:
 def check_imports() -> dict[str, bool]:
     """Check that all submodules can be imported."""
     modules = [
-        "bitcoin.curve",
-        "bitcoin.encoding",
-        "bitcoin.field",
-        "bitcoin.script",
-        "bitcoin.sighash",
-        "bitcoin.signature",
-        "bitcoin.transaction",
-        "bitcoin.psbt",
-        "bitcoin.services",
-        "bitcoin.cli",
+        "btx.curve",
+        "btx.encoding",
+        "btx.field",
+        "btx.script",
+        "btx.sighash",
+        "btx.signature",
+        "btx.transaction",
+        "btx.psbt",
+        "btx.services",
+        "btx.cli",
     ]
     import importlib
 
@@ -83,10 +83,10 @@ def check_imports() -> dict[str, bool]:
 
 def health() -> dict[str, Any]:
     """Run all health checks and return a comprehensive status dict."""
-    from bitcoin.curve import GENERATOR, multiply
+    from btx.curve import GENERATOR, multiply
 
     status: dict[str, Any] = {
-        "version": importlib.metadata.version("bitcoin"),
+        "version": importlib.metadata.version("btx"),
         "imports": check_imports(),
         "backends": check_backend(),
     }

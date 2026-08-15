@@ -19,7 +19,7 @@ Reference: BIP-141 "Segregated Witness".
 
 from __future__ import annotations
 
-from bitcoin.transaction.models import Tx, TxOut
+from btx.transaction.models import Tx, TxOut
 
 WITNESS_SCALE_FACTOR = 4
 BASE_VBYTE_SIZE = 10  # version (4) + flags (2) + lock_time (4)

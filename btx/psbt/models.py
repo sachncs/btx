@@ -29,7 +29,7 @@ from dataclasses import dataclass, field
 from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
-    from bitcoin.signature.collection import SignatureCollection
+    from btx.signature.collection import SignatureCollection
 
 
 @dataclass(frozen=True, slots=True)
@@ -68,7 +68,7 @@ class PsbtInput:
         Returns:
             The serialized input map bytes.
         """
-        from bitcoin.psbt.parser import serialize_input_map
+        from btx.psbt.parser import serialize_input_map
 
         return serialize_input_map(self)
 
@@ -97,7 +97,7 @@ class PsbtOutput:
         Returns:
             The serialized output map bytes.
         """
-        from bitcoin.psbt.parser import serialize_output_map
+        from btx.psbt.parser import serialize_output_map
 
         return serialize_output_map(self)
 
@@ -136,7 +136,7 @@ class Psbt:
         Returns:
             The serialized PSBT bytes.
         """
-        from bitcoin.psbt.parser import serialize_psbt
+        from btx.psbt.parser import serialize_psbt
 
         return serialize_psbt(self)
 
@@ -153,6 +153,6 @@ class Psbt:
         Returns:
             A ``SignatureCollection`` containing all extracted records.
         """
-        from bitcoin.psbt.parser import psbt_extract_signatures
+        from btx.psbt.parser import psbt_extract_signatures
 
         return psbt_extract_signatures(self, input_values=input_values)

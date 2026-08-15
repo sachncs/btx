@@ -23,7 +23,7 @@ Given two signatures ``(r, s, z)`` produced by the same private key
   Implemented by :func:`recover_from_related_nonces`.
 
 :func:`detect_nonce_reuse` scans a
-:class:`~bitcoin.signature.linearization.coefficients.LinearCoefficientCollection`
+:class:`~btx.signature.linearization.coefficients.LinearCoefficientCollection`
 and returns all groups of two-or-more signatures sharing an ``r``
 value, sorted by descending group size.
 
@@ -50,10 +50,10 @@ from __future__ import annotations
 from collections import defaultdict
 from dataclasses import dataclass
 
-from bitcoin.curve.params import CURVE_ORDER
-from bitcoin.exceptions import BitcoinError
-from bitcoin.field import inverse as field_inverse
-from bitcoin.signature.linearization.coefficients import (
+from btx.curve.params import CURVE_ORDER
+from btx.exceptions import BitcoinError
+from btx.field import inverse as field_inverse
+from btx.signature.linearization.coefficients import (
     LinearCoefficientCollection,
     LinearCoefficientRecord,
 )

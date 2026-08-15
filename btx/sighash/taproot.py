@@ -36,9 +36,9 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING
 
-from bitcoin.encoding.hasher import tagged_hash
-from bitcoin.encoding.varint import encode_varint
-from bitcoin.sighash.flag import (
+from btx.encoding.hasher import tagged_hash
+from btx.encoding.varint import encode_varint
+from btx.sighash.flag import (
     SIGHASH_ANYONECANPAY,
     SIGHASH_MASK,
     SIGHASH_NONE,
@@ -46,7 +46,7 @@ from bitcoin.sighash.flag import (
 )
 
 if TYPE_CHECKING:
-    from bitcoin.transaction.models import Tx
+    from btx.transaction.models import Tx
 
 NO_CODESEPARATOR = 0xFFFFFFFF
 

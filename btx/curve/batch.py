@@ -18,7 +18,7 @@ Algorithms:
   bit-length ``s``, much better than ``O(n · s)`` for sequential
   scalar multiplications.
 - :func:`batch_validate` is a convenience wrapper that calls the
-  (cached) :func:`bitcoin.curve.dispatch.is_on_curve` dispatch for
+  (cached) :func:`btx.curve.dispatch.is_on_curve` dispatch for
   each point.
 - :func:`batch_normalize` reduces every affine coordinate modulo
   ``FIELD_PRIME`` in a single pass; useful after arithmetic that may
@@ -27,8 +27,8 @@ Algorithms:
 
 from __future__ import annotations
 
-from bitcoin.curve.dispatch import add, double
-from bitcoin.curve.point import Point
+from btx.curve.dispatch import add, double
+from btx.curve.point import Point
 
 INFINITY = Point(infinity=True)
 
@@ -89,7 +89,7 @@ def batch_validate(points: list[Point]) -> list[bool]:
     Returns:
         A list of booleans parallel to *points*.
     """
-    from bitcoin.curve.dispatch import is_on_curve
+    from btx.curve.dispatch import is_on_curve
 
     return [is_on_curve(p) for p in points]
 
@@ -103,7 +103,7 @@ def batch_normalize(points: list[Point]) -> list[Point]:
     Returns:
         A list of normalized points.
     """
-    from bitcoin.curve.dispatch import normalize
+    from btx.curve.dispatch import normalize
 
     result: list[Point] = []
     for p in points:

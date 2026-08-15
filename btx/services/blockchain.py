@@ -47,15 +47,15 @@ from typing import TYPE_CHECKING, Any, Protocol, runtime_checkable
 from urllib.error import HTTPError, URLError
 from urllib.request import Request, urlopen
 
-from bitcoin.encoding.hex import decode_hex, encode_hex
-from bitcoin.transaction.parser import parse_tx
+from btx.encoding.hex import decode_hex, encode_hex
+from btx.transaction.parser import parse_tx
 
 if TYPE_CHECKING:
-    from bitcoin.signature.record import Record
+    from btx.signature.record import Record
 
 logger = logging.getLogger(__name__)
 
-USER_AGENT = "bitcoin/0.4.0 (+https://github.com/sachncs/bitcoin)"
+USER_AGENT = "btx/0.4.0 (+https://github.com/sachncs/btx)"
 HTTP_TIMEOUT = 30
 MAX_RETRIES = 3
 RETRY_BACKOFF = 1.0  # seconds
@@ -653,7 +653,7 @@ def fetch_and_extract(
     raw = decode_hex(tx_hex.strip())
     tx, _ = parse_tx(raw)
 
-    from bitcoin.signature.extraction.engine import extract_signatures
+    from btx.signature.extraction.engine import extract_signatures
 
     return extract_signatures(tx, utxo_script_pubkeys=scripts, utxo_values=values)
 

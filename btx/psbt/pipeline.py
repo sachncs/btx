@@ -25,8 +25,8 @@ from collections.abc import Callable, Sequence
 from concurrent.futures import ProcessPoolExecutor, as_completed
 from dataclasses import dataclass, field
 
-from bitcoin.psbt.models import Psbt
-from bitcoin.psbt.parser import parse_psbt_from_file
+from btx.psbt.models import Psbt
+from btx.psbt.parser import parse_psbt_from_file
 
 logger = logging.getLogger(__name__)
 

@@ -24,11 +24,11 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING, Any
 
-from bitcoin.encoding.hex import encode_hex
-from bitcoin.encoding.varint import encode_varint
+from btx.encoding.hex import encode_hex
+from btx.encoding.varint import encode_varint
 
 if TYPE_CHECKING:
-    from bitcoin.transaction.models import Tx
+    from btx.transaction.models import Tx
 
 
 def serialize_tx(tx: Tx) -> bytes:
@@ -162,7 +162,7 @@ def serialize_legacy_tx_for_sighash(
         ValueError: If ``SIGHASH_SINGLE`` is used and *input_index* is
             out of bounds for the outputs.
     """
-    from bitcoin.sighash.flag import (
+    from btx.sighash.flag import (
         SIGHASH_ANYONECANPAY,
         SIGHASH_MASK,
         SIGHASH_NONE,

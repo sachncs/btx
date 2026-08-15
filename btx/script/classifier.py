@@ -19,7 +19,7 @@ the script via a Bitcoin node.
 
 from __future__ import annotations
 
-from bitcoin.script.opcodes import (
+from btx.script.opcodes import (
     OP_0,
     OP_1,
     OP_CHECKLOCKTIMEVERIFY,

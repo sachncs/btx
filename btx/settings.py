@@ -1,6 +1,6 @@
 # Copyright (c) 2026 secp contributors
 # SPDX-License-Identifier: MIT
-"""Application-wide settings singleton for the bitcoin package.
+"""Application-wide settings singleton for the btx package.
 
 A small, mutable, thread-safe configuration holder exposed as the
 module-level :data:`settings` instance.  Three knobs are currently

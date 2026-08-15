@@ -8,26 +8,26 @@ containing the ``(r, s, z)`` triple needed for nonce-reuse analysis.
 
 Submodules:
 
-- :mod:`bitcoin.signature.record` – the :class:`Record` dataclass and
+- :mod:`btx.signature.record` – the :class:`Record` dataclass and
   its convenience properties.
-- :mod:`bitcoin.signature.collection` – :class:`SignatureCollection`
+- :mod:`btx.signature.collection` – :class:`SignatureCollection`
   and the ``sort_records`` helper.
-- :mod:`bitcoin.signature.check` – ECDSA verification and public-key
+- :mod:`btx.signature.check` – ECDSA verification and public-key
   recovery from signatures.
-- :mod:`bitcoin.signature.batch_verify` – sequential verification of
+- :mod:`btx.signature.batch_verify` – sequential verification of
   multiple signatures.
-- :mod:`bitcoin.signature.schnorr` – BIP-340 Schnorr verification and
+- :mod:`btx.signature.schnorr` – BIP-340 Schnorr verification and
   the ``lift_x`` helper.
-- :mod:`bitcoin.signature.signer` – RFC-6979 deterministic ECDSA
+- :mod:`btx.signature.signer` – RFC-6979 deterministic ECDSA
   signing and the high-level :func:`sign_tx_input` helper.
-- :mod:`bitcoin.signature.extraction` – :class:`ExtractorPlugin`
+- :mod:`btx.signature.extraction` – :class:`ExtractorPlugin`
   registry and the polymorphic ``extract_signatures`` dispatcher
   that handles every standard script type.
-- :mod:`bitcoin.signature.linearization` – derivation of the
+- :mod:`btx.signature.linearization` – derivation of the
   ``(α, β)`` linear coefficients used by the nonce-reuse attack.
-- :mod:`bitcoin.signature.attack` – nonce-reuse detection and
+- :mod:`btx.signature.attack` – nonce-reuse detection and
   private-key recovery.
-- :mod:`bitcoin.signature.pipeline` – batch and parallel extraction
+- :mod:`btx.signature.pipeline` – batch and parallel extraction
   with graceful shutdown, per-batch logging, and cross-transaction
   correlation.
 
@@ -37,22 +37,22 @@ the lineariser produces the algebraic coefficients.  This lets
 attack code work on either form without depending on parsing logic.
 """
 
-from bitcoin.signature.attack import NonceReuseGroup
-from bitcoin.signature.batch_verify import batch_verify, verify_all
-from bitcoin.signature.check import recover_public_key, verify_sig
-from bitcoin.signature.collection import SignatureCollection
-from bitcoin.signature.extraction import extract_signatures
-from bitcoin.signature.linearization import linearize_signatures
-from bitcoin.signature.pipeline import (
+from btx.signature.attack import NonceReuseGroup
+from btx.signature.batch_verify import batch_verify, verify_all
+from btx.signature.check import recover_public_key, verify_sig
+from btx.signature.collection import SignatureCollection
+from btx.signature.extraction import extract_signatures
+from btx.signature.linearization import linearize_signatures
+from btx.signature.pipeline import (
     BatchResult,
     batch_extract,
     batch_extract_from_file,
     correlate_across_transactions,
     merge_records,
 )
-from bitcoin.signature.record import Record
-from bitcoin.signature.schnorr import lift_x, verify_schnorr_sig
-from bitcoin.signature.signer import sign, sign_tx_input
+from btx.signature.record import Record
+from btx.signature.schnorr import lift_x, verify_schnorr_sig
+from btx.signature.signer import sign, sign_tx_input
 
 __all__ = [
     "BatchResult",

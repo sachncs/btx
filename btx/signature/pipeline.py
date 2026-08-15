@@ -44,12 +44,12 @@ from concurrent.futures import ProcessPoolExecutor, ThreadPoolExecutor, as_compl
 from dataclasses import dataclass, field
 from threading import Lock
 
-from bitcoin.encoding.der import decode_der
-from bitcoin.encoding.hex import decode_hex
-from bitcoin.signature.attack import NonceReuseGroup
-from bitcoin.signature.extraction.engine import extract_signatures
-from bitcoin.signature.record import Record
-from bitcoin.transaction.parser import parse_tx
+from btx.encoding.der import decode_der
+from btx.encoding.hex import decode_hex
+from btx.signature.attack import NonceReuseGroup
+from btx.signature.extraction.engine import extract_signatures
+from btx.signature.record import Record
+from btx.transaction.parser import parse_tx
 
 logger = logging.getLogger(__name__)
 

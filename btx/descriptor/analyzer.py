@@ -21,7 +21,7 @@ from __future__ import annotations
 
 from dataclasses import dataclass, field
 
-from bitcoin.descriptor.compiler import PUBKEY_PATTERN, DescriptorNode, parse_descriptor
+from btx.descriptor.compiler import PUBKEY_PATTERN, DescriptorNode, parse_descriptor
 
 
 @dataclass(frozen=True, slots=True)
@@ -71,7 +71,7 @@ def analyze_descriptor(expr: str) -> DescriptorInfo:
     Raises:
         DescriptorError: If the expression cannot be parsed.
     """
-    from bitcoin.descriptor.compiler import DescriptorError
+    from btx.descriptor.compiler import DescriptorError
 
     try:
         ast = parse_descriptor(expr)

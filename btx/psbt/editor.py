@@ -30,8 +30,8 @@ from __future__ import annotations
 from dataclasses import dataclass, field
 from typing import Self
 
-from bitcoin.psbt.models import Psbt, PsbtInput, PsbtOutput
-from bitcoin.transaction.parser import parse_tx
+from btx.psbt.models import Psbt, PsbtInput, PsbtOutput
+from btx.transaction.parser import parse_tx
 
 
 @dataclass
@@ -245,9 +245,9 @@ class PsbtEditor:
         Returns:
             ``self`` for chaining.
         """
-        from bitcoin.curve import GENERATOR, multiply
-        from bitcoin.sighash.flag import SIGHASH_ALL
-        from bitcoin.signature.signer import sign_tx_input
+        from btx.curve import GENERATOR, multiply
+        from btx.sighash.flag import SIGHASH_ALL
+        from btx.signature.signer import sign_tx_input
 
         tx, _ = parse_tx(self.tx)
         inp = self.inputs[vin]
@@ -269,17 +269,17 @@ class PsbtEditor:
         else:
             # Derive the script code from the witness_utxo scriptPubKey
             if inp.witness_utxo is not None:
-                from bitcoin.encoding.varint import decode_varint
+                from btx.encoding.varint import decode_varint
 
                 offset = 0
                 value, offset = decode_varint(inp.witness_utxo, offset)
                 script_pubkey_len, offset = decode_varint(inp.witness_utxo, offset)
                 script_pubkey = inp.witness_utxo[offset : offset + script_pubkey_len]
-                from bitcoin.script.classifier import classify_script_pubkey
+                from btx.script.classifier import classify_script_pubkey
 
                 st = classify_script_pubkey(script_pubkey)
                 if st in ("p2wpkh", "p2sh"):
-                    from bitcoin.script.builder import build_p2pkh
+                    from btx.script.builder import build_p2pkh
 
                     script_code = build_p2pkh(script_pubkey[-20:])
                 else:
@@ -287,7 +287,7 @@ class PsbtEditor:
 
         if pubkey is None:
             pubkey_point = multiply(private_key, GENERATOR)
-            from bitcoin.curve import serialize_public_key
+            from btx.curve import serialize_public_key
 
             pubkey = serialize_public_key(pubkey_point)
 

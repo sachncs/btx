@@ -17,7 +17,7 @@ from __future__ import annotations
 from collections.abc import Iterator
 from dataclasses import dataclass
 
-from bitcoin.signature.record import Record
+from btx.signature.record import Record
 
 
 @dataclass(frozen=True, slots=True)

@@ -19,10 +19,10 @@ from __future__ import annotations
 import functools
 from typing import TYPE_CHECKING
 
-from bitcoin.encoding.hasher import hash256
+from btx.encoding.hasher import hash256
 
 if TYPE_CHECKING:
-    from bitcoin.transaction.models import Tx
+    from btx.transaction.models import Tx
 
 
 @functools.lru_cache(maxsize=128)
@@ -49,7 +49,7 @@ def sighash_legacy(
         ValueError: If ``SIGHASH_SINGLE`` is used and *input_index* is out of
             range for the transaction outputs.
     """
-    from bitcoin.services.serializer import serialize_legacy_tx_for_sighash
+    from btx.services.serializer import serialize_legacy_tx_for_sighash
 
     preimage = serialize_legacy_tx_for_sighash(
         transaction, input_index, script, sighash_flag

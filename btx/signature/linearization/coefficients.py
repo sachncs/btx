@@ -28,22 +28,22 @@ This module provides:
   single signature.
 
 Once a collection is built, the
-:func:`~bitcoin.signature.attack.detect_nonce_reuse` scan finds all
+:func:`~btx.signature.attack.detect_nonce_reuse` scan finds all
 groups of records sharing an ``r`` value, and
-:func:`~bitcoin.signature.attack.recover_from_nonce_reuse` /
-:func:`~bitcoin.signature.attack.recover_from_related_nonces` use
+:func:`~btx.signature.attack.recover_from_nonce_reuse` /
+:func:`~btx.signature.attack.recover_from_related_nonces` use
 the coefficients to recover the private key in microseconds.
 
 Reference: "ECDSA nonce reuse" — see the docstring of
-:mod:`bitcoin.signature.attack` for the algebraic derivation.
+:mod:`btx.signature.attack` for the algebraic derivation.
 """
 
 from __future__ import annotations
 
 from dataclasses import dataclass
 
-from bitcoin.curve.params import CURVE_ORDER
-from bitcoin.field import inverse
+from btx.curve.params import CURVE_ORDER
+from btx.field import inverse
 
 
 @dataclass(frozen=True, slots=True)

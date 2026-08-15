@@ -14,7 +14,7 @@ from __future__ import annotations
 from hypothesis import assume, given
 from hypothesis import strategies as st
 
-from bitcoin.curve import (
+from btx.curve import (
     GENERATOR,
     INFINITY,
     add,
@@ -23,14 +23,14 @@ from bitcoin.curve import (
     multiply,
     negate,
 )
-from bitcoin.curve.params import CURVE_ORDER, FIELD_PRIME
-from bitcoin.encoding.der import decode_der, encode_der
-from bitcoin.encoding.sec import parse_sec, serialize_sec
-from bitcoin.field import inverse
-from bitcoin.services.serializer import serialize_legacy_tx, serialize_tx
-from bitcoin.transaction import OutPoint, Tx, TxIn, TxOut, Witness
-from bitcoin.transaction.models import EMPTY_WITNESS
-from bitcoin.transaction.parser import parse_tx
+from btx.curve.params import CURVE_ORDER, FIELD_PRIME
+from btx.encoding.der import decode_der, encode_der
+from btx.encoding.sec import parse_sec, serialize_sec
+from btx.field import inverse
+from btx.services.serializer import serialize_legacy_tx, serialize_tx
+from btx.transaction import OutPoint, Tx, TxIn, TxOut, Witness
+from btx.transaction.models import EMPTY_WITNESS
+from btx.transaction.parser import parse_tx
 
 # ── Strategies ────────────────────────────────────────────────────
 
@@ -325,7 +325,7 @@ def test_fee_estimate_non_negative(
     script_pubkeys: list[bytes],
 ) -> None:
     """Fee estimation returns a non-negative value for any Tx."""
-    from bitcoin.transaction.fee import estimate_vsize
+    from btx.transaction.fee import estimate_vsize
 
     tx = Tx(
         version=2,

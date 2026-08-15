@@ -18,7 +18,7 @@ Design choices:
   identity); its ``x``/``y`` are always ``None``.
 - The composed :class:`PointArithmetic` engine is the recommended way
   to perform multi-step arithmetic (``point.arithmetic.multiply(k)
-  .add(other)``), avoiding top-level ``from bitcoin.curve import
+  .add(other)``), avoiding top-level ``from btx.curve import
   operations`` at call sites.
 
 Validation is performed eagerly in :meth:`Point.__init__`; points
@@ -28,7 +28,7 @@ elliptic-curve operations.
 
 from __future__ import annotations
 
-from bitcoin.curve.params import CURVE_B, FIELD_PRIME
+from btx.curve.params import CURVE_B, FIELD_PRIME
 
 
 class PointArithmetic:
@@ -52,7 +52,7 @@ class PointArithmetic:
         Returns:
             The negated Point, or the point at infinity unchanged.
         """
-        from bitcoin.curve.operations import negate
+        from btx.curve.operations import negate
 
         return negate(self.__point)
 
@@ -65,7 +65,7 @@ class PointArithmetic:
         Returns:
             The sum Point.
         """
-        from bitcoin.curve.operations import add
+        from btx.curve.operations import add
 
         return add(self.__point, other)
 
@@ -75,7 +75,7 @@ class PointArithmetic:
         Returns:
             The doubled Point.
         """
-        from bitcoin.curve.operations import double
+        from btx.curve.operations import double
 
         return double(self.__point)
 
@@ -91,7 +91,7 @@ class PointArithmetic:
         Raises:
             ValueError: If *scalar* is negative.
         """
-        from bitcoin.curve.operations import multiply
+        from btx.curve.operations import multiply
 
         return multiply(scalar, self.__point)
 
@@ -102,7 +102,7 @@ class PointArithmetic:
             True if the point is on the curve.  The point at infinity
             is always considered on the curve.
         """
-        from bitcoin.curve.operations import is_on_curve
+        from btx.curve.operations import is_on_curve
 
         return is_on_curve(self.__point)
 

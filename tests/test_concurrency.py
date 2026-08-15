@@ -9,7 +9,7 @@ import threading
 
 import pytest
 
-from bitcoin.curve import (
+from btx.curve import (
     CURVE_ORDER,
     GENERATOR,
     INFINITY,
@@ -18,7 +18,7 @@ from bitcoin.curve import (
     multiply,
     set_backend,
 )
-from bitcoin.settings import Settings
+from btx.settings import Settings
 
 
 class TestSettingsThreadSafety:
@@ -70,12 +70,12 @@ class TestSettingsThreadSafety:
 
 class TestBackendDispatchRaceCondition:
     def setup_method(self) -> None:
-        import bitcoin.curve.dispatch as d
+        import btx.curve.dispatch as d
 
         d.backend = None
 
     def teardown_method(self) -> None:
-        import bitcoin.curve.dispatch as d
+        import btx.curve.dispatch as d
 
         d.backend = None
 
@@ -106,7 +106,7 @@ class TestBackendDispatchRaceCondition:
         assert not errors
 
     def test_resolve_backend_under_contention(self) -> None:
-        from bitcoin.curve.dispatch import resolve_backend
+        from btx.curve.dispatch import resolve_backend
 
         errors: list[Exception] = []
 
@@ -148,12 +148,12 @@ class TestBackendDispatchRaceCondition:
 
 class TestMultiplyScalarNormalization:
     def setup_method(self) -> None:
-        import bitcoin.curve.dispatch as d
+        import btx.curve.dispatch as d
 
         d.backend = None
 
     def teardown_method(self) -> None:
-        import bitcoin.curve.dispatch as d
+        import btx.curve.dispatch as d
 
         d.backend = None
 
@@ -180,9 +180,9 @@ class TestMultiplyScalarNormalization:
 
 class TestPsbtMaxSizeLimits:
     def test_key_exceeds_max_size(self) -> None:
-        from bitcoin.encoding.varint import encode_varint
-        from bitcoin.psbt import parse_psbt
-        from bitcoin.psbt.parser import MAX_KEY_SIZE
+        from btx.encoding.varint import encode_varint
+        from btx.psbt import parse_psbt
+        from btx.psbt.parser import MAX_KEY_SIZE
 
         magic = b"psbt\xff"
         key_len_varint = encode_varint(MAX_KEY_SIZE + 1)
@@ -192,9 +192,9 @@ class TestPsbtMaxSizeLimits:
             parse_psbt(data)
 
     def test_value_exceeds_max_size(self) -> None:
-        from bitcoin.encoding.varint import encode_varint
-        from bitcoin.psbt import parse_psbt
-        from bitcoin.psbt.parser import MAX_VALUE_SIZE
+        from btx.encoding.varint import encode_varint
+        from btx.psbt import parse_psbt
+        from btx.psbt.parser import MAX_VALUE_SIZE
 
         magic = b"psbt\xff"
         data = (
@@ -208,9 +208,9 @@ class TestPsbtMaxSizeLimits:
             parse_psbt(data)
 
     def test_max_map_entries(self) -> None:
-        from bitcoin.encoding.varint import encode_varint
-        from bitcoin.psbt import parse_psbt
-        from bitcoin.psbt.parser import MAX_KEY_VALUE_MAP_ENTRIES
+        from btx.encoding.varint import encode_varint
+        from btx.psbt import parse_psbt
+        from btx.psbt.parser import MAX_KEY_VALUE_MAP_ENTRIES
 
         magic = b"psbt\xff"
         entry = (

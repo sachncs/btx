@@ -22,7 +22,7 @@ from functools import lru_cache
 from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
-    from bitcoin.curve.point import Point
+    from btx.curve.point import Point
 
 
 @lru_cache(maxsize=1024)
@@ -42,7 +42,7 @@ def parse_sec(data: bytes) -> "Point":
         ValueError: If the data length is invalid, the prefix byte is
             unrecognized, or the decoded point is not on the curve.
     """
-    from bitcoin.curve.point import Point
+    from btx.curve.point import Point
 
     if len(data) == 33 and data[0] in (0x02, 0x03):
         point = Point.from_sec_compressed(data)
@@ -53,7 +53,7 @@ def parse_sec(data: bytes) -> "Point":
             f"Invalid SEC key length {len(data)} (expected 33 or 65 bytes)."
         )
 
-    from bitcoin.curve.operations import is_on_curve
+    from btx.curve.operations import is_on_curve
 
     if not is_on_curve(point):
         raise ValueError("Decoded point is not on the secp256k1 curve.")

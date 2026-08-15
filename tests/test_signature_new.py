@@ -4,10 +4,10 @@
 
 import pytest
 
-from bitcoin.curve import GENERATOR, multiply
-from bitcoin.encoding.hasher import hash256
-from bitcoin.signature import Record, linearize_signatures
-from bitcoin.signature.check import verify_sig
+from btx.curve import GENERATOR, multiply
+from btx.encoding.hasher import hash256
+from btx.signature import Record, linearize_signatures
+from btx.signature.check import verify_sig
 
 
 class TestRecord:
@@ -91,7 +91,7 @@ class TestRecord:
 class TestVerifySig:
     def test_verify_valid(self) -> None:
         msg = hash256(b"test message")
-        from bitcoin.signature.signer import sign
+        from btx.signature.signer import sign
 
         private_key = 1
         sig = sign(msg, private_key)

@@ -2,7 +2,7 @@
 # SPDX-License-Identifier: MIT
 """Script building helpers.
 
-Thin wrappers around :func:`bitcoin.script.parser.serialize_script`
+Thin wrappers around :func:`btx.script.parser.serialize_script`
 that produce the standard scriptPubKey templates for each output type
 (P2PK, P2PKH, P2WPKH, P2WSH, P2SH, P2TR) and a convenience
 :func:`make_p2pkh_script` that hashes a full public key into the
@@ -15,8 +15,8 @@ exactly 32 bytes) so callers fail fast on programming errors.
 
 from __future__ import annotations
 
-from bitcoin.encoding.hasher import hash160
-from bitcoin.script.opcodes import (
+from btx.encoding.hasher import hash160
+from btx.script.opcodes import (
     OP_0,
     OP_1,
     OP_CHECKSIG,
@@ -25,7 +25,7 @@ from bitcoin.script.opcodes import (
     OP_EQUALVERIFY,
     OP_HASH160,
 )
-from bitcoin.script.parser import serialize_script
+from btx.script.parser import serialize_script
 
 
 def build_p2pk(public_key_bytes: bytes) -> bytes:

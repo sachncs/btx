@@ -38,7 +38,7 @@ def encode_der(r: int, s: int, s_high_ok: bool = False) -> bytes:
     Returns:
         DER-encoded signature bytes.
     """
-    from bitcoin.curve.params import CURVE_ORDER
+    from btx.curve.params import CURVE_ORDER
 
     half_order = CURVE_ORDER // 2
     if not s_high_ok and s > half_order:

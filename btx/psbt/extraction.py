@@ -3,10 +3,10 @@
 """PSBT signature extraction utilities.
 
 Provides :func:`psbt_extract_signatures`, which pulls every ECDSA
-signature out of a :class:`~bitcoin.psbt.models.Psbt` (whether it
+signature out of a :class:`~btx.psbt.models.Psbt` (whether it
 lives in ``partial_sigs`` or the final ``final_script_sig`` /
 ``final_script_witness``) and returns a
-:class:`~bitcoin.signature.collection.SignatureCollection`.
+:class:`~btx.signature.collection.SignatureCollection`.
 
 Two source paths:
 
@@ -17,7 +17,7 @@ Two source paths:
   scriptSig and recovers the pubkey via
   :func:`extract_pubkey_from_elements`.
 
-Both paths produce :class:`~bitcoin.signature.record.Record`
+Both paths produce :class:`~btx.signature.record.Record`
 instances suitable for the same downstream analysis (nonce-reuse
 detection, linearisation, batch verification) as raw-transaction
 extraction.
@@ -30,10 +30,10 @@ from collections.abc import Sequence
 from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
-    from bitcoin.curve.point import Point
-    from bitcoin.signature.collection import SignatureCollection
+    from btx.curve.point import Point
+    from btx.signature.collection import SignatureCollection
 
-from bitcoin.psbt.models import Psbt
+from btx.psbt.models import Psbt
 
 logger = logging.getLogger(__name__)
 
@@ -57,11 +57,11 @@ def psbt_extract_signatures(
     Returns:
         A ``SignatureCollection`` containing all extracted records.
     """
-    from bitcoin.curve import parse_public_key
-    from bitcoin.encoding.der import decode_der
-    from bitcoin.signature.collection import SignatureCollection
-    from bitcoin.signature.record import Record
-    from bitcoin.transaction.parser import parse_tx
+    from btx.curve import parse_public_key
+    from btx.encoding.der import decode_der
+    from btx.signature.collection import SignatureCollection
+    from btx.signature.record import Record
+    from btx.transaction.parser import parse_tx
 
     tx, _ = parse_tx(psbt.tx)
     txid = tx.txid()
@@ -97,7 +97,7 @@ def psbt_extract_signatures(
 
         if inp.final_script_sig:
             try:
-                from bitcoin.script.parser import parse_script
+                from btx.script.parser import parse_script
 
                 parsed = parse_script(inp.final_script_sig)
                 for element in parsed:
@@ -137,7 +137,7 @@ def extract_pubkey_from_elements(elements: Sequence[object]) -> Point | None:
     Returns:
         The public key ``Point``, or ``None`` if no valid pubkey found.
     """
-    from bitcoin.curve import parse_public_key
+    from btx.curve import parse_public_key
 
     for element in reversed(tuple(elements)):
         if isinstance(element, bytes) and len(element) in (33, 65):

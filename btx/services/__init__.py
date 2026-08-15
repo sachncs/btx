@@ -4,11 +4,11 @@
 
 Two complementary submodules:
 
-- :mod:`bitcoin.services.serializer` – wire-format serialisation for
+- :mod:`btx.services.serializer` – wire-format serialisation for
   SegWit and legacy transactions, JSON conversion, and the specialised
   sighash pre-image serializers used by
-  :mod:`bitcoin.sighash.legacy` and :mod:`bitcoin.sighash.taproot`.
-- :mod:`bitcoin.services.blockchain` – pluggable blockchain data
+  :mod:`btx.sighash.legacy` and :mod:`btx.sighash.taproot`.
+- :mod:`btx.services.blockchain` – pluggable blockchain data
   providers (Blockstream, blockchain.info, Mempool.space, generic
   HTTP), convenience enrichment helpers, and parallel/async batch
   fetchers.
@@ -19,7 +19,7 @@ they can be avoided entirely in air-gapped or test environments by
 importing only the curve / signature / script layers.
 """
 
-from bitcoin.services.blockchain import (
+from btx.services.blockchain import (
     BlockchainInfoProvider,
     BlockchainProvider,
     BlockstreamProvider,
@@ -33,7 +33,7 @@ from bitcoin.services.blockchain import (
     enrich_transaction,
     fetch_and_extract,
 )
-from bitcoin.services.serializer import (
+from btx.services.serializer import (
     serialize_legacy_tx,
     serialize_tx,
     tx_to_json,

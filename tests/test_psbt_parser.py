@@ -7,10 +7,10 @@ from __future__ import annotations
 
 import pytest
 
-from bitcoin.curve import parse_public_key
-from bitcoin.encoding.varint import encode_varint
-from bitcoin.psbt.models import Psbt, PsbtInput, PsbtOutput
-from bitcoin.psbt.parser import (
+from btx.curve import parse_public_key
+from btx.encoding.varint import encode_varint
+from btx.psbt.models import Psbt, PsbtInput, PsbtOutput
+from btx.psbt.parser import (
     parse_input_map,
     parse_key_value_map,
     parse_keypath_value,
@@ -24,9 +24,9 @@ from bitcoin.psbt.parser import (
     serialize_output_map,
     serialize_psbt,
 )
-from bitcoin.services.serializer import serialize_legacy_tx
-from bitcoin.signature.collection import SignatureCollection
-from bitcoin.transaction.models import OutPoint, Tx, TxIn, TxOut, Witness
+from btx.services.serializer import serialize_legacy_tx
+from btx.signature.collection import SignatureCollection
+from btx.transaction.models import OutPoint, Tx, TxIn, TxOut, Witness
 
 # ── Helper helpers ─────────────────────────────────────────────────────────
 
@@ -409,8 +409,8 @@ class TestPsbtExtractSignatures:
     def test_finalized_script_sig(self):
         tx_bytes = self.__rx(1)
         sig_element = VALID_DER + bytes([0x01])
-        from bitcoin.encoding.sec import serialize_sec
-        from bitcoin.script.parser import serialize_script
+        from btx.encoding.sec import serialize_sec
+        from btx.script.parser import serialize_script
 
         pubkey_point = parse_public_key(VALID_PUBKEY)
         pubkey_element = serialize_sec(pubkey_point, compressed=True)
@@ -425,7 +425,7 @@ class TestPsbtExtractSignatures:
 
     def test_finalized_no_bytes_elements(self):
         tx_bytes = self.__rx(1)
-        from bitcoin.script.parser import serialize_script
+        from btx.script.parser import serialize_script
 
         script_sig = serialize_script([0x00, 0x51])
         inp = PsbtInput(final_script_sig=script_sig)
@@ -435,7 +435,7 @@ class TestPsbtExtractSignatures:
 
     def test_finalized_invalid_der_in_script(self):
         tx_bytes = self.__rx(1)
-        from bitcoin.script.parser import serialize_script
+        from btx.script.parser import serialize_script
 
         script_sig = serialize_script([b"\x00\x01"])
         inp = PsbtInput(final_script_sig=script_sig)
@@ -466,8 +466,8 @@ class TestPsbtExtractSignatures:
         assert len(coll) == 0
 
     def testextract_pubkey_from_elements_valid(self):
-        from bitcoin.encoding.sec import serialize_sec
-        from bitcoin.psbt.parser import extract_pubkey_from_elements
+        from btx.encoding.sec import serialize_sec
+        from btx.psbt.parser import extract_pubkey_from_elements
 
         pubkey_point = parse_public_key(VALID_PUBKEY)
         pubkey_element = serialize_sec(pubkey_point, compressed=True)
@@ -476,8 +476,8 @@ class TestPsbtExtractSignatures:
         assert not result.infinity
 
     def testextract_pubkey_from_elements_uncompressed(self):
-        from bitcoin.encoding.sec import serialize_sec
-        from bitcoin.psbt.parser import extract_pubkey_from_elements
+        from btx.encoding.sec import serialize_sec
+        from btx.psbt.parser import extract_pubkey_from_elements
 
         pubkey_point = parse_public_key(VALID_PUBKEY)
         pubkey_element = serialize_sec(pubkey_point, compressed=False)
@@ -485,19 +485,19 @@ class TestPsbtExtractSignatures:
         assert result == pubkey_point
 
     def testextract_pubkey_from_elements_no_pubkey(self):
-        from bitcoin.psbt.parser import extract_pubkey_from_elements
+        from btx.psbt.parser import extract_pubkey_from_elements
 
         result = extract_pubkey_from_elements([b"\x00", b"\x01"])
         assert result is None
 
     def testextract_pubkey_from_elements_invalid_length(self):
-        from bitcoin.psbt.parser import extract_pubkey_from_elements
+        from btx.psbt.parser import extract_pubkey_from_elements
 
         result = extract_pubkey_from_elements([b"\x02" + b"\x00" * 16])
         assert result is None
 
     def testextract_pubkey_from_elements_off_curve(self):
-        from bitcoin.psbt.parser import extract_pubkey_from_elements
+        from btx.psbt.parser import extract_pubkey_from_elements
 
         # 65-byte uncompressed SEC with x=0, y=1 — not on curve
         off_curve = b"\x04" + b"\x00" * 32 + b"\x01" * 32

@@ -7,16 +7,16 @@ import pytest
 from hypothesis import given, settings
 from hypothesis import strategies as st
 
-from bitcoin.curve import GENERATOR
-from bitcoin.curve.params import CURVE_ORDER
-from bitcoin.encoding.der import decode_der, encode_der
-from bitcoin.encoding.sec import parse_sec, serialize_sec
-from bitcoin.encoding.varint import decode_varint, encode_varint
-from bitcoin.psbt.models import Psbt, PsbtInput, PsbtOutput
-from bitcoin.psbt.parser import parse_psbt, serialize_psbt
-from bitcoin.services.serializer import serialize_legacy_tx, serialize_tx
-from bitcoin.transaction.models import OutPoint, Tx, TxIn, TxOut, Witness
-from bitcoin.transaction.parser import parse_tx
+from btx.curve import GENERATOR
+from btx.curve.params import CURVE_ORDER
+from btx.encoding.der import decode_der, encode_der
+from btx.encoding.sec import parse_sec, serialize_sec
+from btx.encoding.varint import decode_varint, encode_varint
+from btx.psbt.models import Psbt, PsbtInput, PsbtOutput
+from btx.psbt.parser import parse_psbt, serialize_psbt
+from btx.services.serializer import serialize_legacy_tx, serialize_tx
+from btx.transaction.models import OutPoint, Tx, TxIn, TxOut, Witness
+from btx.transaction.parser import parse_tx
 
 # ── Transaction parser ─────────────────────────────────────────────
 

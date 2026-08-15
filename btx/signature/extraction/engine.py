@@ -20,7 +20,7 @@ Design: Strategy pattern with plugin registry
 ---------------------------------------------
 
 The five built-in extractors are normal classes that satisfy the
-:class:`~bitcoin.signature.extraction.plugins.ExtractorPlugin` protocol.
+:class:`~btx.signature.extraction.plugins.ExtractorPlugin` protocol.
 They are registered via :func:`register_builtin_extractors` (called
 automatically by :func:`extract_signatures`) and selected per-input
 via the registry.  This avoids a hard-coded ``if/elif`` chain and
@@ -45,18 +45,18 @@ import logging
 from collections.abc import Sequence
 from typing import TYPE_CHECKING
 
-from bitcoin.curve import INFINITY, Point
-from bitcoin.encoding.der import decode_der
-from bitcoin.script.classifier import (
+from btx.curve import INFINITY, Point
+from btx.encoding.der import decode_der
+from btx.script.classifier import (
     P2SH,
     P2TR,
     P2WPKH,
     P2WSH,
     classify_script_pubkey,
 )
-from bitcoin.script.parser import parse_script
-from bitcoin.sighash.flag import SIGHASH_ALL
-from bitcoin.signature.extraction.helpers import (
+from btx.script.parser import parse_script
+from btx.sighash.flag import SIGHASH_ALL
+from btx.signature.extraction.helpers import (
     build_p2pkh_script_code,  # noqa: F401  re-exported
     compute_sighash,  # noqa: F401  re-exported
     default_script_code,
@@ -64,13 +64,13 @@ from bitcoin.signature.extraction.helpers import (
     p2wpkh_script_code,
     recover_or_parse_pubkey,
 )
-from bitcoin.signature.extraction.plugins import register_plugin
-from bitcoin.signature.record import Record
+from btx.signature.extraction.plugins import register_plugin
+from btx.signature.record import Record
 
 logger = logging.getLogger(__name__)
 
 if TYPE_CHECKING:
-    from bitcoin.transaction.models import Tx, TxIn
+    from btx.transaction.models import Tx, TxIn
 
 # ── Polymorphic extraction strategies (Strategy pattern) ────────────
 
@@ -250,7 +250,7 @@ def extract_signatures(
     if not tx.inputs:
         return records
 
-    from bitcoin.signature.extraction.plugins import get_plugin, list_plugins
+    from btx.signature.extraction.plugins import get_plugin, list_plugins
 
     for vin, txin in enumerate(tx.inputs):
         parsed_sig: Sequence[object] = (
@@ -375,7 +375,7 @@ def guess_p2pkh_script(script_sig: Sequence[object]) -> bytes | None:
     """
     for element in script_sig:
         if isinstance(element, bytes) and len(element) in {33, 65}:
-            from bitcoin.script.builder import make_p2pkh_script
+            from btx.script.builder import make_p2pkh_script
 
             return make_p2pkh_script(element)
     return None

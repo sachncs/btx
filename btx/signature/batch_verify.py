@@ -4,7 +4,7 @@
 
 Provides :func:`verify_all` (also re-exported as :func:`batch_verify`)
 for verifying multiple signatures in one call.  Each signature is
-verified individually via :func:`bitcoin.signature.check.verify_sig`,
+verified individually via :func:`btx.signature.check.verify_sig`,
 which means verification is sequential and a single invalid
 signature short-circuits the batch via Python's short-circuiting
 ``all``.
@@ -20,8 +20,8 @@ individual forgery.
 
 from __future__ import annotations
 
-from bitcoin.curve.point import Point
-from bitcoin.signature.check import verify_sig
+from btx.curve.point import Point
+from btx.signature.check import verify_sig
 
 
 def verify_all(

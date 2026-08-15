@@ -12,13 +12,13 @@ solution::
 rather than the general Tonelli-Shanks loop.
 
 If *a* is not a quadratic residue, :func:`sqrt` raises
-:exc:`~bitcoin.exceptions.PointError` rather than returning a
+:exc:`~btx.exceptions.PointError` rather than returning a
 non-existent root — callers that need the principal root should
 verify the input is a residue first (e.g. by checking that the result
 squares back to the input).
 """
 
-from bitcoin.exceptions import PointError
+from btx.exceptions import PointError
 
 
 def pow_mod(value: int, exponent: int, modulus: int) -> int:

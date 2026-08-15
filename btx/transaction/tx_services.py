@@ -22,7 +22,7 @@ from __future__ import annotations
 from typing import TYPE_CHECKING, Any
 
 if TYPE_CHECKING:
-    from bitcoin.transaction.models import Tx
+    from btx.transaction.models import Tx
 
 
 class TxSerializer:
@@ -45,7 +45,7 @@ class TxSerializer:
         Returns:
             Wire-format bytes.
         """
-        from bitcoin.services.serializer import serialize_tx
+        from btx.services.serializer import serialize_tx
 
         return serialize_tx(self.__tx)
 
@@ -55,7 +55,7 @@ class TxSerializer:
         Returns:
             Legacy wire-format bytes.
         """
-        from bitcoin.services.serializer import serialize_legacy_tx
+        from btx.services.serializer import serialize_legacy_tx
 
         return serialize_legacy_tx(self.__tx)
 
@@ -65,7 +65,7 @@ class TxSerializer:
         Returns:
             A dict representing the full transaction structure.
         """
-        from bitcoin.services.serializer import tx_to_json
+        from btx.services.serializer import tx_to_json
 
         return tx_to_json(self.__tx)
 
@@ -90,7 +90,7 @@ class TxRbf:
         Returns:
             True if at least one input has a BIP-125 signalling sequence.
         """
-        from bitcoin.transaction.rbf import is_opt_in_rbf
+        from btx.transaction.rbf import is_opt_in_rbf
 
         return is_opt_in_rbf(self.__tx)
 
@@ -100,7 +100,7 @@ class TxRbf:
         Returns:
             True if at least one input has a relative time lock.
         """
-        from bitcoin.transaction.rbf import has_sequence_lock
+        from btx.transaction.rbf import has_sequence_lock
 
         return has_sequence_lock(self.__tx)
 
@@ -130,7 +130,7 @@ class TxSighash:
         Returns:
             32-byte sighash.
         """
-        from bitcoin.sighash.legacy import sighash_legacy
+        from btx.sighash.legacy import sighash_legacy
 
         return sighash_legacy(self.__tx, input_index, script, sighash_flag)
 
@@ -148,7 +148,7 @@ class TxSighash:
         Returns:
             32-byte sighash.
         """
-        from bitcoin.sighash.segwit import sighash_segwit
+        from btx.sighash.segwit import sighash_segwit
 
         return sighash_segwit(self.__tx, input_index, script, value, sighash_flag)
 
@@ -181,7 +181,7 @@ class TxSighash:
         Returns:
             32-byte Taproot sighash.
         """
-        from bitcoin.sighash.taproot import sighash_taproot
+        from btx.sighash.taproot import sighash_taproot
 
         return sighash_taproot(
             self.__tx,

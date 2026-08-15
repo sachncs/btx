@@ -6,10 +6,10 @@ from __future__ import annotations
 
 import pytest
 
-from bitcoin.curve import GENERATOR, multiply
-from bitcoin.curve.params import CURVE_ORDER
-from bitcoin.field import inverse as field_inverse
-from bitcoin.signature.attack import (
+from btx.curve import GENERATOR, multiply
+from btx.curve.params import CURVE_ORDER
+from btx.field import inverse as field_inverse
+from btx.signature.attack import (
     NonceReuseGroup,
     RecoveredKey,
     SameNonceError,
@@ -17,7 +17,7 @@ from bitcoin.signature.attack import (
     recover_from_nonce_reuse,
     recover_from_related_nonces,
 )
-from bitcoin.signature.linearization.coefficients import (
+from btx.signature.linearization.coefficients import (
     LinearCoefficientCollection,
     derive_linear_coefficients,
 )

@@ -6,9 +6,9 @@ from __future__ import annotations
 
 import json
 
-from bitcoin import OutPoint, Tx, TxIn, TxOut, Witness, parse_tx
-from bitcoin.encoding import encode_varint
-from bitcoin.services.serializer import serialize_legacy_tx, serialize_tx, tx_to_json
+from btx import OutPoint, Tx, TxIn, TxOut, Witness, parse_tx
+from btx.encoding import encode_varint
+from btx.services.serializer import serialize_legacy_tx, serialize_tx, tx_to_json
 
 
 class TestSerializeTx:

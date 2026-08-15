@@ -22,10 +22,10 @@ Reference: BIP-340 "Schnorr Signatures for secp256k1".
 
 from __future__ import annotations
 
-from bitcoin.curve import GENERATOR
-from bitcoin.curve.dispatch import add, multiply, negate
-from bitcoin.curve.params import CURVE_ORDER, FIELD_PRIME
-from bitcoin.encoding.hasher import tagged_hash
+from btx.curve import GENERATOR
+from btx.curve.dispatch import add, multiply, negate
+from btx.curve.params import CURVE_ORDER, FIELD_PRIME
+from btx.encoding.hasher import tagged_hash
 
 
 def lift_x(x: int) -> tuple[int, int] | None:
@@ -80,7 +80,7 @@ def verify_schnorr_signature(
     if r >= FIELD_PRIME or s >= CURVE_ORDER:
         return False
 
-    from bitcoin.curve.point import Point
+    from btx.curve.point import Point
 
     pubkey_point = Point(x=p[0], y=p[1])
 

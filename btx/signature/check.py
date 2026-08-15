@@ -34,13 +34,13 @@ import hmac
 import logging
 from typing import TYPE_CHECKING
 
-from bitcoin.curve import GENERATOR
-from bitcoin.curve.dispatch import add, is_on_curve, multiply
-from bitcoin.curve.params import CURVE_ORDER, FIELD_PRIME
-from bitcoin.encoding.der import decode_der
+from btx.curve import GENERATOR
+from btx.curve.dispatch import add, is_on_curve, multiply
+from btx.curve.params import CURVE_ORDER, FIELD_PRIME
+from btx.encoding.der import decode_der
 
 if TYPE_CHECKING:
-    from bitcoin.curve.point import Point
+    from btx.curve.point import Point
 
 logger = logging.getLogger(__name__)
 
@@ -77,7 +77,7 @@ def recover_public_key(
     if (r_y & 1) != (rec_id & 1):
         r_y = FIELD_PRIME - r_y
 
-    from bitcoin.curve.point import Point
+    from btx.curve.point import Point
 
     r_point = Point(x=r, y=r_y)
 
@@ -89,7 +89,7 @@ def recover_public_key(
     e_inv = CURVE_ORDER - (e % CURVE_ORDER) if e % CURVE_ORDER != 0 else 0
 
     # Q = r^(-1) * (s * R - e * G) = s * r^(-1) * R + (-e) * r^(-1) * G
-    from bitcoin.field import inverse
+    from btx.field import inverse
 
     r_inv = inverse(r, CURVE_ORDER)
 
@@ -140,7 +140,7 @@ def verify_signature(
         logger.debug("verify_signature: message hash is zero")
         return False
 
-    from bitcoin.field import inverse
+    from btx.field import inverse
 
     s_inv = inverse(s, CURVE_ORDER)
     u1 = (e * s_inv) % CURVE_ORDER

@@ -1,49 +1,49 @@
 # Copyright (c) 2026 secp contributors
 # SPDX-License-Identifier: MIT
-"""bitcoin: A pure-Python ECDSA signing, extraction, and analysis library.
+"""btx: A pure-Python ECDSA signing, extraction, and analysis library.
 
 This top-level package re-exports the library's public API so that users
-can write ``import bitcoin`` and reach any supported feature without
+can write ``import btx`` and reach any supported feature without
 chasing submodules.  The package is intentionally organised around a
 layered architecture:
 
-- :mod:`bitcoin.curve` – secp256k1 arithmetic, point type, pluggable
+- :mod:`btx.curve` – secp256k1 arithmetic, point type, pluggable
   backends (pure Python and optional ``coincurve``/libsecp256k1).
-- :mod:`bitcoin.field` – modular-arithmetic primitives (inverse,
+- :mod:`btx.field` – modular-arithmetic primitives (inverse,
   square root) shared by the curve layer.
-- :mod:`bitcoin.encoding` – low-level binary helpers: hex, varint,
+- :mod:`btx.encoding` – low-level binary helpers: hex, varint,
   DER, SEC public-key encoding, and Bitcoin hash functions
   (SHA-256, double-SHA-256, HASH-160, BIP-340 tagged hash).
-- :mod:`bitcoin.script` – script parsing, classification (P2PK,
+- :mod:`btx.script` – script parsing, classification (P2PK,
   P2PKH, P2SH, P2WPKH, P2WSH, P2TR, multisig, timelock),
   construction, and Taproot script-path helpers.
-- :mod:`bitcoin.sighash` – signature-hash computation for legacy,
+- :mod:`btx.sighash` – signature-hash computation for legacy,
   SegWit v0 (BIP-143), and Taproot (BIP-341) transactions, plus
   SIGHASH flag constants.
-- :mod:`bitcoin.transaction` – immutable transaction models, wire
+- :mod:`btx.transaction` – immutable transaction models, wire
   parser, fluent builder, RBF detection, fee estimation, and
   sighash/RBF/serialisation engines bound to ``Tx``.
-- :mod:`bitcoin.signature` – ECDSA and Schnorr (BIP-340) signature
+- :mod:`btx.signature` – ECDSA and Schnorr (BIP-340) signature
   extraction, linearisation (canonical sorting), verification,
   signing, batch extraction pipelines, and nonce-reuse attack
   utilities.
-- :mod:`bitcoin.descriptor` – Miniscript descriptor parser/compiler
+- :mod:`btx.descriptor` – Miniscript descriptor parser/compiler
   and analyzer (subset of the Miniscript language).
-- :mod:`bitcoin.psbt` – Partially Signed Bitcoin Transaction (BIP-174)
+- :mod:`btx.psbt` – Partially Signed Bitcoin Transaction (BIP-174)
   parsing, serialisation, in-memory editor, and signature extraction.
-- :mod:`bitcoin.services` – blockchain data providers (Blockstream,
+- :mod:`btx.services` – blockchain data providers (Blockstream,
   Mempool.space, blockchain.info, generic HTTP), transaction
   serialisation helpers, and async/batch fetching.
-- :mod:`bitcoin.cli` – Typer-based command-line interface exposing
+- :mod:`btx.cli` – Typer-based command-line interface exposing
   the most common operations.
 
 Design notes
 ------------
 - Pure-Python by default; libsecp256k1 is opt-in via the
-  ``coincurve`` extra.  See :data:`bitcoin.settings.settings` for the
+  ``coincurve`` extra.  See :data:`btx.settings.settings` for the
   ``default_backend`` knob.
 - No network dependencies at the core layer; blockchain services are
-  isolated in :mod:`bitcoin.services` and are never imported by the
+  isolated in :mod:`btx.services` and are never imported by the
   signature or script modules.
 - All public dataclasses are ``frozen=True, slots=True`` for value
   semantics and predictable hashing.
@@ -51,7 +51,7 @@ Design notes
 
 __version__ = "0.4.0"
 
-from bitcoin.curve import (
+from btx.curve import (
     CURVE_A,
     CURVE_B,
     CURVE_ORDER,
@@ -80,7 +80,7 @@ from bitcoin.curve import (
     set_backend,
     sqrt_field,
 )
-from bitcoin.descriptor import (
+from btx.descriptor import (
     ESTIMATED_SATISFACTION,
     DescriptorError,
     DescriptorInfo,
@@ -96,7 +96,7 @@ from bitcoin.descriptor import (
     sorted_unique,
     split_args,
 )
-from bitcoin.encoding import (
+from btx.encoding import (
     bytes_to_int,
     decode_der,
     decode_hex,
@@ -112,15 +112,15 @@ from bitcoin.encoding import (
     sha256,
     tagged_hash,
 )
-from bitcoin.exceptions import (
+from btx.exceptions import (
     BitcoinError,
     NotInvertible,
     ParsingError,
     PointError,
     UnsupportedScriptPathError,
 )
-from bitcoin.field import inverse, pow_mod, sqrt, validate_non_negative
-from bitcoin.psbt import (
+from btx.field import inverse, pow_mod, sqrt, validate_non_negative
+from btx.psbt import (
     Psbt,
     PsbtEditor,
     PsbtInput,
@@ -136,7 +136,7 @@ from bitcoin.psbt import (
     psbt_extract_signatures,
     serialize_psbt,
 )
-from bitcoin.script import (
+from btx.script import (
     MULTISIG,
     NON_STANDARD,
     OP_0,
@@ -190,7 +190,7 @@ from bitcoin.script import (
     parse_taproot_witness_stack,
     serialize_script,
 )
-from bitcoin.services import (
+from btx.services import (
     BlockchainInfoProvider,
     BlockchainProvider,
     BlockstreamProvider,
@@ -207,8 +207,8 @@ from bitcoin.services import (
     serialize_tx,
     tx_to_json,
 )
-from bitcoin.settings import settings
-from bitcoin.sighash import (
+from btx.settings import settings
+from btx.sighash import (
     SIGHASH_ALL,
     SIGHASH_ALL_ANYONECANPAY,
     SIGHASH_ANYONECANPAY,
@@ -224,7 +224,7 @@ from bitcoin.sighash import (
     sighash_segwit,
     sighash_taproot,
 )
-from bitcoin.signature import (
+from btx.signature import (
     Record,
     SignatureCollection,
     batch_extract,
@@ -241,7 +241,7 @@ from bitcoin.signature import (
     verify_schnorr_sig,
     verify_sig,
 )
-from bitcoin.transaction import (
+from btx.transaction import (
     EMPTY_WITNESS,
     OutPoint,
     TransactionBuilder,

@@ -7,11 +7,11 @@ from __future__ import annotations
 
 import pytest
 
-from bitcoin.curve import GENERATOR, INFINITY, Point, is_on_curve, multiply
-from bitcoin.curve.params import CURVE_ORDER, FIELD_PRIME
-from bitcoin.encoding.der import encode_der
-from bitcoin.encoding.hasher import hash160, hash256, sha256
-from bitcoin.script.builder import (
+from btx.curve import GENERATOR, INFINITY, Point, is_on_curve, multiply
+from btx.curve.params import CURVE_ORDER, FIELD_PRIME
+from btx.encoding.der import encode_der
+from btx.encoding.hasher import hash160, hash256, sha256
+from btx.script.builder import (
     build_p2pk,
     build_p2pkh,
     build_p2tr,
@@ -19,7 +19,7 @@ from bitcoin.script.builder import (
     build_p2wsh,
     make_p2pkh_script,
 )
-from bitcoin.script.classifier import (
+from btx.script.classifier import (
     NON_STANDARD,
     P2PK,
     P2PKH,
@@ -32,9 +32,9 @@ from bitcoin.script.classifier import (
     is_p2sh,
     parse_p2pkh_script_sig,
 )
-from bitcoin.signature.check import recover_public_key, verify_sig
-from bitcoin.signature.extraction.engine import extract_signatures
-from bitcoin.transaction.models import EMPTY_WITNESS, OutPoint, Tx, TxIn, TxOut, Witness
+from btx.signature.check import recover_public_key, verify_sig
+from btx.signature.extraction.engine import extract_signatures
+from btx.transaction.models import EMPTY_WITNESS, OutPoint, Tx, TxIn, TxOut, Witness
 
 # ── helpers ────────────────────────────────────────────────────────────────────
 
@@ -436,7 +436,7 @@ class TestExtractLegacy:
 
 class TestExtractP2PK:
     def test_p2pk_extraction(self) -> None:
-        from bitcoin.script.builder import build_p2pk
+        from btx.script.builder import build_p2pk
 
         sc = build_p2pk(TEST_PUB_SEC)
         sig_push = bytes([len(SIG_R1S1_ALL)])
@@ -450,7 +450,7 @@ class TestExtractP2PK:
         assert records[0].sig == DER_R1S1
 
     def test_p2pk_no_sig(self) -> None:
-        from bitcoin.script.builder import build_p2pk
+        from btx.script.builder import build_p2pk
 
         sc = build_p2pk(TEST_PUB_SEC)
         tx = base_tx(script_pubkey=sc)
@@ -879,33 +879,33 @@ class TestExtractUnknownScriptType:
 
 class TestExtractPubkeyFromScriptSig:
     def test_extract_success(self) -> None:
-        from bitcoin.script.parser import parse_script
-        from bitcoin.signature.extraction.engine import extract_pubkey_from_script_sig
+        from btx.script.parser import parse_script
+        from btx.signature.extraction.engine import extract_pubkey_from_script_sig
 
         parsed = list(parse_script(make_p2pkh_scriptsig()))
         pk = extract_pubkey_from_script_sig(parsed)
         assert pk == TEST_PUB_SEC
 
     def test_extract_no_pubkey(self) -> None:
-        from bitcoin.signature.extraction.engine import extract_pubkey_from_script_sig
+        from btx.signature.extraction.engine import extract_pubkey_from_script_sig
 
         assert extract_pubkey_from_script_sig([1, 2, 3]) is None
 
     def test_extract_empty(self) -> None:
-        from bitcoin.signature.extraction.engine import extract_pubkey_from_script_sig
+        from btx.signature.extraction.engine import extract_pubkey_from_script_sig
 
         assert extract_pubkey_from_script_sig([]) is None
 
     def test_extract_wrong_length(self) -> None:
-        from bitcoin.signature.extraction.engine import extract_pubkey_from_script_sig
+        from btx.signature.extraction.engine import extract_pubkey_from_script_sig
 
         assert extract_pubkey_from_script_sig([b"\x00" * 32]) is None
 
 
 class TestExtractGuessP2PKH:
     def test_guess_found(self) -> None:
-        from bitcoin.script.parser import parse_script
-        from bitcoin.signature.extraction.engine import guess_p2pkh_script
+        from btx.script.parser import parse_script
+        from btx.signature.extraction.engine import guess_p2pkh_script
 
         parsed = list(parse_script(make_p2pkh_scriptsig()))
         result = guess_p2pkh_script(parsed)
@@ -914,19 +914,19 @@ class TestExtractGuessP2PKH:
         assert result[:2] == b"\x76\xa9"
 
     def test_guess_not_found(self) -> None:
-        from bitcoin.signature.extraction.engine import guess_p2pkh_script
+        from btx.signature.extraction.engine import guess_p2pkh_script
 
         assert guess_p2pkh_script([b"\x00" * 32]) is None
 
     def test_guess_not_bytes(self) -> None:
-        from bitcoin.signature.extraction.engine import guess_p2pkh_script
+        from btx.signature.extraction.engine import guess_p2pkh_script
 
         assert guess_p2pkh_script([1, 2, 0x76]) is None
 
 
 class TestExtractP2WPKHScriptCode:
     def test_normal(self) -> None:
-        from bitcoin.signature.extraction.engine import p2wpkh_script_code
+        from btx.signature.extraction.engine import p2wpkh_script_code
 
         sc = p2wpkh_script(b"\x00" * 20)
         code = p2wpkh_script_code(sc)
@@ -934,20 +934,20 @@ class TestExtractP2WPKHScriptCode:
         assert code[:2] == b"\x19\x76"
 
     def test_not_opus_zero(self) -> None:
-        from bitcoin.signature.extraction.engine import p2wpkh_script_code
+        from btx.signature.extraction.engine import p2wpkh_script_code
 
         sc = b"\x01\x14" + b"\x00" * 20
         code = p2wpkh_script_code(sc)
         assert len(code) == 26
 
     def test_short_program(self) -> None:
-        from bitcoin.signature.extraction.engine import p2wpkh_script_code
+        from btx.signature.extraction.engine import p2wpkh_script_code
 
         code = p2wpkh_script_code(b"\x00\x01")
         assert code == b"\x00" * 22
 
     def test_too_short(self) -> None:
-        from bitcoin.signature.extraction.engine import p2wpkh_script_code
+        from btx.signature.extraction.engine import p2wpkh_script_code
 
         code = p2wpkh_script_code(b"\x00")
         assert code == b"\x00" * 22
@@ -955,7 +955,7 @@ class TestExtractP2WPKHScriptCode:
 
 class TestExtractDefaultScriptCode:
     def test_default(self) -> None:
-        from bitcoin.signature.extraction.engine import default_script_code
+        from btx.signature.extraction.engine import default_script_code
 
         assert default_script_code() == b"\x00" * 22
 
@@ -963,7 +963,7 @@ class TestExtractDefaultScriptCode:
 class TestExtractRecoverOrParsePubkey:
     def test_pubkey_bytes_fallback(self) -> None:
         """When recovery fails and pubkey_bytes is valid, fallback works."""
-        from bitcoin.signature.extraction.engine import recover_or_parse_pubkey
+        from btx.signature.extraction.engine import recover_or_parse_pubkey
 
         tx = base_tx()
         sig = NON_QR_SIG
@@ -981,7 +981,7 @@ class TestExtractRecoverOrParsePubkey:
 
     def test_pubkey_bytes_invalid_sec(self) -> None:
         """When pubkey_bytes is invalid SEC, return None."""
-        from bitcoin.signature.extraction.engine import recover_or_parse_pubkey
+        from btx.signature.extraction.engine import recover_or_parse_pubkey
 
         tx = base_tx()
         sig = NON_QR_SIG
@@ -998,7 +998,7 @@ class TestExtractRecoverOrParsePubkey:
 
     def test_pubkey_bytes_none(self) -> None:
         """When recovery fails and pubkey_bytes is None, return None."""
-        from bitcoin.signature.extraction.engine import recover_or_parse_pubkey
+        from btx.signature.extraction.engine import recover_or_parse_pubkey
 
         tx = base_tx()
         sig = NON_QR_SIG
@@ -1015,7 +1015,7 @@ class TestExtractRecoverOrParsePubkey:
 
     def test_recovery_succeeds(self) -> None:
         """Recovery with valid r=1, s=1 returns a point (not None)."""
-        from bitcoin.signature.extraction.engine import recover_or_parse_pubkey
+        from btx.signature.extraction.engine import recover_or_parse_pubkey
 
         tx = base_tx()
         result = recover_or_parse_pubkey(
@@ -1032,12 +1032,12 @@ class TestExtractRecoverOrParsePubkey:
 
 class TestExtractScriptType:
     def test_unknown_type(self) -> None:
-        from bitcoin.signature.extraction.engine import determine_script_type
+        from btx.signature.extraction.engine import determine_script_type
 
         assert determine_script_type(b"", []) == "unknown"
 
     def test_known_type(self) -> None:
-        from bitcoin.signature.extraction.engine import determine_script_type
+        from btx.signature.extraction.engine import determine_script_type
 
         sc = p2pkh_script(b"\x00" * 20)
         assert determine_script_type(sc, []) == P2PKH
@@ -1045,14 +1045,14 @@ class TestExtractScriptType:
 
 class TestExtractComputeSighash:
     def test_legacy(self) -> None:
-        from bitcoin.signature.extraction.engine import compute_sighash
+        from btx.signature.extraction.engine import compute_sighash
 
         tx = base_tx()
         hs = compute_sighash(tx, 0, b"\x00" * 22, 0x01, 0)
         assert len(hs) == 32
 
     def test_segwit(self) -> None:
-        from bitcoin.signature.extraction.engine import compute_sighash
+        from btx.signature.extraction.engine import compute_sighash
 
         tx = base_tx(witness=Witness((b"\x01" * 64,)))
         hs = compute_sighash(tx, 0, b"\x00" * 22, 0x01, 1000)

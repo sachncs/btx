@@ -26,12 +26,12 @@ import logging
 from collections.abc import Sequence
 from typing import TYPE_CHECKING
 
-from bitcoin.curve import is_on_curve, parse_public_key
-from bitcoin.curve.point import Point
-from bitcoin.signature.check import recover_public_key
+from btx.curve import is_on_curve, parse_public_key
+from btx.curve.point import Point
+from btx.signature.check import recover_public_key
 
 if TYPE_CHECKING:
-    from bitcoin.transaction.models import Tx
+    from btx.transaction.models import Tx
 
 logger = logging.getLogger(__name__)
 
@@ -128,8 +128,8 @@ def compute_sighash(tx: Tx, vin: int, script: bytes, flag: int, value: int) -> b
         ValueError: If ``SIGHASH_SINGLE`` is used with out-of-bounds
             input index, or for other invalid flag combinations.
     """
-    from bitcoin.sighash.legacy import sighash_legacy
-    from bitcoin.sighash.segwit import sighash_segwit
+    from btx.sighash.legacy import sighash_legacy
+    from btx.sighash.segwit import sighash_segwit
 
     is_witness = len(script) >= 2 and script[0] == 0x00 and script[1] in (0x14, 0x20)
     if is_witness:

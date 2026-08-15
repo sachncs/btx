@@ -31,10 +31,10 @@ import functools
 import logging
 import threading
 
-from bitcoin.curve.backend.base import CurveBackend
-from bitcoin.curve.backend.native import NativeBackend
-from bitcoin.curve.params import CURVE_ORDER
-from bitcoin.curve.point import Point
+from btx.curve.backend.base import CurveBackend
+from btx.curve.backend.native import NativeBackend
+from btx.curve.params import CURVE_ORDER
+from btx.curve.point import Point
 
 logger = logging.getLogger(__name__)
 
@@ -60,8 +60,8 @@ def build_g_table() -> list[Point]:
     Returns:
         A list of 16 ``Point`` instances: ``[0*G, 1*G, 2*G, ..., 15*G]``.
     """
-    from bitcoin.curve.operations import add
-    from bitcoin.curve.params import GENERATOR_X, GENERATOR_Y
+    from btx.curve.operations import add
+    from btx.curve.params import GENERATOR_X, GENERATOR_Y
 
     G = Point(x=GENERATOR_X, y=GENERATOR_Y)
     table: list[Point] = [Point(infinity=True), G]
@@ -102,7 +102,7 @@ def is_generator(point: Point) -> bool:
         ``True`` if *point* is the generator ``G``, else ``False``.
         The point at infinity is never the generator.
     """
-    from bitcoin.curve.params import GENERATOR_X, GENERATOR_Y
+    from btx.curve.params import GENERATOR_X, GENERATOR_Y
 
     if point.infinity:
         return False
@@ -165,7 +165,7 @@ def resolve_backend() -> CurveBackend:
     with backend_lock:
         if backend is not None:
             return backend
-    from bitcoin.settings import settings
+    from btx.settings import settings
 
     backend_name = settings.default_backend
     if backend_name == "libsecp":
@@ -183,7 +183,7 @@ def try_load_libsecp() -> CurveBackend | None:
         dependency is not installed.
     """
     try:
-        from bitcoin.curve.backend.libsec import LibsecpBackend  # noqa: PLC0415
+        from btx.curve.backend.libsec import LibsecpBackend  # noqa: PLC0415
 
         return LibsecpBackend()
     except ImportError:
@@ -314,7 +314,7 @@ def serialize_public_key(point: Point, compressed: bool = True) -> bytes:
 
 def normalize(value: int) -> int:
     """Return *value* reduced to the range ``[0, FIELD_PRIME)``."""
-    from bitcoin.curve.params import FIELD_PRIME
+    from btx.curve.params import FIELD_PRIME
 
     return value % FIELD_PRIME
 
@@ -322,9 +322,9 @@ def normalize(value: int) -> int:
 def normalize_non_negative(value: int, label: str = "value") -> int:
     """Validate that *value* is a non-negative integer and return it.
 
-    Convenience re-export of :func:`bitcoin.field.validate_non_negative`
+    Convenience re-export of :func:`btx.field.validate_non_negative`
     so callers working with curve operations can validate inputs without
-    importing from ``bitcoin.field`` directly.
+    importing from ``btx.field`` directly.
 
     Args:
         value: Integer to validate.
@@ -337,7 +337,7 @@ def normalize_non_negative(value: int, label: str = "value") -> int:
         TypeError: If *value* is not an ``int``.
         ValueError: If *value* is negative.
     """
-    from bitcoin.field import validate_non_negative
+    from btx.field import validate_non_negative
 
     return validate_non_negative(value, label)
 

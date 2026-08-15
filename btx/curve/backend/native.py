@@ -3,9 +3,9 @@
 """Native pure-Python secp256k1 backend.
 
 This backend delegates every operation to the corresponding pure-Python
-function in :mod:`bitcoin.curve.operations`.  It has no external
+function in :mod:`btx.curve.operations`.  It has no external
 dependencies and is always available.  It is the default backend used
-when no other is configured via :func:`bitcoin.curve.dispatch.set_backend`.
+when no other is configured via :func:`btx.curve.dispatch.set_backend`.
 
 Performance characteristics:
 
@@ -20,13 +20,13 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING
 
-from bitcoin.curve import operations as ops
-from bitcoin.curve.backend.base import CurveBackend
-from bitcoin.encoding.sec import parse_sec, serialize_sec
-from bitcoin.field.sqrt import sqrt as field_sqrt
+from btx.curve import operations as ops
+from btx.curve.backend.base import CurveBackend
+from btx.encoding.sec import parse_sec, serialize_sec
+from btx.field.sqrt import sqrt as field_sqrt
 
 if TYPE_CHECKING:
-    from bitcoin.curve.point import Point
+    from btx.curve.point import Point
 
 
 class NativeBackend(CurveBackend):
@@ -98,7 +98,7 @@ class NativeBackend(CurveBackend):
         Returns:
             The square root modulo FIELD_PRIME.
         """
-        from bitcoin.curve.params import FIELD_PRIME
+        from btx.curve.params import FIELD_PRIME
 
         return field_sqrt(value, FIELD_PRIME)
 

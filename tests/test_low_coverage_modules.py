@@ -6,7 +6,7 @@ from __future__ import annotations
 
 import pytest
 
-from bitcoin.curve import (
+from btx.curve import (
     CURVE_ORDER,
     FIELD_PRIME,
     GENERATOR,
@@ -15,10 +15,10 @@ from bitcoin.curve import (
     double,
     multiply,
 )
-from bitcoin.curve.backend.libsec import LibsecpBackend
-from bitcoin.encoding.binary import bytes_to_int, int_to_bytes, iter_bytes, read_exactly
-from bitcoin.exceptions import UnsupportedScriptPathError
-from bitcoin.script.parser import (
+from btx.curve.backend.libsec import LibsecpBackend
+from btx.encoding.binary import bytes_to_int, int_to_bytes, iter_bytes, read_exactly
+from btx.exceptions import UnsupportedScriptPathError
+from btx.script.parser import (
     ScriptChunk,
     chunks_to_pushes,
     parse_multisig_redeem_script,
@@ -68,7 +68,7 @@ class TestLibsecBackend:
         assert self.backend.is_on_curve(INFINITY) is False
 
     def test_sqrt(self) -> None:
-        from bitcoin.curve.params import FIELD_PRIME
+        from btx.curve.params import FIELD_PRIME
 
         val = 42
         root = self.backend.sqrt(val)
@@ -390,8 +390,8 @@ class TestParseMultisigRedeemScript:
 
 class TestOperationsEdgeCases:
     def test_negate_non_infinity_with_y(self) -> None:
-        from bitcoin.curve import GENERATOR
-        from bitcoin.curve.operations import negate
+        from btx.curve import GENERATOR
+        from btx.curve.operations import negate
 
         result = negate(GENERATOR)
         assert GENERATOR.y is not None
@@ -400,64 +400,64 @@ class TestOperationsEdgeCases:
         assert result.y == FIELD_PRIME - GENERATOR.y
 
     def test_add_both_infinity(self) -> None:
-        from bitcoin.curve.operations import add
+        from btx.curve.operations import add
 
         result = add(INFINITY, INFINITY)
         assert result.infinity
 
     def test_double_infinity(self) -> None:
-        from bitcoin.curve.operations import double
+        from btx.curve.operations import double
 
         result = double(INFINITY)
         assert result.infinity
 
     def test_double_point_with_y_zero(self) -> None:
-        from bitcoin.curve.operations import double
+        from btx.curve.operations import double
 
         y_zero = Point(x=0, y=0)
         result = double(y_zero)
         assert result.infinity
 
     def test_ops_multiply_by_zero(self) -> None:
-        from bitcoin.curve.operations import multiply as ops_multiply
+        from btx.curve.operations import multiply as ops_multiply
 
         result = ops_multiply(0, GENERATOR)
         assert result.infinity
 
     def test_ops_multiply_infinity(self) -> None:
-        from bitcoin.curve.operations import multiply as ops_multiply
+        from btx.curve.operations import multiply as ops_multiply
 
         result = ops_multiply(5, INFINITY)
         assert result.infinity
 
     def test_ops_multiply_zero_after_reduction(self) -> None:
-        from bitcoin.curve.operations import multiply as ops_multiply
+        from btx.curve.operations import multiply as ops_multiply
 
         result = ops_multiply(CURVE_ORDER, GENERATOR)
         assert result.infinity
 
     def test_is_on_curve_with_none_coords(self) -> None:
-        from bitcoin.curve.operations import is_on_curve
+        from btx.curve.operations import is_on_curve
 
         assert is_on_curve(INFINITY)
 
     def test_bits_zero(self) -> None:
-        from bitcoin.curve.operations import bits
+        from btx.curve.operations import bits
 
         assert bits(0) == [0]
 
     def test_bits_one(self) -> None:
-        from bitcoin.curve.operations import bits
+        from btx.curve.operations import bits
 
         assert bits(1) == [1]
 
     def test_bits_large(self) -> None:
-        from bitcoin.curve.operations import bits
+        from btx.curve.operations import bits
 
         assert bits(255) == [1, 1, 1, 1, 1, 1, 1, 1]
 
     def test_add_points_with_different_x(self) -> None:
-        from bitcoin.curve.operations import add
+        from btx.curve.operations import add
 
         p1 = GENERATOR
         p2 = double(p1)
@@ -466,7 +466,7 @@ class TestOperationsEdgeCases:
         assert result == multiply(3, GENERATOR)
 
     def test_add_points_negated(self) -> None:
-        from bitcoin.curve.operations import add
+        from btx.curve.operations import add
 
         assert GENERATOR.y is not None
         neg_gen = Point(x=GENERATOR.x, y=FIELD_PRIME - GENERATOR.y)
@@ -483,7 +483,7 @@ class TestPointEdgeCases:
             Point(x=5, y=None)  # type: ignore[arg-type]
 
     def test_point_y_out_of_range(self) -> None:
-        from bitcoin.curve.params import FIELD_PRIME
+        from btx.curve.params import FIELD_PRIME
 
         with pytest.raises(ValueError, match="y coordinate out of field"):
             Point(x=1, y=FIELD_PRIME)
@@ -500,7 +500,7 @@ class TestPointEdgeCases:
             INFINITY.to_sec_uncompressed()
 
     def test_x_out_of_range(self) -> None:
-        from bitcoin.curve.params import FIELD_PRIME
+        from btx.curve.params import FIELD_PRIME
 
         with pytest.raises(ValueError, match="x coordinate out of field"):
             Point(x=FIELD_PRIME, y=1)
@@ -521,18 +521,18 @@ class TestPointEdgeCases:
 
 class TestDispatchCoverage:
     def test_is_generator_infinity(self) -> None:
-        from bitcoin.curve.dispatch import is_generator
+        from btx.curve.dispatch import is_generator
 
         assert not is_generator(INFINITY)
 
     def test_normalize(self) -> None:
-        from bitcoin.curve.dispatch import normalize
+        from btx.curve.dispatch import normalize
 
         assert normalize(FIELD_PRIME + 5) == 5
         assert normalize(-1) == FIELD_PRIME - 1
 
     def test_normalize_non_negative(self) -> None:
-        from bitcoin.curve.dispatch import normalize_non_negative
+        from btx.curve.dispatch import normalize_non_negative
 
         val = normalize_non_negative(42, "test")
         assert val == 42
@@ -540,22 +540,22 @@ class TestDispatchCoverage:
     def test_normalize_non_negative_negative(self) -> None:
         import re
 
-        from bitcoin.curve.dispatch import normalize_non_negative
+        from btx.curve.dispatch import normalize_non_negative
 
         with pytest.raises(ValueError, match=re.escape("test must be non-negative")):
             normalize_non_negative(-1, "test")
 
     def test_sqrt_field(self) -> None:
-        from bitcoin.curve.dispatch import sqrt_field
-        from bitcoin.curve.params import FIELD_PRIME
+        from btx.curve.dispatch import sqrt_field
+        from btx.curve.params import FIELD_PRIME
 
         val = 4 % FIELD_PRIME
         result = sqrt_field(val)
         assert (result * result) % FIELD_PRIME == val
 
     def test_set_backend_then_get(self) -> None:
-        from bitcoin.curve.backend.native import NativeBackend
-        from bitcoin.curve.dispatch import get_backend, resolve_backend, set_backend
+        from btx.curve.backend.native import NativeBackend
+        from btx.curve.dispatch import get_backend, resolve_backend, set_backend
 
         backend = NativeBackend()
         set_backend(backend)
@@ -568,8 +568,8 @@ class TestDispatchCoverage:
 
 class TestNativeBackendCoverage:
     def test_sqrt(self) -> None:
-        from bitcoin.curve.backend.native import NativeBackend
-        from bitcoin.curve.params import FIELD_PRIME
+        from btx.curve.backend.native import NativeBackend
+        from btx.curve.params import FIELD_PRIME
 
         backend = NativeBackend()
         val = 4 % FIELD_PRIME
@@ -582,7 +582,7 @@ class TestNativeBackendCoverage:
 
 class TestVarintCoverage:
     def test_encode_decode_roundtrip_large(self) -> None:
-        from bitcoin.encoding.varint import decode_varint, encode_varint
+        from btx.encoding.varint import decode_varint, encode_varint
 
         for val in [0, 1, 252, 253, 65535, 65536, 2**32 - 1, 2**32]:
             encoded = encode_varint(val)
@@ -595,18 +595,18 @@ class TestVarintCoverage:
 
 class TestBinaryCoverage:
     def test_read_exactly_short(self) -> None:
-        from bitcoin.encoding.binary import read_exactly
+        from btx.encoding.binary import read_exactly
 
         with pytest.raises(ValueError, match="only has"):
             read_exactly(b"\x00\x01", 5)
 
     def test_iter_bytes_empty(self) -> None:
-        from bitcoin.encoding.binary import iter_bytes
+        from btx.encoding.binary import iter_bytes
 
         assert list(iter_bytes(b"", 32)) == []
 
     def test_iter_bytes_partial(self) -> None:
-        from bitcoin.encoding.binary import iter_bytes
+        from btx.encoding.binary import iter_bytes
 
         chunks = list(iter_bytes(b"\x01\x02\x03", 2))
         assert len(chunks) == 2

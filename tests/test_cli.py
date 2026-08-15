@@ -9,7 +9,7 @@ from pathlib import Path
 
 from typer.testing import CliRunner
 
-from bitcoin.cli.app import app
+from btx.cli.app import app
 
 runner = CliRunner()
 
@@ -17,7 +17,7 @@ runner = CliRunner()
 def test_version() -> None:
     result = runner.invoke(app, ["version"])
     assert result.exit_code == 0
-    assert "bitcoin v" in result.stdout
+    assert "btx v" in result.stdout
 
 
 def test_extract_no_signatures() -> None:
@@ -56,7 +56,7 @@ def test_linearize_empty() -> None:
 
 
 def test_parse_input_values() -> None:
-    from bitcoin.cli.app import parse_input_values
+    from btx.cli.app import parse_input_values
 
     assert parse_input_values("") == []
     assert parse_input_values("100,200,300") == [100, 200, 300]

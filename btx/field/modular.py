@@ -11,13 +11,13 @@ Why not just call ``pow(value, -1, modulus)``?  Two reasons:
 1. Older Python versions (pre-3.8) did not support negative exponents
    in :func:`pow`, so this module guarantees a consistent baseline.
 2. :func:`inverse` raises the project-specific
-   :exc:`~bitcoin.exceptions.NotInvertible` exception for non-coprime
+   :exc:`~btx.exceptions.NotInvertible` exception for non-coprime
    inputs (including zero), letting callers handle that case
    explicitly without distinguishing ``ValueError`` from the underlying
    ``ZeroDivisionError``.
 """
 
-from bitcoin.exceptions import NotInvertible
+from btx.exceptions import NotInvertible
 
 
 def inverse(value: int, modulus: int) -> int:

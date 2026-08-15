@@ -27,10 +27,10 @@ from __future__ import annotations
 from dataclasses import dataclass
 from typing import TYPE_CHECKING
 
-from bitcoin.encoding.hasher import tagged_hash
+from btx.encoding.hasher import tagged_hash
 
 if TYPE_CHECKING:
-    from bitcoin.signature.record import Record
+    from btx.signature.record import Record
 
 
 # Control block structure: parity byte (1) + internal key (32) + merkle path (n * 32)

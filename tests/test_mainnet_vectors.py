@@ -4,19 +4,19 @@
 
 from __future__ import annotations
 
-from bitcoin.curve import GENERATOR, Point, add, multiply
-from bitcoin.curve.params import CURVE_ORDER
-from bitcoin.encoding.der import decode_der
-from bitcoin.encoding.hasher import tagged_hash
-from bitcoin.encoding.hex import decode_hex
-from bitcoin.script.builder import build_p2tr
-from bitcoin.script.classifier import P2PK, P2TR, P2WPKH
-from bitcoin.script.opcodes import OP_CHECKSIG
-from bitcoin.script.parser import serialize_script
-from bitcoin.services.serializer import serialize_tx
-from bitcoin.signature import extract_signatures
-from bitcoin.transaction.models import OutPoint, Tx, TxIn, TxOut, Witness
-from bitcoin.transaction.parser import parse_tx
+from btx.curve import GENERATOR, Point, add, multiply
+from btx.curve.params import CURVE_ORDER
+from btx.encoding.der import decode_der
+from btx.encoding.hasher import tagged_hash
+from btx.encoding.hex import decode_hex
+from btx.script.builder import build_p2tr
+from btx.script.classifier import P2PK, P2TR, P2WPKH
+from btx.script.opcodes import OP_CHECKSIG
+from btx.script.parser import serialize_script
+from btx.services.serializer import serialize_tx
+from btx.signature import extract_signatures
+from btx.transaction.models import OutPoint, Tx, TxIn, TxOut, Witness
+from btx.transaction.parser import parse_tx
 
 
 def point_to_xonly(p: Point) -> bytes:

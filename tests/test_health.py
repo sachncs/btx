@@ -6,7 +6,7 @@ from __future__ import annotations
 
 from unittest.mock import patch
 
-from bitcoin.health import check_backend, check_imports, health
+from btx.health import check_backend, check_imports, health
 
 
 class TestHealth:
@@ -37,7 +37,7 @@ class TestHealth:
             assert ok, f"Module {mod} failed to import"
 
     def test_health_curve_operation_failure(self) -> None:
-        with patch("bitcoin.curve.multiply", side_effect=RuntimeError("boom")):
+        with patch("btx.curve.multiply", side_effect=RuntimeError("boom")):
             result = health()
             assert not result["curve_operation"]["ok"]
             assert "boom" in result["curve_operation"]["error"]
@@ -62,7 +62,7 @@ class TestCheckBackend:
 
     def test_native_backend_failure(self) -> None:
         with patch(
-            "bitcoin.curve.backend.native.NativeBackend",
+            "btx.curve.backend.native.NativeBackend",
             side_effect=RuntimeError("fail"),
         ):
             result = check_backend()
@@ -71,7 +71,7 @@ class TestCheckBackend:
 
     def test_libsecp_backend_failure(self) -> None:
         with patch(
-            "bitcoin.curve.backend.libsec.LibsecpBackend",
+            "btx.curve.backend.libsec.LibsecpBackend",
             side_effect=RuntimeError("fail"),
         ):
             result = check_backend()
@@ -94,21 +94,21 @@ class TestCheckImports:
     def test_expected_modules_present(self) -> None:
         result = check_imports()
         expected = [
-            "bitcoin.curve",
-            "bitcoin.encoding",
-            "bitcoin.field",
-            "bitcoin.script",
-            "bitcoin.transaction",
-            "bitcoin.psbt",
-            "bitcoin.services",
-            "bitcoin.cli",
+            "btx.curve",
+            "btx.encoding",
+            "btx.field",
+            "btx.script",
+            "btx.transaction",
+            "btx.psbt",
+            "btx.services",
+            "btx.cli",
         ]
         for mod in expected:
             assert mod in result
 
     def test_import_failure(self) -> None:
         with patch(
-            "bitcoin.health.importlib.import_module",
+            "btx.health.importlib.import_module",
             side_effect=ImportError("no such module"),
         ):
             result = check_imports()

@@ -6,13 +6,13 @@ from __future__ import annotations
 
 import pytest
 
-from bitcoin.services.serializer import (
+from btx.services.serializer import (
     serialize_legacy_tx,
     serialize_legacy_tx_for_sighash,
     serialize_tx,
     serialize_tx_for_sighash_taproot,
 )
-from bitcoin.sighash.flag import (
+from btx.sighash.flag import (
     SIGHASH_ALL,
     SIGHASH_ALL_ANYONECANPAY,
     SIGHASH_NONE,
@@ -22,10 +22,10 @@ from bitcoin.sighash.flag import (
     require_sighash_flag,
     sighash_name,
 )
-from bitcoin.sighash.legacy import sighash_legacy
-from bitcoin.sighash.segwit import sighash_segwit
-from bitcoin.sighash.taproot import sighash_taproot
-from bitcoin.transaction.models import OutPoint, Tx, TxIn, TxOut, Witness
+from btx.sighash.legacy import sighash_legacy
+from btx.sighash.segwit import sighash_segwit
+from btx.sighash.taproot import sighash_taproot
+from btx.transaction.models import OutPoint, Tx, TxIn, TxOut, Witness
 
 # ---------------------------------------------------------------------------
 # Helpers
@@ -104,7 +104,7 @@ TX_TAPROOT = make_tx(
 
 
 class TestSighashFlag:
-    """100 % line / branch coverage of ``bitcoin.sighash.flag``."""
+    """100 % line / branch coverage of ``btx.sighash.flag``."""
 
     def test_sighash_name_all(self) -> None:
         assert sighash_name(SIGHASH_ALL) == "SIGHASH_ALL"

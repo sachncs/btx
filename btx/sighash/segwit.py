@@ -25,9 +25,9 @@ from __future__ import annotations
 import functools
 from typing import TYPE_CHECKING
 
-from bitcoin.encoding.hasher import hash256
-from bitcoin.encoding.varint import encode_varint
-from bitcoin.sighash.flag import (
+from btx.encoding.hasher import hash256
+from btx.encoding.varint import encode_varint
+from btx.sighash.flag import (
     SIGHASH_ANYONECANPAY,
     SIGHASH_MASK,
     SIGHASH_NONE,
@@ -35,7 +35,7 @@ from bitcoin.sighash.flag import (
 )
 
 if TYPE_CHECKING:
-    from bitcoin.transaction.models import Tx
+    from btx.transaction.models import Tx
 
 ZERO_HASH_32 = b"\x00" * 32
 

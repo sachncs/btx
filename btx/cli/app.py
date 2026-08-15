@@ -19,7 +19,7 @@ Errors are caught and logged via :mod:`logging`; the process exits
 with a non-zero status so shell pipelines can detect failure.
 
 The ``main`` entry point is the function referenced by
-``[project.scripts]`` in ``pyproject.toml`` — ``bitcoin = bitcoin.cli:main``.
+``[project.scripts]`` in ``pyproject.toml`` — ``btx = btx.cli:main``.
 """
 
 from __future__ import annotations
@@ -35,15 +35,15 @@ from pathlib import Path
 
 import typer
 
-from bitcoin.encoding.hex import decode_hex, encode_hex
-from bitcoin.services.serializer import tx_to_json
-from bitcoin.signature import extract_signatures, linearize_signatures
-from bitcoin.signature.record import Record
-from bitcoin.transaction import parse_tx
+from btx.encoding.hex import decode_hex, encode_hex
+from btx.services.serializer import tx_to_json
+from btx.signature import extract_signatures, linearize_signatures
+from btx.signature.record import Record
+from btx.transaction import parse_tx
 
-app = typer.Typer(name="bitcoin")
+app = typer.Typer(name="btx")
 
-logger = logging.getLogger("bitcoin.cli")
+logger = logging.getLogger("btx.cli")
 LOGGING_CONFIGURED: bool = False
 """Module-level flag tracking whether :func:`configure_logging` has run.
 
@@ -72,7 +72,7 @@ class JSONFormatter(logging.Formatter):
 
 
 def configure_logging() -> None:
-    """Configure structured (JSON) logging for the bitcoin CLI.
+    """Configure structured (JSON) logging for the btx CLI.
 
     Log level is read from the ``BITCOIN_LOG_LEVEL`` environment variable
     (default: ``WARNING``).
@@ -83,7 +83,7 @@ def configure_logging() -> None:
 
     Side effects:
         Sets the module-level :data:`LOGGING_CONFIGURED` flag and
-        installs a :class:`JSONFormatter` handler on the ``bitcoin``
+        installs a :class:`JSONFormatter` handler on the ``btx``
         logger.
     """
     global LOGGING_CONFIGURED
@@ -91,7 +91,7 @@ def configure_logging() -> None:
         return
     handler = logging.StreamHandler()
     handler.setFormatter(JSONFormatter())
-    root = logging.getLogger("bitcoin")
+    root = logging.getLogger("btx")
     level = os.getenv("BITCOIN_LOG_LEVEL", "WARNING").upper()
     root.setLevel(level)
     LOGGING_CONFIGURED = True
@@ -345,10 +345,10 @@ def linearize(
 
 @app.command()
 def version() -> None:
-    """Print the installed bitcoin package version."""
-    from bitcoin import __version__ as ver
+    """Print the installed btx package version."""
+    from btx import __version__ as ver
 
-    typer.echo(f"bitcoin v{ver}")
+    typer.echo(f"btx v{ver}")
 
 
 @app.command()
@@ -366,7 +366,7 @@ def broadcast(
     """Broadcast a raw transaction to the Bitcoin network."""
     configure_logging()
     try:
-        from bitcoin.services.blockchain import (
+        from btx.services.blockchain import (
             BlockchainInfoProvider,
             BlockstreamProvider,
             MempoolSpaceProvider,
@@ -388,7 +388,7 @@ def broadcast(
 
         hex_data = read_tx_hex(tx_hex, input_file)
         provider = provider_cls()
-        from bitcoin.services.blockchain import broadcast_transaction
+        from btx.services.blockchain import broadcast_transaction
 
         txid = broadcast_transaction(hex_data, provider=provider)
         typer.echo(txid)
@@ -430,9 +430,9 @@ def install_completion() -> None:
     configure_logging()
     typer.echo("Run the following command to enable tab-completion:")
     typer.echo("")
-    typer.echo('  eval "$(bitcoin --install-completion)"')
+    typer.echo('  eval "$(btx --install-completion)"')
     typer.echo("")
-    typer.echo("Or see: bitcoin --help  (completion is auto-enabled via shell)")
+    typer.echo("Or see: btx --help  (completion is auto-enabled via shell)")
 
 
 @app.command()
@@ -440,7 +440,7 @@ def health() -> None:
     """Run health checks and print a JSON status report."""
     configure_logging()
     try:
-        from bitcoin.health import health as run_health
+        from btx.health import health as run_health
 
         status = run_health()
         typer.echo(json.dumps(status, indent=2, default=str))

@@ -1,6 +1,6 @@
 # Copyright (c) 2026 secp contributors
 # SPDX-License-Identifier: MIT
-"""Comprehensive CLI tests covering every branch in bitcoin/cli/app.py."""
+"""Comprehensive CLI tests covering every branch in btx/cli/app.py."""
 
 from __future__ import annotations
 
@@ -9,9 +9,9 @@ from unittest.mock import patch
 import pytest
 from typer.testing import CliRunner
 
-from bitcoin.cli.app import app, main, parse_input_values
-from bitcoin.curve import INFINITY
-from bitcoin.signature.record import Record
+from btx.cli.app import app, main, parse_input_values
+from btx.curve import INFINITY
+from btx.signature.record import Record
 
 runner = CliRunner()
 
@@ -54,7 +54,7 @@ def test_main_with_extract() -> None:
 
 
 def test_main_returns_zero() -> None:
-    with patch("bitcoin.cli.app.app") as mock_app:
+    with patch("btx.cli.app.app") as mock_app:
         assert main(["version"]) == 0
     mock_app.assert_called_once_with(["version"])
 
@@ -152,7 +152,7 @@ def test_extract_with_records() -> None:
         sighash_flag=1,
         amount=100000,
     )
-    with patch("bitcoin.cli.app.extract_signatures", return_value=[mock_record]):
+    with patch("btx.cli.app.extract_signatures", return_value=[mock_record]):
         result = runner.invoke(app, ["extract", "010000000000000000"])
     assert result.exit_code == 0
     assert "txid:" in result.stdout
@@ -183,7 +183,7 @@ def test_linearize_with_records() -> None:
         sighash_flag=1,
         amount=100000,
     )
-    with patch("bitcoin.cli.app.extract_signatures", return_value=[mock_record]):
+    with patch("btx.cli.app.extract_signatures", return_value=[mock_record]):
         result = runner.invoke(app, ["linearize", "010000000000000000"])
     assert result.exit_code == 0
 
@@ -192,14 +192,14 @@ def test_linearize_with_records() -> None:
 
 
 def test_extract_no_signatures_found() -> None:
-    with patch("bitcoin.cli.app.extract_signatures", return_value=[]):
+    with patch("btx.cli.app.extract_signatures", return_value=[]):
         result = runner.invoke(app, ["extract", "010000000000000000"])
     assert result.exit_code == 0
     assert "No signatures found" in result.stdout
 
 
 def test_linearize_no_signatures_found() -> None:
-    with patch("bitcoin.cli.app.extract_signatures", return_value=[]):
+    with patch("btx.cli.app.extract_signatures", return_value=[]):
         result = runner.invoke(app, ["linearize", "010000000000000000"])
     assert result.exit_code == 0
     assert "No signatures found" in result.stdout
@@ -219,7 +219,7 @@ def test_extract_json_output() -> None:
         sighash_flag=1,
         amount=100000,
     )
-    with patch("bitcoin.cli.app.extract_signatures", return_value=[mock_record]):
+    with patch("btx.cli.app.extract_signatures", return_value=[mock_record]):
         result = runner.invoke(app, ["extract", "010000000000000000", "--json"])
     assert result.exit_code == 0
     import json
@@ -243,7 +243,7 @@ def test_extract_csv_output() -> None:
         sighash_flag=1,
         amount=100000,
     )
-    with patch("bitcoin.cli.app.extract_signatures", return_value=[mock_record]):
+    with patch("btx.cli.app.extract_signatures", return_value=[mock_record]):
         result = runner.invoke(app, ["extract", "010000000000000000", "--csv"])
     assert result.exit_code == 0
     assert "txid" in result.stdout
@@ -264,7 +264,7 @@ def test_extract_format_option() -> None:
         sighash_flag=1,
         amount=100000,
     )
-    with patch("bitcoin.cli.app.extract_signatures", return_value=[mock_record]):
+    with patch("btx.cli.app.extract_signatures", return_value=[mock_record]):
         result = runner.invoke(
             app, ["extract", "010000000000000000", "--format", "json"]
         )
@@ -294,7 +294,7 @@ def test_linearize_json_output() -> None:
         sighash_flag=1,
         amount=100000,
     )
-    with patch("bitcoin.cli.app.extract_signatures", return_value=[mock_record]):
+    with patch("btx.cli.app.extract_signatures", return_value=[mock_record]):
         result = runner.invoke(app, ["linearize", "010000000000000000", "--json"])
     assert result.exit_code == 0
     import json
@@ -317,7 +317,7 @@ def test_linearize_csv_output() -> None:
         sighash_flag=1,
         amount=100000,
     )
-    with patch("bitcoin.cli.app.extract_signatures", return_value=[mock_record]):
+    with patch("btx.cli.app.extract_signatures", return_value=[mock_record]):
         result = runner.invoke(app, ["linearize", "010000000000000000", "--csv"])
     assert result.exit_code == 0
     assert "txid" in result.stdout
@@ -327,7 +327,7 @@ def test_linearize_csv_output() -> None:
 
 
 def test_main_without_args() -> None:
-    with patch("bitcoin.cli.app.app") as mock_app:
+    with patch("btx.cli.app.app") as mock_app:
         ret = main(None)
     assert ret == 0
     mock_app.assert_called_once_with()

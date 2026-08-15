@@ -6,11 +6,11 @@ from __future__ import annotations
 
 import pytest
 
-from bitcoin.psbt import PsbtInput, PsbtOutput, parse_psbt, serialize_psbt
-from bitcoin.psbt.models import Psbt as PsbtModel
-from bitcoin.services.serializer import serialize_legacy_tx
-from bitcoin.signature import SignatureCollection
-from bitcoin.transaction import Tx
+from btx.psbt import PsbtInput, PsbtOutput, parse_psbt, serialize_psbt
+from btx.psbt.models import Psbt as PsbtModel
+from btx.services.serializer import serialize_legacy_tx
+from btx.signature import SignatureCollection
+from btx.transaction import Tx
 
 
 class TestPsbt:

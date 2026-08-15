@@ -7,10 +7,10 @@ from __future__ import annotations
 from hypothesis import assume, stateful
 from hypothesis import strategies as st
 
-from bitcoin.signature.extraction.engine import extract_signatures
-from bitcoin.signature.record import Record
-from bitcoin.transaction.models import Tx
-from bitcoin.transaction.parser import parse_tx
+from btx.signature.extraction.engine import extract_signatures
+from btx.signature.record import Record
+from btx.transaction.models import Tx
+from btx.transaction.parser import parse_tx
 
 
 class ExtractionPipeline(stateful.RuleBasedStateMachine):
@@ -66,7 +66,7 @@ class ExtractionPipeline(stateful.RuleBasedStateMachine):
     def linearization_preserves_records(self) -> None:
         if not self.records:
             return
-        from bitcoin.signature.linearization import linearize_signatures
+        from btx.signature.linearization import linearize_signatures
 
         flat = linearize_signatures(self.records)
         assert len(flat) == len(self.records)

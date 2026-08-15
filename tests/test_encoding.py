@@ -4,8 +4,8 @@
 
 import pytest
 
-from bitcoin.curve import GENERATOR, INFINITY
-from bitcoin.encoding import (
+from btx.curve import GENERATOR, INFINITY
+from btx.encoding import (
     bytes_to_int,
     decode_der,
     decode_hex,
@@ -71,7 +71,7 @@ class TestDer:
         assert (decoded_s == s) or (decoded_s == CURVE_ORDER - s)
 
     def test_s_high_ok(self) -> None:
-        from bitcoin.curve.params import CURVE_ORDER
+        from btx.curve.params import CURVE_ORDER
 
         half = CURVE_ORDER // 2
         r = 1

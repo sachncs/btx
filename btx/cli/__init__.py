@@ -1,11 +1,11 @@
 # Copyright (c) 2026 secp contributors
 # SPDX-License-Identifier: MIT
-"""Command-line interface for the bitcoin package.
+"""Command-line interface for the btx package.
 
 Re-exports the Typer :data:`app`, the :func:`main` console-script
 entry point, and the small :func:`parse_input_values` helper used by
 the ``extract`` command.  The actual command implementations live in
-:mod:`bitcoin.cli.app`.
+:mod:`btx.cli.app`.
 
 Commands exposed by the CLI:
 
@@ -19,11 +19,11 @@ Commands exposed by the CLI:
 - ``install_completion`` – show tab-completion instructions.
 - ``version`` – print the installed package version.
 
-The CLI is registered as the ``bitcoin`` console script by the
+The CLI is registered as the ``btx`` console script by the
 project's ``pyproject.toml`` (``[project.scripts]``).
 """
 
-from bitcoin.cli.app import app, main, parse_input_values
+from btx.cli.app import app, main, parse_input_values
 
 __all__ = [
     "app",

@@ -3,7 +3,7 @@
 """Pure-Python secp256k1 point arithmetic.
 
 This module contains the pure-Python implementation of the curve
-operations required by :class:`~bitcoin.curve.backend.native.NativeBackend`.
+operations required by :class:`~btx.curve.backend.native.NativeBackend`.
 Algorithms used:
 
 - **Point addition / doubling** – standard affine formulas using the
@@ -17,15 +17,15 @@ Algorithms used:
 
 The implementations are written for clarity and correctness rather
 than maximum throughput; for performance-critical workloads, prefer
-:class:`~bitcoin.curve.backend.libsec.LibsecpBackend` when the
+:class:`~btx.curve.backend.libsec.LibsecpBackend` when the
 ``coincurve`` extension is available.
 """
 
 from __future__ import annotations
 
-from bitcoin.curve.params import CURVE_A, CURVE_B, CURVE_ORDER, FIELD_PRIME
-from bitcoin.curve.point import Point
-from bitcoin.field import inverse
+from btx.curve.params import CURVE_A, CURVE_B, CURVE_ORDER, FIELD_PRIME
+from btx.curve.point import Point
+from btx.field import inverse
 
 
 def negate(point: Point) -> Point:

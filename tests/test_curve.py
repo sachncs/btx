@@ -4,7 +4,7 @@
 
 import pytest
 
-from bitcoin.curve import (
+from btx.curve import (
     CURVE_ORDER,
     FIELD_PRIME,
     GENERATOR,
@@ -131,7 +131,7 @@ class TestPointSecRoundtrip:
             Point.from_sec_uncompressed(b"\x00" * 65)
 
     def test_infinity_cannot_serialize(self) -> None:
-        from bitcoin.encoding.sec import serialize_sec
+        from btx.encoding.sec import serialize_sec
 
         with pytest.raises(ValueError, match="Cannot serialize"):
             serialize_sec(INFINITY)
@@ -184,7 +184,7 @@ class TestBackendDispatch:
         backend = NativeBackend()
         set_backend(backend)
         assert get_backend() is backend
-        import bitcoin.curve.dispatch as d
+        import btx.curve.dispatch as d
 
         d.backend = None
         assert get_backend() is None
@@ -195,16 +195,16 @@ class TestBackendDispatch:
 
     def test_dispatch_auto_resolve(self) -> None:
         """Dispatch functions auto-resolve backend without explicit set_backend."""
-        from bitcoin.curve.dispatch import resolve_backend
+        from btx.curve.dispatch import resolve_backend
 
         backend = resolve_backend()
-        from bitcoin.curve.backend.native import NativeBackend
+        from btx.curve.backend.native import NativeBackend
 
         assert isinstance(backend, NativeBackend)
 
     def test_dispatch_functions_work_without_set_backend(self) -> None:
         """Operations work with auto-resolved backend."""
-        from bitcoin.curve.dispatch import add, is_on_curve, negate
+        from btx.curve.dispatch import add, is_on_curve, negate
 
         assert is_on_curve(GENERATOR)
         neg = negate(GENERATOR)

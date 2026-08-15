@@ -26,7 +26,7 @@ executable.  Convert it to Bitcoin Script bytes by feeding it to a
 full Miniscript implementation, or use it for analysis and inspection.
 
 Both helpers are part of the public API and are also re-exported
-from :mod:`bitcoin.descriptor` for convenience.
+from :mod:`btx.descriptor` for convenience.
 """
 
 from __future__ import annotations

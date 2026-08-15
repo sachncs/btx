@@ -6,8 +6,8 @@ from __future__ import annotations
 
 import pytest
 
-from bitcoin import OutPoint, ParsingError, Tx, TxIn, TxOut, Witness, make_tx, parse_tx
-from bitcoin.services.serializer import serialize_legacy_tx, serialize_tx
+from btx import OutPoint, ParsingError, Tx, TxIn, TxOut, Witness, make_tx, parse_tx
+from btx.services.serializer import serialize_legacy_tx, serialize_tx
 
 
 class TestParseTx:

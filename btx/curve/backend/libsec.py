@@ -9,13 +9,13 @@ when (a) the ``coincurve`` optional dependency is installed and
 
 Because ``coincurve`` does not expose point negation, addition, or
 doubling as standalone primitives, those three methods fall back to
-the pure-Python implementation in :mod:`bitcoin.curve.operations`.
+the pure-Python implementation in :mod:`btx.curve.operations`.
 Scalar multiplication and on-curve validation, however, are routed
 through libsecp256k1 for an order-of-magnitude speedup.
 
 Lifecycle:
 
-- :meth:`__init__` calls :func:`bitcoin.curve.libsecp256k1.check` to
+- :meth:`__init__` calls :func:`btx.curve.libsecp256k1.check` to
   verify that ``coincurve`` is importable; this raises
   :exc:`ImportError` early with a clear message if the optional
   dependency is missing.
@@ -27,11 +27,11 @@ from __future__ import annotations
 import logging
 from typing import TYPE_CHECKING
 
-from bitcoin.curve.backend.base import CurveBackend
-from bitcoin.curve.libsecp256k1 import check as check_libsecp256k1
+from btx.curve.backend.base import CurveBackend
+from btx.curve.libsecp256k1 import check as check_libsecp256k1
 
 if TYPE_CHECKING:
-    from bitcoin.curve.point import Point
+    from btx.curve.point import Point
 
 logger = logging.getLogger(__name__)
 
@@ -62,7 +62,7 @@ class LibsecpBackend(CurveBackend):
         Returns:
             The negated point.
         """
-        from bitcoin.curve.operations import negate
+        from btx.curve.operations import negate
 
         return negate(point)
 
@@ -79,7 +79,7 @@ class LibsecpBackend(CurveBackend):
         Returns:
             The sum point.
         """
-        from bitcoin.curve.operations import add
+        from btx.curve.operations import add
 
         return add(left, right)
 
@@ -95,7 +95,7 @@ class LibsecpBackend(CurveBackend):
         Returns:
             The doubled point.
         """
-        from bitcoin.curve.operations import double
+        from btx.curve.operations import double
 
         return double(point)
 
@@ -119,7 +119,7 @@ class LibsecpBackend(CurveBackend):
         tweak = scalar.to_bytes(32, "big")
         new_pub = px.multiply(tweak)
         raw = new_pub.format()  # 33-byte compressed
-        from bitcoin.encoding.sec import parse_sec
+        from btx.encoding.sec import parse_sec
 
         return parse_sec(raw)
 
@@ -152,8 +152,8 @@ class LibsecpBackend(CurveBackend):
         Returns:
             The square root modulo FIELD_PRIME.
         """
-        from bitcoin.curve.params import FIELD_PRIME
-        from bitcoin.field.sqrt import sqrt
+        from btx.curve.params import FIELD_PRIME
+        from btx.field.sqrt import sqrt
 
         return sqrt(value, FIELD_PRIME)
 
@@ -166,7 +166,7 @@ class LibsecpBackend(CurveBackend):
         Returns:
             The parsed Point.
         """
-        from bitcoin.encoding.sec import parse_sec
+        from btx.encoding.sec import parse_sec
 
         return parse_sec(data)
 
@@ -180,6 +180,6 @@ class LibsecpBackend(CurveBackend):
         Returns:
             The SEC-encoded bytes.
         """
-        from bitcoin.encoding.sec import serialize_sec
+        from btx.encoding.sec import serialize_sec
 
         return serialize_sec(point, compressed)

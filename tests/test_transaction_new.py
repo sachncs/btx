@@ -4,8 +4,8 @@
 
 import pytest
 
-from bitcoin.transaction import make_tx
-from bitcoin.transaction.models import (
+from btx.transaction import make_tx
+from btx.transaction.models import (
     EMPTY_WITNESS,
     OutPoint,
     Tx,

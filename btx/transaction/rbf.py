@@ -22,7 +22,7 @@ Reference:
 
 from __future__ import annotations
 
-from bitcoin.transaction.models import Tx
+from btx.transaction.models import Tx
 
 # BIP-125: any input with sequence <= 0xFFFFFFFD signals opt-in RBF.
 RBF_SEQUENCE_THRESHOLD = 0xFFFFFFFD

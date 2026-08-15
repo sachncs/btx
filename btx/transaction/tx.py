@@ -11,7 +11,7 @@ rather than being silently coerced, helping callers detect
 construction bugs at the boundary.
 
 For stricter validation, prefer the :class:`TransactionBuilder` fluent
-API or :func:`tx_from_dict` from :mod:`bitcoin.transaction.builder`,
+API or :func:`tx_from_dict` from :mod:`btx.transaction.builder`,
 which raise :exc:`ValueError` on malformed input.
 """
 
@@ -19,7 +19,7 @@ from __future__ import annotations
 
 from collections.abc import Sequence
 
-from bitcoin.transaction.models import OutPoint, Tx, TxIn, TxOut, Witness
+from btx.transaction.models import OutPoint, Tx, TxIn, TxOut, Witness
 
 
 def build_transaction(

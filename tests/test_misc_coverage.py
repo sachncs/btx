@@ -6,13 +6,13 @@ from __future__ import annotations
 
 import pytest
 
-from bitcoin.curve import GENERATOR
-from bitcoin.signature import Record, SignatureCollection, linearize_signatures
-from bitcoin.signature.linearization.coefficients import (
+from btx.curve import GENERATOR
+from btx.signature import Record, SignatureCollection, linearize_signatures
+from btx.signature.linearization.coefficients import (
     LinearCoefficientCollection,
     derive_linear_coefficients,
 )
-from bitcoin.transaction.models import (
+from btx.transaction.models import (
     OutPoint,
     Tx,
     TxIn,

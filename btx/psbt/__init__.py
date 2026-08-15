@@ -5,18 +5,18 @@
 Implements BIP-174 (and the BIP-174 + Taproot extensions implicitly
 via unknown-key preservation).  The subpackage contains:
 
-- :mod:`bitcoin.psbt.models` – frozen dataclasses :class:`Psbt`,
+- :mod:`btx.psbt.models` – frozen dataclasses :class:`Psbt`,
   :class:`PsbtInput`, :class:`PsbtOutput` with serialise / extract
   methods.
-- :mod:`bitcoin.psbt.parser` – BIP-174 binary reader and writer,
+- :mod:`btx.psbt.parser` – BIP-174 binary reader and writer,
   including the key-type constants, witness-stack parsing, the
   BIP-32 keypath parser, and the in-memory
   :func:`parse_psbt_impl` helper shared with the file entry point.
-- :mod:`bitcoin.psbt.editor` – :class:`PsbtEditor` fluent API for
+- :mod:`btx.psbt.editor` – :class:`PsbtEditor` fluent API for
   programmatically constructing or signing a PSBT.
-- :mod:`bitcoin.psbt.extraction` – :func:`psbt_extract_signatures` and
+- :mod:`btx.psbt.extraction` – :func:`psbt_extract_signatures` and
   the helper that finds the public key in a parsed script.
-- :mod:`bitcoin.psbt.pipeline` – :func:`process_psbt_batch` /
+- :mod:`btx.psbt.pipeline` – :func:`process_psbt_batch` /
   :func:`process_psbt_batch_with` for parallel PSBT file processing
   with structured logging and graceful error capture.  The
   :func:`parse_psbt_worker` callable is also re-exported for
@@ -25,7 +25,7 @@ via unknown-key preservation).  The subpackage contains:
 Defensive limits
 ----------------
 
-:mod:`bitcoin.psbt.parser` enforces four safety limits on untrusted
+:mod:`btx.psbt.parser` enforces four safety limits on untrusted
 input:
 
 - :data:`MAX_KEY_VALUE_MAP_ENTRIES` – number of key-value pairs per
@@ -39,9 +39,9 @@ These defaults are deliberately generous (a real mainnet PSBT has at
 most a few dozen entries per map and kilobyte-sized values).
 """
 
-from bitcoin.psbt.editor import PsbtEditor
-from bitcoin.psbt.models import Psbt, PsbtInput, PsbtOutput
-from bitcoin.psbt.parser import (
+from btx.psbt.editor import PsbtEditor
+from btx.psbt.models import Psbt, PsbtInput, PsbtOutput
+from btx.psbt.parser import (
     parse_keypath_value,
     parse_psbt,
     parse_psbt_from_file,
@@ -50,7 +50,7 @@ from bitcoin.psbt.parser import (
     psbt_extract_signatures,
     serialize_psbt,
 )
-from bitcoin.psbt.pipeline import (
+from btx.psbt.pipeline import (
     parse_psbt_worker,
     process_psbt_batch,
     process_psbt_batch_with,

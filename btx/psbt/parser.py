@@ -33,13 +33,13 @@ from __future__ import annotations
 
 import logging
 
-from bitcoin.encoding.varint import decode_varint, encode_varint
-from bitcoin.psbt.extraction import (  # noqa: F401
+from btx.encoding.varint import decode_varint, encode_varint
+from btx.psbt.extraction import (  # noqa: F401
     extract_pubkey_from_elements,
     psbt_extract_signatures,
 )
-from bitcoin.psbt.models import Psbt, PsbtInput, PsbtOutput
-from bitcoin.transaction.parser import parse_tx
+from btx.psbt.models import Psbt, PsbtInput, PsbtOutput
+from btx.transaction.parser import parse_tx
 
 logger = logging.getLogger(__name__)
 

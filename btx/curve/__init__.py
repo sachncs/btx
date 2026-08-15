@@ -10,24 +10,24 @@ elliptic-curve operations over the secp256k1 group
 Layers
 ------
 
-- :mod:`bitcoin.curve.params` – SEC-1 curve constants (``p``, ``n``,
+- :mod:`btx.curve.params` – SEC-1 curve constants (``p``, ``n``,
   ``a``, ``b``, generator coordinates).
-- :mod:`bitcoin.curve.point` – immutable :class:`Point` type with
+- :mod:`btx.curve.point` – immutable :class:`Point` type with
   ``__slots__`` storage and a domain-chain
   :class:`PointArithmetic` engine accessed via ``point.arithmetic``.
-- :mod:`bitcoin.curve.backend` – pluggable :class:`CurveBackend` ABC
+- :mod:`btx.curve.backend` – pluggable :class:`CurveBackend` ABC
   with two concrete implementations: :class:`NativeBackend` (pure
   Python) and :class:`LibsecpBackend` (optional ``coincurve``/libsecp256k1
   C bindings).
-- :mod:`bitcoin.curve.operations` – Montgomery-ladder scalar
+- :mod:`btx.curve.operations` – Montgomery-ladder scalar
   multiplication and field-arithmetic primitives used by
   :class:`NativeBackend`.
-- :mod:`bitcoin.curve.dispatch` – module-level backend singleton and
+- :mod:`btx.curve.dispatch` – module-level backend singleton and
   the public ``add``/``double``/``multiply``/``negate``/``is_on_curve``/
   ``parse_public_key``/``serialize_public_key``/``sqrt_field``/
   ``normalize`` entry points.  Also caches a 4-bit-window table for
   the generator point.
-- :mod:`bitcoin.curve.batch` – Straus-style multi-exponentiation and
+- :mod:`btx.curve.batch` – Straus-style multi-exponentiation and
   bulk on-curve validation/normalisation.
 
 Backend selection
@@ -35,19 +35,19 @@ Backend selection
 
 Use :func:`set_backend` to force a backend, or set
 ``settings.default_backend = "libsecp"`` (or ``"native"``) to influence
-auto-resolution via :func:`bitcoin.curve.dispatch.resolve_backend`.
+auto-resolution via :func:`btx.curve.dispatch.resolve_backend`.
 """
 
-from bitcoin.curve import libsecp256k1
-from bitcoin.curve.backend.base import CurveBackend
-from bitcoin.curve.backend.libsec import LibsecpBackend
-from bitcoin.curve.backend.native import NativeBackend
-from bitcoin.curve.batch import (
+from btx.curve import libsecp256k1
+from btx.curve.backend.base import CurveBackend
+from btx.curve.backend.libsec import LibsecpBackend
+from btx.curve.backend.native import NativeBackend
+from btx.curve.batch import (
     batch_normalize,
     batch_validate,
     multi_multiply,
 )
-from bitcoin.curve.dispatch import (
+from btx.curve.dispatch import (
     add,
     double,
     get_backend,
@@ -61,7 +61,7 @@ from bitcoin.curve.dispatch import (
     set_backend,
     sqrt_field,
 )
-from bitcoin.curve.params import (
+from btx.curve.params import (
     CURVE_A,
     CURVE_B,
     CURVE_ORDER,
@@ -69,7 +69,7 @@ from bitcoin.curve.params import (
     GENERATOR_X,
     GENERATOR_Y,
 )
-from bitcoin.curve.point import Point
+from btx.curve.point import Point
 
 # Singleton points
 GENERATOR = Point(x=GENERATOR_X, y=GENERATOR_Y)  # The secp256k1 generator point

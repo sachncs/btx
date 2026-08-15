@@ -5,31 +5,31 @@
 This subpackage owns every aspect of Bitcoin Script that the rest of
 the library needs:
 
-- :mod:`bitcoin.script.opcodes` – the small subset of opcodes used by
+- :mod:`btx.script.opcodes` – the small subset of opcodes used by
   the classifiers and builders, plus the ``OPCODES_BY_NAME`` /
   ``OPCODES_BY_VALUE`` lookup dicts.
-- :mod:`bitcoin.script.parser` – low-level parsing of raw script bytes
+- :mod:`btx.script.parser` – low-level parsing of raw script bytes
   into :class:`ScriptChunk` or flat ``(push, opcode)`` element lists,
   plus decompilation to a human-readable string and multisig redeem
   script decoding.
-- :mod:`bitcoin.script.classifier` – pattern-matching helpers that
+- :mod:`btx.script.classifier` – pattern-matching helpers that
   identify standard output (P2PK, P2PKH, P2SH, P2WPKH, P2WSH, P2TR)
   and spending (scriptSig) script types, and detect OP_RETURN,
   multisig, and timelock scripts.
-- :mod:`bitcoin.script.builder` – :func:`build_p2pk`,
+- :mod:`btx.script.builder` – :func:`build_p2pk`,
   :func:`build_p2pkh`, :func:`build_p2wpkh`, :func:`build_p2wsh`,
   :func:`build_p2sh`, :func:`build_p2tr`, :func:`make_p2pkh_script`
   constructors.
-- :mod:`bitcoin.script.taproot` – Taproot control-block parsing,
+- :mod:`btx.script.taproot` – Taproot control-block parsing,
   tapleaf-hash and tweak computation, script-path witness parsing,
   and x-only public-key extraction.
 
 Public re-exports of the most useful names are kept here so callers
-can ``from bitcoin.script import classify_script_pubkey`` without
+can ``from btx.script import classify_script_pubkey`` without
 reaching into a submodule.
 """
 
-from bitcoin.script.builder import (
+from btx.script.builder import (
     build_p2pk,
     build_p2pkh,
     build_p2sh,
@@ -38,7 +38,7 @@ from bitcoin.script.builder import (
     build_p2wsh,
     make_p2pkh_script,
 )
-from bitcoin.script.classifier import (
+from btx.script.classifier import (
     MULTISIG,
     NON_STANDARD,
     P2PK,
@@ -55,7 +55,7 @@ from bitcoin.script.classifier import (
     is_bare_multisig,
     is_op_return,
 )
-from bitcoin.script.opcodes import (
+from btx.script.opcodes import (
     OP_0,
     OP_1,
     OP_1NEGATE,
@@ -75,7 +75,7 @@ from bitcoin.script.opcodes import (
     OPCODES_BY_NAME,
     OPCODES_BY_VALUE,
 )
-from bitcoin.script.parser import (
+from btx.script.parser import (
     Opcode,
     Push,
     ScriptChunk,
@@ -85,8 +85,8 @@ from bitcoin.script.parser import (
     script_to_string,
     serialize_script,
 )
-from bitcoin.script.parser import parse_script_chunks as parse_script
-from bitcoin.script.taproot import (
+from btx.script.parser import parse_script_chunks as parse_script
+from btx.script.taproot import (
     TaprootControlBlock,
     TaprootScriptPath,
     compute_tapleaf_hash,

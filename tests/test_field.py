@@ -4,8 +4,8 @@
 
 import pytest
 
-from bitcoin.exceptions import NotInvertible
-from bitcoin.field import inverse, pow_mod, sqrt, validate_non_negative
+from btx.exceptions import NotInvertible
+from btx.field import inverse, pow_mod, sqrt, validate_non_negative
 
 
 class TestInverse:

@@ -23,9 +23,9 @@ transaction) and can be tuned per-deployment if needed.
 
 from __future__ import annotations
 
-from bitcoin.encoding.varint import decode_varint
-from bitcoin.exceptions import ParsingError
-from bitcoin.transaction.models import OutPoint, Tx, TxIn, TxOut, Witness
+from btx.encoding.varint import decode_varint
+from btx.exceptions import ParsingError
+from btx.transaction.models import OutPoint, Tx, TxIn, TxOut, Witness
 
 MAX_TX_SIZE = 4_000_000
 MAX_INPUTS = 100000

@@ -5,14 +5,14 @@
 Three sighash algorithms are supported, each implementing a different
 Bitcoin specification:
 
-- :mod:`bitcoin.sighash.flag` – SIGHASH flag constants and validation.
-- :mod:`bitcoin.sighash.legacy` – pre-SegWit sighash (hash of full
+- :mod:`btx.sighash.flag` – SIGHASH flag constants and validation.
+- :mod:`btx.sighash.legacy` – pre-SegWit sighash (hash of full
   transaction with input scripts and selected outputs modified per
   the flag).
-- :mod:`bitcoin.sighash.segwit` – BIP-143 SegWit v0 sighash (commits
+- :mod:`btx.sighash.segwit` – BIP-143 SegWit v0 sighash (commits
   to amounts and uses amortised hashes of prevouts and sequences for
   a factor-of-~3 speedup over the legacy algorithm).
-- :mod:`bitcoin.sighash.taproot` – BIP-341 Taproot sighash (tagged
+- :mod:`btx.sighash.taproot` – BIP-341 Taproot sighash (tagged
   hash over an extensible, script/key-path-aware digest).
 
 The legacy and SegWit sighashes are LRU-cached because they are
@@ -28,7 +28,7 @@ References
 - BIP-341: "Taproot: SegWit version 1 spending rules"
 """
 
-from bitcoin.sighash.flag import (
+from btx.sighash.flag import (
     SIGHASH_ALL,
     SIGHASH_ALL_ANYONECANPAY,
     SIGHASH_ANYONECANPAY,
@@ -41,9 +41,9 @@ from bitcoin.sighash.flag import (
     require_sighash_flag,
     sighash_name,
 )
-from bitcoin.sighash.legacy import sighash_legacy
-from bitcoin.sighash.segwit import sighash_segwit
-from bitcoin.sighash.taproot import sighash_taproot
+from btx.sighash.legacy import sighash_legacy
+from btx.sighash.segwit import sighash_segwit
+from btx.sighash.taproot import sighash_taproot
 
 __all__ = [
     "SIGHASH_ALL",

@@ -6,7 +6,7 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING
 
-from bitcoin.curve import (
+from btx.curve import (
     GENERATOR,
     INFINITY,
     add,

@@ -4,8 +4,8 @@
 
 import pytest
 
-from bitcoin.descriptor import analyze_descriptor, compile_descriptor, extract_keys
-from bitcoin.descriptor.compiler import (
+from btx.descriptor import analyze_descriptor, compile_descriptor, extract_keys
+from btx.descriptor.compiler import (
     DescriptorError,
     DescriptorNode,
     parse_descriptor,
