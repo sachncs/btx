@@ -400,17 +400,17 @@ def broadcast(
     try:
         from btx.services.blockchain import (
             BlockchainInfoProvider,
-            BlockstreamProvider,
-            MempoolSpaceProvider,
+            blockstream_provider,
+            mempool_space_provider,
         )
 
         providers = {
-            "blockstream": BlockstreamProvider,
-            "mempool": MempoolSpaceProvider,
+            "blockstream": blockstream_provider,
+            "mempool": mempool_space_provider,
             "blockchain_info": BlockchainInfoProvider,
         }
-        provider_cls = providers.get(provider_name)
-        if provider_cls is None:
+        provider_factory = providers.get(provider_name)
+        if provider_factory is None:
             typer.echo(
                 f"Unknown provider: {provider_name}. "
                 f"Choose from: {', '.join(providers)}",
@@ -419,7 +419,7 @@ def broadcast(
             raise typer.Exit(1)
 
         hex_data = read_tx_hex(tx_hex, input_file)
-        provider = provider_cls()
+        provider = provider_factory()
         from btx.services.blockchain import broadcast_transaction
 
         txid = broadcast_transaction(hex_data, provider=provider)

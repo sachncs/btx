@@ -20,17 +20,20 @@ importing only the curve / signature / script layers.
 """
 
 from btx.services.blockchain import (
+    BLOCKSTREAM_BASE_URL,
+    MEMPOOL_SPACE_BASE_URL,
+    BaseBlockchainProvider,
     BlockchainInfoProvider,
-    BlockstreamProvider,
     GenericHttpProvider,
-    MempoolSpaceProvider,
     async_batch_fetch_transactions,
     async_enrich_transaction,
     batch_enrich_transactions,
     batch_fetch_transactions,
+    blockstream_provider,
     broadcast_transaction,
     enrich_transaction,
     fetch_and_extract,
+    mempool_space_provider,
 )
 from btx.services.serializer import (
     serialize_legacy_tx,
@@ -39,17 +42,20 @@ from btx.services.serializer import (
 )
 
 __all__ = [
+    "BLOCKSTREAM_BASE_URL",
+    "BaseBlockchainProvider",
     "BlockchainInfoProvider",
-    "BlockstreamProvider",
     "GenericHttpProvider",
-    "MempoolSpaceProvider",
+    "MEMPOOL_SPACE_BASE_URL",
     "async_batch_fetch_transactions",
     "async_enrich_transaction",
     "batch_enrich_transactions",
     "batch_fetch_transactions",
+    "blockstream_provider",
     "broadcast_transaction",
     "enrich_transaction",
     "fetch_and_extract",
+    "mempool_space_provider",
     "serialize_legacy_tx",
     "serialize_tx",
     "tx_to_json",

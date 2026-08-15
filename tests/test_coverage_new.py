@@ -46,8 +46,8 @@ from btx.script.taproot import (
 )
 from btx.services.blockchain import (
     BlockchainInfoProvider,
-    BlockstreamProvider,
-    MempoolSpaceProvider,
+    blockstream_provider,
+    mempool_space_provider,
     enrich_transaction,
     fetch_and_extract,
     fetch_text,
@@ -807,52 +807,52 @@ class TestBlockstreamProvider:
             "btx.services.blockchain.fetch_text",
             return_value="01000000...",
         ) as mock_fetch:
-            p = BlockstreamProvider()
+            p = blockstream_provider()
             result = p.get_transaction_hex("aa" * 32)
             assert result == "01000000..."
             mock_fetch.assert_called_once()
 
     def test_get_utxo_script_pubkey(self) -> None:
         txid = "aa" * 32
+        p = blockstream_provider()
         with patch.object(
-            BlockstreamProvider,
+            p,
             "fetch_tx_json",
             return_value=make_tx_json(txid),
         ):
-            p = BlockstreamProvider()
             script = p.get_utxo_script_pubkey(txid, 0)
             assert script
 
     def test_get_utxo_script_pubkey_out_of_range(self) -> None:
         txid = "aa" * 32
+        p = blockstream_provider()
         with patch.object(
-            BlockstreamProvider,
+            p,
             "fetch_tx_json",
             return_value=make_tx_json(txid),
         ):
-            p = BlockstreamProvider()
             with pytest.raises(ValueError, match="out of range"):
                 p.get_utxo_script_pubkey(txid, 99)
 
     def test_get_utxo_value(self) -> None:
         txid = "bb" * 32
+        p = blockstream_provider()
         with patch.object(
-            BlockstreamProvider,
+            p,
             "fetch_tx_json",
             return_value=make_tx_json(txid),
         ):
-            p = BlockstreamProvider()
             val = p.get_utxo_value(txid, 0)
             assert val == 10000
 
     def test_get_utxo_value_out_of_range(self) -> None:
         txid = "bb" * 32
+        p = blockstream_provider()
         with patch.object(
-            BlockstreamProvider,
+            p,
             "fetch_tx_json",
             return_value=make_tx_json(txid),
         ):
-            p = BlockstreamProvider()
             with pytest.raises(ValueError, match="out of range"):
                 p.get_utxo_value(txid, 99)
 
@@ -861,7 +861,7 @@ class TestBlockstreamProvider:
             "btx.services.blockchain.fetch_text",
             return_value="not json",
         ):
-            p = BlockstreamProvider()
+            p = blockstream_provider()
             with pytest.raises(ValueError, match="Invalid JSON"):
                 p.fetch_tx_json("aa" * 32)
 
@@ -938,51 +938,51 @@ class TestMempoolSpaceProvider:
             "btx.services.blockchain.fetch_text",
             return_value="01000000...",
         ):
-            p = MempoolSpaceProvider()
+            p = mempool_space_provider()
             result = p.get_transaction_hex("aa" * 32)
             assert result == "01000000..."
 
     def test_get_utxo_script_pubkey(self) -> None:
         txid = "11" * 32
+        p = mempool_space_provider()
         with patch.object(
-            MempoolSpaceProvider,
+            p,
             "fetch_tx_json",
             return_value=make_tx_json(txid),
         ):
-            p = MempoolSpaceProvider()
             script = p.get_utxo_script_pubkey(txid, 0)
             assert script
 
     def test_get_utxo_script_pubkey_out_of_range(self) -> None:
         txid = "22" * 32
+        p = mempool_space_provider()
         with patch.object(
-            MempoolSpaceProvider,
+            p,
             "fetch_tx_json",
             return_value=make_tx_json(txid),
         ):
-            p = MempoolSpaceProvider()
             with pytest.raises(ValueError, match="out of range"):
                 p.get_utxo_script_pubkey(txid, 99)
 
     def test_get_utxo_value(self) -> None:
         txid = "33" * 32
+        p = mempool_space_provider()
         with patch.object(
-            MempoolSpaceProvider,
+            p,
             "fetch_tx_json",
             return_value=make_tx_json(txid),
         ):
-            p = MempoolSpaceProvider()
             val = p.get_utxo_value(txid, 0)
             assert val == 10000
 
     def test_get_utxo_value_out_of_range(self) -> None:
         txid = "44" * 32
+        p = mempool_space_provider()
         with patch.object(
-            MempoolSpaceProvider,
+            p,
             "fetch_tx_json",
             return_value=make_tx_json(txid),
         ):
-            p = MempoolSpaceProvider()
             with pytest.raises(ValueError, match="out of range"):
                 p.get_utxo_value(txid, 99)
 
@@ -1024,7 +1024,7 @@ class TestFetchText:
             "btx.services.blockchain.fetch_text",
             return_value="not json",
         ):
-            p = MempoolSpaceProvider()
+            p = mempool_space_provider()
             with pytest.raises(ValueError, match="Invalid JSON"):
                 p.fetch_tx_json("aa" * 32)
 

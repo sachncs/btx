@@ -71,12 +71,11 @@ SSL_CONTEXT = ssl.create_default_context()
 class BaseBlockchainProvider:
     """Base implementing the Template Method pattern for blockchain providers.
 
-    Subclasses set ``BASE_URL`` and optionally override ``outputs_key``,
-    ``script_key``, ``value_key``, ``do_get_transaction_hex``, and
-    ``tx_json_url`` to adapt to each API's JSON structure.
+    Concrete providers pass a ``base_url`` and may override hook methods
+    (``do_get_transaction_hex``, ``tx_json_url``, etc.) or set the
+    JSON-key class attributes (``outputs_key``, ``script_key``,
+    ``value_key``) to adapt to each API's JSON structure.
     """
-
-    BASE_URL: str = ""
 
     # JSON key paths differ per provider:
     #   Blockstream/Mempool: {"vout": [{scriptpubkey, value}]}
@@ -84,6 +83,9 @@ class BaseBlockchainProvider:
     outputs_key: str = "vout"
     script_key: str = "scriptpubkey"
     value_key: str = "value"
+
+    def __init__(self, base_url: str) -> None:
+        self.base_url: str = base_url.rstrip("/")
 
     def get_transaction_hex(self, txid: str) -> str:
         """Fetch a raw transaction hex.
@@ -99,7 +101,7 @@ class BaseBlockchainProvider:
     def do_get_transaction_hex(self, txid: str) -> str:
         """Template hook for tx hex URL; may be overridden."""
         validate_txid(txid)
-        url = f"{self.BASE_URL}/tx/{txid}/hex"
+        url = f"{self.base_url}/tx/{txid}/hex"
         return fetch_text(url)
 
     def get_utxo_script_pubkey(self, txid: str, vout: int) -> bytes:
@@ -153,7 +155,7 @@ class BaseBlockchainProvider:
 
     def tx_json_url(self, txid: str) -> str:
         """Template method: URL for the full tx JSON endpoint."""
-        return f"{self.BASE_URL}/tx/{txid}"
+        return f"{self.base_url}/tx/{txid}"
 
     def broadcast_transaction(self, tx_hex: str) -> str:
         """Broadcast a raw transaction.
@@ -180,7 +182,7 @@ class BaseBlockchainProvider:
 
     def broadcast_url(self) -> str:
         """Template method: URL for the broadcast endpoint."""
-        return f"{self.BASE_URL}/tx"
+        return f"{self.base_url}/tx"
 
     # ── Async delegate helpers ─────────────────────────────────────────
     # These wrap the sync methods with ``asyncio.to_thread`` so that
@@ -203,46 +205,27 @@ class BaseBlockchainProvider:
         return await asyncio.to_thread(self.broadcast_transaction, tx_hex)
 
 
-class BlockstreamProvider(BaseBlockchainProvider):
-    """Blockstream.info API blockchain provider.
-
-    Attributes:
-        BASE_URL: Base URL of the Blockstream API.
-    """
-
-    BASE_URL = "https://blockstream.info/api"
-
-
 class BlockchainInfoProvider(BaseBlockchainProvider):
     """blockchain.info API blockchain provider.
 
-    Attributes:
-        BASE_URL: Base URL of the blockchain.info API.
+    The provider uses blockchain.info's distinct JSON schema
+    (``out`` / ``script`` keys) and tx-hex URL pattern.
     """
 
-    BASE_URL = "https://blockchain.info"
     outputs_key = "out"
     script_key = "script"
-    value_key = "value"
+
+    def __init__(self) -> None:
+        super().__init__("https://blockchain.info")
 
     def do_get_transaction_hex(self, txid: str) -> str:
         """Blockchain.info uses a different URL path with ``?format=hex``."""
         validate_txid(txid)
-        url = f"{self.BASE_URL}/rawtx/{txid}?format=hex"
+        url = f"{self.base_url}/rawtx/{txid}?format=hex"
         return fetch_text(url)
 
     def tx_json_url(self, txid: str) -> str:
-        return f"{self.BASE_URL}/rawtx/{txid}"
-
-
-class MempoolSpaceProvider(BaseBlockchainProvider):
-    """mempool.space API blockchain provider.
-
-    Attributes:
-        BASE_URL: Base URL of the mempool.space API.
-    """
-
-    BASE_URL = "https://mempool.space/api"
+        return f"{self.base_url}/rawtx/{txid}"
 
 
 class GenericHttpProvider(BaseBlockchainProvider):
@@ -277,29 +260,29 @@ class GenericHttpProvider(BaseBlockchainProvider):
         value_json_key: str = "value",
         outputs_json_key: str = "vout",
     ) -> None:
-        self.BASE_URL = base_url.rstrip("/")
-        self._tx_hex_path = tx_hex_path
-        self._tx_json_path = tx_json_path
-        self._utxo_script_path = utxo_script_path
-        self._utxo_value_path = utxo_value_path
-        self._broadcast_path = broadcast_path
+        super().__init__(base_url)
+        self.tx_hex_path = tx_hex_path
+        self.tx_json_path = tx_json_path
+        self.utxo_script_path = utxo_script_path
+        self.utxo_value_path = utxo_value_path
+        self.broadcast_path = broadcast_path
         self.script_key = script_json_key
         self.value_key = value_json_key
         self.outputs_key = outputs_json_key
 
     def do_get_transaction_hex(self, txid: str) -> str:
         validate_txid(txid)
-        url = f"{self.BASE_URL}{self._tx_hex_path.format(txid=txid)}"
+        url = f"{self.base_url}{self.tx_hex_path.format(txid=txid)}"
         return fetch_text(url)
 
     def tx_json_url(self, txid: str) -> str:
-        return f"{self.BASE_URL}{self._tx_json_path.format(txid=txid)}"
+        return f"{self.base_url}{self.tx_json_path.format(txid=txid)}"
 
     def get_utxo_script_pubkey(self, txid: str, vout: int) -> bytes:
         validate_txid(txid)
-        if self._utxo_script_path:
-            path = self._utxo_script_path.format(txid=txid, vout=vout)
-            url = f"{self.BASE_URL}{path}"
+        if self.utxo_script_path:
+            path = self.utxo_script_path.format(txid=txid, vout=vout)
+            url = f"{self.base_url}{path}"
             raw = fetch_text(url)
             try:
                 data = json.loads(raw)
@@ -312,9 +295,9 @@ class GenericHttpProvider(BaseBlockchainProvider):
 
     def get_utxo_value(self, txid: str, vout: int) -> int:
         validate_txid(txid)
-        if self._utxo_value_path:
-            path = self._utxo_value_path.format(txid=txid, vout=vout)
-            url = f"{self.BASE_URL}{path}"
+        if self.utxo_value_path:
+            path = self.utxo_value_path.format(txid=txid, vout=vout)
+            url = f"{self.base_url}{path}"
             raw = fetch_text(url)
             try:
                 data = json.loads(raw)
@@ -326,7 +309,22 @@ class GenericHttpProvider(BaseBlockchainProvider):
         return super().get_utxo_value(txid, vout)
 
     def broadcast_url(self) -> str:
-        return f"{self.BASE_URL}{self._broadcast_path}"
+        return f"{self.base_url}{self.broadcast_path}"
+
+
+# Module-level constants for the bundled providers
+BLOCKSTREAM_BASE_URL = "https://blockstream.info/api"
+MEMPOOL_SPACE_BASE_URL = "https://mempool.space/api"
+
+
+def blockstream_provider() -> BaseBlockchainProvider:
+    """Return a :class:`BaseBlockchainProvider` for the Blockstream API."""
+    return BaseBlockchainProvider(BLOCKSTREAM_BASE_URL)
+
+
+def mempool_space_provider() -> BaseBlockchainProvider:
+    """Return a :class:`BaseBlockchainProvider` for the Mempool.space API."""
+    return BaseBlockchainProvider(MEMPOOL_SPACE_BASE_URL)
 
 
 def validate_txid(txid: str) -> str:
@@ -496,7 +494,7 @@ def enrich_transaction(
     Args:
         tx_hex: The raw transaction as a hex-encoded string.
         provider: A ``BlockchainProvider`` instance.  If ``None``,
-            a ``BlockstreamProvider`` is created automatically.
+            a blockstream provider is created automatically.
 
     Returns:
         A tuple ``(script_pubkeys, values)`` where each list has one
@@ -507,7 +505,7 @@ def enrich_transaction(
         ValueError: If *tx_hex* cannot be parsed.
     """
     if provider is None:
-        provider = BlockstreamProvider()
+        provider = blockstream_provider()
 
     raw = decode_hex(tx_hex.strip())
     tx, _ = parse_tx(raw)
@@ -539,7 +537,7 @@ def fetch_and_extract(
         txid_or_hex: A 64-character txid **or** a hex-encoded raw
             transaction.
         provider: A ``BlockchainProvider`` instance.  If ``None``,
-            a ``BlockstreamProvider`` is created automatically.
+            a blockstream provider is created automatically.
 
     Returns:
         A list of ``Record`` instances, one per extracted signature.
@@ -549,7 +547,7 @@ def fetch_and_extract(
         ValueError: If the input cannot be parsed.
     """
     if provider is None:
-        provider = BlockstreamProvider()
+        provider = blockstream_provider()
 
     is_txid = len(txid_or_hex) == 64 and all(
         c in "0123456789abcdefABCDEF" for c in txid_or_hex
@@ -579,7 +577,7 @@ def broadcast_transaction(
     Args:
         tx_hex: The raw transaction as a hex-encoded string.
         provider: A ``BlockchainProvider`` instance.  If ``None``,
-            a ``BlockstreamProvider`` is created automatically.
+            a blockstream provider is created automatically.
 
     Returns:
         The txid of the broadcast transaction as a string.
@@ -589,7 +587,7 @@ def broadcast_transaction(
         ValueError: If *tx_hex* is invalid or the network rejects it.
     """
     if provider is None:
-        provider = BlockstreamProvider()
+        provider = blockstream_provider()
     return provider.broadcast_transaction(tx_hex)
 
 
@@ -611,7 +609,7 @@ async def async_enrich_transaction(
     Args:
         tx_hex: The raw transaction as a hex-encoded string.
         provider: A :class:`BaseBlockchainProvider` instance.  If ``None``,
-            a :class:`BlockstreamProvider` is created automatically.
+            a blockstream provider is created automatically.
 
     Returns:
         A tuple ``(script_pubkeys, values)`` where each list has one
@@ -622,7 +620,7 @@ async def async_enrich_transaction(
         ValueError: If *tx_hex* cannot be parsed.
     """
     if provider is None:
-        provider = BlockstreamProvider()
+        provider = blockstream_provider()
 
     raw = decode_hex(tx_hex.strip())
     tx, _ = parse_tx(raw)
@@ -653,7 +651,7 @@ def batch_fetch_transactions(
     Args:
         txids: List of 64-character transaction IDs to fetch.
         provider: A ``BlockchainProvider`` instance. If ``None``,
-            a ``BlockstreamProvider`` is created automatically.
+            a blockstream provider is created automatically.
         max_workers: Maximum number of parallel workers (default 8).
 
     Returns:
@@ -666,7 +664,7 @@ def batch_fetch_transactions(
     from concurrent.futures import ThreadPoolExecutor, as_completed
 
     if provider is None:
-        provider = BlockstreamProvider()
+        provider = blockstream_provider()
 
     def _fetch_one(txid: str) -> tuple[str, str]:
         validate_txid(txid)
@@ -694,7 +692,7 @@ def batch_enrich_transactions(
     Args:
         tx_hexes: List of raw transaction hex strings.
         provider: A ``BlockchainProvider`` instance. If ``None``,
-            a ``BlockstreamProvider`` is created automatically.
+            a blockstream provider is created automatically.
         max_workers: Maximum number of parallel workers (default 8).
 
     Returns:
@@ -707,7 +705,7 @@ def batch_enrich_transactions(
     from concurrent.futures import ThreadPoolExecutor, as_completed
 
     if provider is None:
-        provider = BlockstreamProvider()
+        provider = blockstream_provider()
 
     def _enrich_one(tx_hex: str) -> tuple[list[bytes], list[int]]:
         return enrich_transaction(tx_hex, provider=provider)
@@ -737,7 +735,7 @@ async def async_batch_fetch_transactions(
     Args:
         txids: List of 64-character transaction IDs to fetch.
         provider: A :class:`BaseBlockchainProvider` instance.  If ``None``,
-            a :class:`BlockstreamProvider` is created automatically.
+            a blockstream provider is created automatically.
 
     Returns:
         A dict mapping txid to hex-encoded transaction data.
@@ -747,7 +745,7 @@ async def async_batch_fetch_transactions(
         ValueError: If any txid is invalid.
     """
     if provider is None:
-        provider = BlockstreamProvider()
+        provider = blockstream_provider()
 
     async def _fetch_one(txid: str) -> tuple[str, str]:
         hex_data = await provider.async_get_transaction_hex(txid)
@@ -759,15 +757,17 @@ async def async_batch_fetch_transactions(
 
 
 __all__ = [
+    "BLOCKSTREAM_BASE_URL",
+    "MEMPOOL_SPACE_BASE_URL",
+    "BaseBlockchainProvider",
     "BlockchainInfoProvider",
-    "BlockchainProvider",
-    "BlockstreamProvider",
-    "MempoolSpaceProvider",
     "async_batch_fetch_transactions",
     "async_enrich_transaction",
     "batch_enrich_transactions",
     "batch_fetch_transactions",
+    "blockstream_provider",
     "broadcast_transaction",
     "enrich_transaction",
     "fetch_and_extract",
+    "mempool_space_provider",
 ]
