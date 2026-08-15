@@ -2,6 +2,93 @@
 
 All notable changes to this project will be documented in this file.
 
+## 0.5.0 — Package renamed to `btx`
+
+### Breaking changes
+- **Package renamed**: `bitcoin` → `btx`. All imports become `import btx`.
+  The `pip install bitcoin` command becomes `pip install btx`. The CLI
+  binary becomes `btx`. The package directory is now `btx/` and the
+  distribution name is `btx`.
+- **Exception renamed**: `BitcoinError` → `BtxError`. Catch clauses
+  must update.
+- **Env var renamed**: `BITCOIN_LOG_LEVEL` → `BTX_LOG_LEVEL`. The
+  old name still works with a `DeprecationWarning`.
+- **CLI**: legacy static-method extractor convention removed. The five
+  built-in extractors (`LegacyExtractor`, `P2WPKHExtractor`, etc.)
+  are now instances, not classes. Code that called
+  `LegacyExtractor.can_handle(...)` must construct an instance:
+  `LegacyExtractor().can_handle(...)`.
+- **Settings** is now a frozen dataclass; mutation requires
+  `dataclasses.replace()`. Removed dead fields `strict_mode` and
+  `max_extraction_inputs`.
+- **`BatchResult` fields renamed**: `records` → `items`,
+  `total_transactions` → `total`. Field `psbts` → `items` on the
+  unified batch type.
+- **`SignatureCollection.sort_records(key: str)` → `key: Callable`**:
+  the string attribute lookup was replaced with a proper callable.
+- **`GENERATOR` → `GENERATOR_POINT`** and **`INFINITY` → `INFINITY_POINT`**
+  (PEP 8: module-level constants must be `UPPER_SNAKE_CASE`).
+- **Dead Protocols removed**: `BlockchainProvider(Protocol)` and the
+  `ExtractorPlugin` Protocol were removed (replaced with concrete
+  ABCs `BaseExtractor` and `SighashScheme`).
+
+### Removed (dead code)
+- `NotInvertible`, `PointError`, `ParsingError`, `NoNonceReuseError`
+  exceptions (never raised).
+- `Settings.strict_mode`, `Settings.max_extraction_inputs`.
+- `Record.vin`, `Record.sig` aliases (kept as canonical names).
+- `collect_info(has_timelock, has_hash_lock)` unused parameters.
+- `MutableInput` / `MutableOutput` shadow dataclasses.
+- `btx/transaction/tx_services.py` (TxSerializer/TxRbf/TxSighash facades).
+- `BlockstreamProvider`, `MempoolSpaceProvider` 0-method classes.
+- All `_*` and `__*` identifiers (renamed to public names), except
+  `Point.__infinity` which remains mangled by explicit request.
+
+### Refactors
+- `PointArithmetic` facade deleted; methods (`negate`, `add`,
+  `double`, `multiply`, `is_on_curve`) are now first-class on `Point`.
+- `Tx` gained direct methods: `serialize`, `serialize_legacy`,
+  `to_json`, `to_dict`, `total_output_value`, `is_opt_in_rbf`,
+  `has_sequence_lock`, `sighash_legacy`, `sighash_segwit`,
+  `sighash_taproot`, `__len__`, `__iter__`.
+- `Settings` is now `@dataclass(frozen=True, slots=True)`.
+- `Point` gained Python operator overloads: `+`, `-`, `*`, unary `-`.
+- `BaseExtractor(ABC)` with 5 subclasses (instance methods).
+- `SighashScheme(ABC)` with 3 subclasses (Legacy, Segwit, Taproot).
+  Taproot script-path dispatch is now reachable via the polymorphic
+  `compute_sighash` helper.
+- `BatchResult` unified with the PSBT pipeline; both pipelines now
+  return `BatchResult[T]`.
+- `ScriptChunk` converted to `NamedTuple`.
+- `JSONFormatter` reduced to free function + 4-line subclass.
+- `Point` slot storage simplified: `x` and `y` are public attributes
+  (no `@property`); `infinity` is a `@property` reading mangled
+  `__infinity` storage.
+- `HASH_BYTE_LENGTH = 32` lives in `btx.encoding.hasher` (single
+  definition).
+
+### New CLI commands
+- `btx sign <message-hash> --privkey <hex>` — sign a 32-byte message hash.
+- `btx verify <message-hash> --pubkey <hex> --signature <hex>` — verify ECDSA signature.
+- `btx recover <message-hash> --signature <hex>` — recover public key.
+- `btx parse-script <hex>` — parse and decompile a Bitcoin script.
+
+### CLI improvements
+- Top-level imports (no lazy loading in command bodies).
+- Narrow try/except around user-input validation only.
+- Single `Exit` constants module (`EXIT_OK`, `EXIT_ERROR`).
+- `BTX_LOG_LEVEL` env var with backward-compat fallback to
+  `BITCOIN_LOG_LEVEL` (emits `DeprecationWarning`).
+- `version()` banner reads `btx v0.4.0`.
+
+### Backward-compat
+- `BitcoinError` is re-exported as an alias for `BtxError` for one
+  release (deprecated, will be removed in 0.6.0).
+
+### Deprecated
+- All `_foo` and `__bar` identifiers in the public API are deprecated;
+  use the new public names. Will be removed in 0.6.0.
+
 ## [Unreleased]
 
 ### Added
