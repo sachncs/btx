@@ -13,7 +13,7 @@ rm -rf .mypy_cache/
 rm -rf .pytest_cache/
 rm -rf .ruff_cache/
 rm -rf .venv/
-rm -rf bitcoin.egg-info/
+rm -rf btx.egg-info/
 rm -rf htmlcov/
 rm -f .coverage.*
 find . \( -name '*.cover' -o -name '*,cover' \) -delete
