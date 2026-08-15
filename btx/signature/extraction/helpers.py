@@ -109,17 +109,21 @@ def recover_or_parse_pubkey(
 def compute_sighash(tx: Tx, vin: int, script: bytes, flag: int, value: int) -> bytes:
     """Compute the transaction sighash for a given input.
 
-    Dispatches to legacy or SegWit sighash depending on whether the
-    *script* is a witness program (``OP_0 <20|32 bytes>``).  This is
-    correct even for P2SH-wrapped SegWit inputs where the transaction
-    itself may not have witness data.
+    Dispatches to the appropriate :class:`~btx.sighash.SighashScheme`
+    based on the *script* prefix:
+
+    - ``OP_0 0x14 <20 bytes>`` or ``OP_0 0x20 <32 bytes>`` → SegWit v0
+      (:class:`SegwitSighash`).
+    - ``OP_1 0x20 <32 bytes>`` (BIP-342 leaf-version 0xC0) → Taproot
+      (:class:`TaprootSighash`).
+    - otherwise → legacy (:class:`LegacySighash`).
 
     Args:
         tx: The transaction.
         vin: Input index.
         script: Script code.
         flag: Sighash flag byte.
-        value: UTXO value in satoshis (required for SegWit).
+        value: UTXO value in satoshis (required for SegWit/Taproot).
 
     Returns:
         The 32-byte sighash digest.
@@ -128,13 +132,27 @@ def compute_sighash(tx: Tx, vin: int, script: bytes, flag: int, value: int) -> b
         ValueError: If ``SIGHASH_SINGLE`` is used with out-of-bounds
             input index, or for other invalid flag combinations.
     """
-    from btx.sighash.legacy import sighash_legacy
-    from btx.sighash.segwit import sighash_segwit
+    from btx.sighash import (
+        LegacySighash,
+        SegwitSighash,
+        TaprootSighash,
+    )
 
-    is_witness = len(script) >= 2 and script[0] == 0x00 and script[1] in (0x14, 0x20)
-    if is_witness:
-        return sighash_segwit(tx, vin, script, value, flag)
-    return sighash_legacy(tx, vin, script, flag)
+    if (
+        len(script) >= 2
+        and script[0] == 0x00
+        and script[1] in (0x14, 0x20)
+    ):
+        scheme = SegwitSighash()
+    elif (
+        len(script) >= 2
+        and script[0] == 0x51  # OP_1 leaf version for taproot script path
+        and script[1] == 0x20
+    ):
+        scheme = TaprootSighash()
+    else:
+        scheme = LegacySighash()
+    return scheme.compute(tx, vin, script, value, flag)
 
 
 def p2wpkh_script_code(script_pubkey: bytes) -> bytes:
