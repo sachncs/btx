@@ -20,7 +20,7 @@ and rejection of the legacy ``OP_CODESEPARATOR`` opcode
 
 from __future__ import annotations
 
-from dataclasses import dataclass
+from typing import NamedTuple
 
 from btx.script.opcodes import (
     OP_0,
@@ -38,8 +38,7 @@ Opcode = int
 ScriptElement = Push | Opcode
 
 
-@dataclass
-class ScriptChunk:
+class ScriptChunk(NamedTuple):
     """One parsed script item from the chunk-based parsing API.
 
     Attributes:
@@ -47,8 +46,6 @@ class ScriptChunk:
         data: The associated push data, or ``None`` if this chunk
             is not a data-pushing opcode.
     """
-
-    __slots__ = ("opcode", "data")
 
     opcode: int
     data: bytes | None
