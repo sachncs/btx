@@ -3,7 +3,7 @@ requires = ["setuptools>=84.0.0"]
 build-backend = "setuptools.build_meta"
 
 [project]
-name = "bitcoin"
+name = "btx"
 version = "0.4.0"
 description = "Extract and linearize ECDSA and Schnorr signatures (r, s, z) from Bitcoin transactions with pure-Python secp256k1"
 readme = "README.md"
@@ -11,7 +11,7 @@ requires-python = ">=3.12"
 license = { text = "MIT" }
 authors = [{ name = "Sachin", email = "sachncs@gmail.com" }]
 maintainers = [{ name = "Sachin", email = "sachncs@gmail.com" }]
-keywords = ["bitcoin", "secp256k1", "cryptography", "ecdsa", "schnorr", "signature"]
+keywords = ["btx", "bitcoin", "secp256k1", "cryptography", "ecdsa", "schnorr", "signature"]
 classifiers = [
     "Development Status :: 4 - Beta",
     "Intended Audience :: Developers",
@@ -26,25 +26,25 @@ classifiers = [
 dependencies = ["typer>=0.27.1,<1"]
 
 [project.urls]
-Homepage = "https://github.com/sachncs/bitcoin"
-Repository = "https://github.com/sachncs/bitcoin"
-Documentation = "https://github.com/sachncs/bitcoin#readme"
-"Bug Tracker" = "https://github.com/sachncs/bitcoin/issues"
-Changelog = "https://github.com/sachncs/bitcoin/blob/main/CHANGELOG.md"
+Homepage = "https://github.com/sachncs/btx"
+Repository = "https://github.com/sachncs/btx"
+Documentation = "https://github.com/sachncs/btx#readme"
+"Bug Tracker" = "https://github.com/sachncs/btx/issues"
+Changelog = "https://github.com/sachncs/btx/blob/main/CHANGELOG.md"
 
 [project.optional-dependencies]
 coincurve = ["coincurve>=21.0.0,<22"]
 dev = ["hypothesis>=6.165.3,<7", "pytest>=9.1.1,<10", "pytest-cov>=7.1.0,<8", "pytest-benchmark>=5.2.3,<6", "ruff>=0.16.2,<1", "mypy>=2.3.0,<3", "pre-commit>=4.6.2,<5", "pip-audit>=2.10.1,<3"]
-all = ["bitcoin[coincurve,dev]"]
+all = ["btx[coincurve,dev]"]
 
 [project.scripts]
-bitcoin = "bitcoin.cli:main"
+btx = "btx.cli:main"
 
 [tool.setuptools]
 include-package-data = false
 
 [tool.setuptools.packages.find]
-include = ["bitcoin*"]
+include = ["btx*"]
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]
@@ -64,12 +64,12 @@ select = ["E", "F", "UP", "B", "I", "N"]
 
 [tool.ruff.lint.per-file-ignores]
 "tests/*" = ["B"]
-"bitcoin/curve/dispatch.py" = ["N806"]
-"bitcoin/signature/schnorr.py" = ["N806"]
-"bitcoin/signature/signer.py" = ["N806"]
+"btx/curve/dispatch.py" = ["N806"]
+"btx/signature/schnorr.py" = ["N806"]
+"btx/signature/signer.py" = ["N806"]
 "tests/test_attack.py" = ["N806"]
 "tests/test_mainnet_vectors.py" = ["N806"]
-"bitcoin/psbt/parser.py" = ["I001"]
+"btx/psbt/parser.py" = ["I001"]
 
 [tool.mypy]
 python_version = "3.12"
