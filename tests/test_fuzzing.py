@@ -7,7 +7,7 @@ import pytest
 from hypothesis import given, settings
 from hypothesis import strategies as st
 
-from btx.curve import GENERATOR
+from btx.curve import GENERATOR_POINT
 from btx.curve.params import CURVE_ORDER
 from btx.encoding.der import decode_der, encode_der
 from btx.encoding.sec import parse_sec, serialize_sec
@@ -85,15 +85,15 @@ def test_parse_sec_crash(data):
 
 
 def test_sec_roundtrip_compressed():
-    data = serialize_sec(GENERATOR, compressed=True)
+    data = serialize_sec(GENERATOR_POINT, compressed=True)
     point = parse_sec(data)
-    assert point == GENERATOR
+    assert point == GENERATOR_POINT
 
 
 def test_sec_roundtrip_uncompressed():
-    data = serialize_sec(GENERATOR, compressed=False)
+    data = serialize_sec(GENERATOR_POINT, compressed=False)
     point = parse_sec(data)
-    assert point == GENERATOR
+    assert point == GENERATOR_POINT
 
 
 # ── Varint encoder/decoder ─────────────────────────────────────────

@@ -11,8 +11,8 @@ def test_version_exists() -> None:
 
 def test_core_imports() -> None:
     assert btx.Point is not None
-    assert btx.GENERATOR is not None
-    assert btx.INFINITY is not None
+    assert btx.GENERATOR_POINT is not None
+    assert btx.INFINITY_POINT is not None
     assert btx.CURVE_ORDER is not None
     assert btx.FIELD_PRIME is not None
 

@@ -7,7 +7,7 @@ from __future__ import annotations
 
 import pytest
 
-from btx.curve import GENERATOR, INFINITY, Point, is_on_curve, multiply
+from btx.curve import GENERATOR_POINT, INFINITY_POINT, Point, is_on_curve, multiply
 from btx.curve.params import CURVE_ORDER, FIELD_PRIME
 from btx.encoding.der import encode_der
 from btx.encoding.hasher import hash160, hash256, sha256
@@ -65,9 +65,9 @@ def p2pk_script(pubkey: bytes) -> bytes:
     return bytes([len(pubkey)]) + pubkey + b"\xac"
 
 
-# Standard test key (priv=1 → pub is GENERATOR)
+# Standard test key (priv=1 → pub is GENERATOR_POINT)
 TEST_PRIV = 1
-TEST_PUB: Point = multiply(TEST_PRIV, GENERATOR)
+TEST_PUB: Point = multiply(TEST_PRIV, GENERATOR_POINT)
 TEST_PUB_SEC = TEST_PUB.to_sec_compressed()  # 33 bytes
 TEST_PUB_HASH = hash160(TEST_PUB_SEC)
 
@@ -260,11 +260,11 @@ class TestBuilder:
 
 class TestVerifySig:
     VALID_PRIV = 123456
-    VALID_PUB: Point = multiply(VALID_PRIV, GENERATOR)
+    VALID_PUB: Point = multiply(VALID_PRIV, GENERATOR_POINT)
     VALID_MSG = hash256(b"coverage test message for verify_sig")
     VALID_E = int.from_bytes(VALID_MSG, "big") % CURVE_ORDER
     VALID_K = 98765
-    VALID_R_PT: Point = multiply(VALID_K, GENERATOR)
+    VALID_R_PT: Point = multiply(VALID_K, GENERATOR_POINT)
     assert VALID_R_PT.x is not None
     VALID_R = VALID_R_PT.x % CURVE_ORDER
     VALID_S = (
@@ -302,7 +302,7 @@ class TestVerifySig:
         assert verify_sig(self.VALID_MSG, self.VALID_SIG, off_curve) is False
 
     def test_infinity_key(self) -> None:
-        assert verify_sig(self.VALID_MSG, self.VALID_SIG, INFINITY) is False
+        assert verify_sig(self.VALID_MSG, self.VALID_SIG, INFINITY_POINT) is False
 
 
 class TestRecoverPublicKey:
@@ -310,11 +310,11 @@ class TestRecoverPublicKey:
     # Recovery:       Q = r^(-1) * (s * R - e * G)
 
     VALID_PRIV = 123456
-    VALID_PUB: Point = multiply(VALID_PRIV, GENERATOR)
+    VALID_PUB: Point = multiply(VALID_PRIV, GENERATOR_POINT)
     VALID_MSG = hash256(b"coverage test message for recover")
     VALID_E = int.from_bytes(VALID_MSG, "big") % CURVE_ORDER
     VALID_K = 98765
-    VALID_R_PT: Point = multiply(VALID_K, GENERATOR)
+    VALID_R_PT: Point = multiply(VALID_K, GENERATOR_POINT)
     assert VALID_R_PT.x is not None
     assert VALID_R_PT.y is not None
     VALID_R = VALID_R_PT.x % CURVE_ORDER
@@ -347,7 +347,7 @@ class TestRecoverPublicKey:
         """When R = e*G, the recovered pubkey is infinity → ValueError."""
         msg = hash256(b"infinity test")
         e_val = int.from_bytes(msg, "big") % CURVE_ORDER
-        r_pt = multiply(e_val, GENERATOR)
+        r_pt = multiply(e_val, GENERATOR_POINT)
         assert r_pt.x is not None
         assert r_pt.y is not None
         r_val = r_pt.x % CURVE_ORDER

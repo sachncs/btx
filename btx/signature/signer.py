@@ -31,7 +31,7 @@ from __future__ import annotations
 import hmac
 from typing import TYPE_CHECKING
 
-from btx.curve import CURVE_ORDER, GENERATOR, multiply
+from btx.curve import CURVE_ORDER, GENERATOR_POINT, multiply
 from btx.encoding.der import encode_der
 from btx.signature.extraction.engine import compute_sighash
 
@@ -127,7 +127,7 @@ def sign(message_hash: bytes, private_key: int) -> bytes:
     h1 = message_hash
     k = hmac_drbg_generate_k(x, h1)
 
-    R = multiply(k, GENERATOR)
+    R = multiply(k, GENERATOR_POINT)
     if R.infinity:
         raise ValueError("Generated point at infinity during signing.")
     r_x = R.x

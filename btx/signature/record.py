@@ -40,7 +40,7 @@ class Record:
         txid: Transaction ID (32 bytes, little-endian).
         input_index: Input index within the transaction (alias ``vin``).
         signature: Raw DER-encoded or Schnorr signature bytes (alias ``sig``).
-        public_key: Public key that signed (``Point``; may be ``INFINITY``
+        public_key: Public key that signed (``Point``; may be ``INFINITY_POINT``
             when the key could not be recovered).
         script_type: Script type identifier (e.g. ``"p2pkh"``, ``"p2wpkh"``).
         sighash_flag: SIGHASH flag byte.

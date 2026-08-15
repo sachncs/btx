@@ -45,7 +45,7 @@ import logging
 from collections.abc import Sequence
 from typing import TYPE_CHECKING
 
-from btx.curve import INFINITY, Point
+from btx.curve import INFINITY_POINT, Point
 from btx.encoding.der import decode_der
 from btx.script.classifier import (
     P2SH,
@@ -686,7 +686,7 @@ def pubkey_from_p2tr_script(script_pubkey: bytes) -> Point:
             ``0x51 0x20 <32-byte-xonly>``).
 
     Returns:
-        The public key ``Point``, or ``INFINITY`` if extraction fails.
+        The public key ``Point``, or ``INFINITY_POINT`` if extraction fails.
     """
     if (
         len(script_pubkey) == 34
@@ -698,4 +698,4 @@ def pubkey_from_p2tr_script(script_pubkey: bytes) -> Point:
             return Point.from_sec_compressed(bytes([0x02]) + xonly)
         except ValueError:
             logger.debug("Failed to lift x-only pubkey from P2TR script")
-    return INFINITY
+    return INFINITY_POINT

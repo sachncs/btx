@@ -238,14 +238,14 @@ class PsbtEditor:
             vin: Input index to sign.
             private_key: Private key as an integer.
             pubkey: Public key bytes.  If ``None``, derived from
-                *private_key* via multiplication with GENERATOR.
+                *private_key* via multiplication with GENERATOR_POINT.
             sighash_flag: Sighash flag.  If ``None``, uses the input's
                 ``sighash_type`` or defaults to ``SIGHASH_ALL``.
 
         Returns:
             ``self`` for chaining.
         """
-        from btx.curve import GENERATOR, multiply
+        from btx.curve import GENERATOR_POINT, multiply
         from btx.sighash.flag import SIGHASH_ALL
         from btx.signature.signer import sign_tx_input
 
@@ -286,7 +286,7 @@ class PsbtEditor:
                     script_code = script_pubkey
 
         if pubkey is None:
-            pubkey_point = multiply(private_key, GENERATOR)
+            pubkey_point = multiply(private_key, GENERATOR_POINT)
             from btx.curve import serialize_public_key
 
             pubkey = serialize_public_key(pubkey_point)

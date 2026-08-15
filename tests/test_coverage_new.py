@@ -9,7 +9,7 @@ from unittest.mock import MagicMock, patch
 
 import pytest
 
-from btx.curve import GENERATOR, multiply
+from btx.curve import GENERATOR_POINT, multiply
 from btx.curve.params import FIELD_PRIME
 from btx.encoding.der import encode_der
 from btx.encoding.hasher import hash256, sha256
@@ -89,7 +89,7 @@ from btx.transaction.models import EMPTY_WITNESS
 
 # ── helpers ────────────────────────────────────────────────────────
 
-TEST_PUB = multiply(1, GENERATOR)
+TEST_PUB = multiply(1, GENERATOR_POINT)
 TEST_PUB_SEC = TEST_PUB.to_sec_compressed()
 TEST_PUB_HASH = hash256(TEST_PUB_SEC)[:20]
 
@@ -441,7 +441,7 @@ class TestSigner:
         priv = 12345
         msg = sha256(b"hello")
         sig = sign(msg, priv)
-        pub = multiply(priv, GENERATOR)
+        pub = multiply(priv, GENERATOR_POINT)
         assert verify_sig(msg, sig, pub)
 
     def test_sign_bad_hash_length(self) -> None:
@@ -559,7 +559,7 @@ class TestPipeline:
         txout = TxOut(1000, build_p2pkh(TEST_PUB_HASH))
         tx = Tx(2, (txin,), (txout,), 0)
         sig = sign_tx_input(tx, 0, priv, script=build_p2pkh(TEST_PUB_HASH), value=0)
-        pubkey = multiply(priv, GENERATOR)
+        pubkey = multiply(priv, GENERATOR_POINT)
         scriptsig = serialize_script([sig, pubkey.to_sec_compressed()])
         txin2 = TxIn(OutPoint(b"\x01" * 32, 0), scriptsig, 0xFFFFFFFF, Witness(()))
         tx2 = Tx(2, (txin2,), (txout,), 0)
@@ -578,7 +578,7 @@ class TestPipeline:
             txid=b"\x01" * 32,
             input_index=0,
             signature=b"\x30\x06\x02\x01\x01\x02\x01\x01",
-            public_key=GENERATOR,
+            public_key=GENERATOR_POINT,
             script_type="p2pkh",
             sighash_flag=1,
             amount=0,
@@ -587,7 +587,7 @@ class TestPipeline:
             txid=b"\x02" * 32,
             input_index=0,
             signature=b"\x30\x06\x02\x01\x02\x02\x01\x02",
-            public_key=GENERATOR,
+            public_key=GENERATOR_POINT,
             script_type="p2pkh",
             sighash_flag=1,
             amount=0,
@@ -602,7 +602,7 @@ class TestPipeline:
             txid=b"\x01" * 32,
             input_index=0,
             signature=b"\x30\x06\x02\x01\x01\x02\x01\x01",
-            public_key=GENERATOR,
+            public_key=GENERATOR_POINT,
             script_type="p2pkh",
             sighash_flag=1,
             amount=0,
@@ -618,7 +618,7 @@ class TestPipeline:
                 txid=b"\x01" * 32,
                 input_index=0,
                 signature=sig,
-                public_key=GENERATOR,
+                public_key=GENERATOR_POINT,
                 script_type="p2pkh",
                 sighash_flag=1,
                 amount=0,
@@ -627,7 +627,7 @@ class TestPipeline:
                 txid=b"\x02" * 32,
                 input_index=0,
                 signature=sig,
-                public_key=GENERATOR,
+                public_key=GENERATOR_POINT,
                 script_type="p2pkh",
                 sighash_flag=1,
                 amount=0,
@@ -643,7 +643,7 @@ class TestPipeline:
                 txid=b"\x01" * 32,
                 input_index=0,
                 signature=encode_der(1, 2),
-                public_key=GENERATOR,
+                public_key=GENERATOR_POINT,
                 script_type="p2pkh",
                 sighash_flag=1,
                 amount=0,
@@ -652,7 +652,7 @@ class TestPipeline:
                 txid=b"\x02" * 32,
                 input_index=0,
                 signature=encode_der(3, 4),
-                public_key=GENERATOR,
+                public_key=GENERATOR_POINT,
                 script_type="p2pkh",
                 sighash_flag=1,
                 amount=0,
@@ -667,7 +667,7 @@ class TestPipeline:
                 txid=b"\x01" * 32,
                 input_index=0,
                 signature=b"\x00",
-                public_key=GENERATOR,
+                public_key=GENERATOR_POINT,
                 script_type="p2pkh",
                 sighash_flag=1,
                 amount=0,
@@ -686,7 +686,7 @@ class TestPipeline:
             txid=b"\x01" * 32,
             input_index=0,
             signature=sig_64,
-            public_key=GENERATOR,
+            public_key=GENERATOR_POINT,
             script_type="taproot",
             sighash_flag=0,
             amount=0,
@@ -701,7 +701,7 @@ class TestPipeline:
             txid=b"\x01" * 32,
             input_index=0,
             signature=encode_der(7, 8),
-            public_key=GENERATOR,
+            public_key=GENERATOR_POINT,
             script_type="p2pkh",
             sighash_flag=1,
             amount=0,
@@ -716,7 +716,7 @@ class TestPipeline:
             txid=b"\x01" * 32,
             input_index=0,
             signature=b"\x00",
-            public_key=GENERATOR,
+            public_key=GENERATOR_POINT,
             script_type="p2pkh",
             sighash_flag=1,
             amount=0,
@@ -736,7 +736,7 @@ class TestPipeline:
         txout = TxOut(1000, build_p2pkh(TEST_PUB_HASH))
         tx = Tx(2, (txin,), (txout,), 0)
         sig = sign_tx_input(tx, 0, priv, script=build_p2pkh(TEST_PUB_HASH), value=0)
-        pubkey = multiply(priv, GENERATOR)
+        pubkey = multiply(priv, GENERATOR_POINT)
         scriptsig = serialize_script([sig, pubkey.to_sec_compressed()])
         txin2 = TxIn(OutPoint(b"\x01" * 32, 0), scriptsig, 0xFFFFFFFF, Witness(()))
         tx2 = Tx(2, (txin2,), (txout,), 0)
@@ -761,7 +761,7 @@ class TestPipeline:
         txout = TxOut(1000, build_p2pkh(TEST_PUB_HASH))
         tx = Tx(2, (txin,), (txout,), 0)
         sig = sign_tx_input(tx, 0, priv, script=build_p2pkh(TEST_PUB_HASH), value=0)
-        pubkey = multiply(priv, GENERATOR)
+        pubkey = multiply(priv, GENERATOR_POINT)
         scriptsig = serialize_script([sig, pubkey.to_sec_compressed()])
         txin2 = TxIn(OutPoint(b"\x01" * 32, 0), scriptsig, 0xFFFFFFFF, Witness(()))
         tx2 = Tx(2, (txin2,), (txout,), 0)
@@ -1256,7 +1256,7 @@ class TestTaproot:
                 txid=b"\x01" * 32,
                 input_index=0,
                 signature=b"\x30\x06\x02\x01\x01\x02\x01\x01",
-                public_key=GENERATOR,
+                public_key=GENERATOR_POINT,
                 script_type="p2tr",
                 sighash_flag=1,
                 amount=0,
@@ -1435,7 +1435,7 @@ class TestClassifierRemaining:
 class TestBatchVerify:
     def test_single_sig(self) -> None:
         priv = 42
-        pub = multiply(priv, GENERATOR)
+        pub = multiply(priv, GENERATOR_POINT)
         msg = sha256(b"test message")
         sig = sign(msg, priv)
         assert batch_verify([msg], [sig], [pub])
@@ -1446,7 +1446,7 @@ class TestBatchVerify:
         pubs = []
         for i in range(3):
             priv = i + 1
-            pubs.append(multiply(priv, GENERATOR))
+            pubs.append(multiply(priv, GENERATOR_POINT))
             msg = sha256(f"msg{i}".encode())
             msgs.append(msg)
             sigs.append(sign(msg, priv))
@@ -1461,14 +1461,14 @@ class TestBatchVerify:
 
     def test_invalid_sig(self) -> None:
         priv = 7
-        pub = multiply(priv, GENERATOR)
+        pub = multiply(priv, GENERATOR_POINT)
         msg = sha256(b"real")
         bad_sig = encode_der(1, 1)
         assert not batch_verify([msg], [bad_sig], [pub])
 
     def test_bad_der(self) -> None:
         priv = 7
-        pub = multiply(priv, GENERATOR)
+        pub = multiply(priv, GENERATOR_POINT)
         msg = sha256(b"real")
         assert not batch_verify([msg], [b"\x00"], [pub])
 
@@ -1540,12 +1540,12 @@ class TestRBF:
 
 class TestMultiplyCache:
     def test_multiply_by_zero(self) -> None:
-        result = multiply(0, GENERATOR)
+        result = multiply(0, GENERATOR_POINT)
         assert result.infinity
 
     def test_multiply_by_one(self) -> None:
-        result = multiply(1, GENERATOR)
-        assert result == GENERATOR
+        result = multiply(1, GENERATOR_POINT)
+        assert result == GENERATOR_POINT
 
 
 # ===================================================================
@@ -1623,7 +1623,7 @@ class TestPsbtExtractSignatures:
 
         tx = make_test_tx()
         raw = serialize_legacy_tx(tx)
-        pubkey_bytes = GENERATOR.to_sec_compressed()
+        pubkey_bytes = GENERATOR_POINT.to_sec_compressed()
         inp = PsbtInput(
             partial_sigs={
                 pubkey_bytes: b"\x30\x06\x02\x01\x01\x02\x01\x01\x01",

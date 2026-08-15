@@ -7,8 +7,8 @@ import pytest
 from btx.curve import (
     CURVE_ORDER,
     FIELD_PRIME,
-    GENERATOR,
-    INFINITY,
+    GENERATOR_POINT,
+    INFINITY_POINT,
     NativeBackend,
     Point,
     add,
@@ -40,7 +40,7 @@ class TestPoint:
         c = Point(x=1, y=3)
         assert a == b
         assert a != c
-        assert INFINITY == Point(infinity=True)
+        assert INFINITY_POINT == Point(infinity=True)
 
     def test_hash(self) -> None:
         a = Point(x=1, y=2)
@@ -48,10 +48,10 @@ class TestPoint:
         assert hash(a) == hash(b)
 
     def test_generator_on_curve(self) -> None:
-        assert is_on_curve(GENERATOR)
+        assert is_on_curve(GENERATOR_POINT)
 
     def test_infinity_on_curve(self) -> None:
-        assert is_on_curve(INFINITY)
+        assert is_on_curve(INFINITY_POINT)
 
     def test_off_curve(self) -> None:
         p = Point(x=1, y=2)
@@ -62,66 +62,66 @@ class TestPoint:
             Point(x=FIELD_PRIME + 1, y=0)
 
     def test_repr_infinity(self) -> None:
-        assert repr(INFINITY) == "Point(infinity=True)"
+        assert repr(INFINITY_POINT) == "Point(infinity=True)"
 
     def test_repr_affine(self) -> None:
-        r = repr(GENERATOR)
+        r = repr(GENERATOR_POINT)
         assert r.startswith("Point(x=0x")
 
 
 class TestPointOperations:
     def test_negate(self) -> None:
-        neg = negate(GENERATOR)
+        neg = negate(GENERATOR_POINT)
         assert is_on_curve(neg)
-        assert negate(neg) == GENERATOR
+        assert negate(neg) == GENERATOR_POINT
 
     def test_negate_infinity(self) -> None:
-        assert negate(INFINITY) == INFINITY
+        assert negate(INFINITY_POINT) == INFINITY_POINT
 
     def test_add_generator_and_negation(self) -> None:
-        result = add(GENERATOR, negate(GENERATOR))
-        assert result == INFINITY
+        result = add(GENERATOR_POINT, negate(GENERATOR_POINT))
+        assert result == INFINITY_POINT
 
     def test_add_with_infinity(self) -> None:
-        assert add(GENERATOR, INFINITY) == GENERATOR
-        assert add(INFINITY, GENERATOR) == GENERATOR
+        assert add(GENERATOR_POINT, INFINITY_POINT) == GENERATOR_POINT
+        assert add(INFINITY_POINT, GENERATOR_POINT) == GENERATOR_POINT
 
     def test_double_generator(self) -> None:
-        d = double(GENERATOR)
+        d = double(GENERATOR_POINT)
         assert is_on_curve(d)
-        assert d != GENERATOR
+        assert d != GENERATOR_POINT
 
     def test_double_infinity(self) -> None:
-        assert double(INFINITY) == INFINITY
+        assert double(INFINITY_POINT) == INFINITY_POINT
 
     def test_multiply_by_one(self) -> None:
-        assert multiply(1, GENERATOR) == GENERATOR
+        assert multiply(1, GENERATOR_POINT) == GENERATOR_POINT
 
     def test_multiply_by_zero(self) -> None:
-        assert multiply(0, GENERATOR) == INFINITY
+        assert multiply(0, GENERATOR_POINT) == INFINITY_POINT
 
     def test_multiply_by_order(self) -> None:
-        assert multiply(CURVE_ORDER, GENERATOR) == INFINITY
+        assert multiply(CURVE_ORDER, GENERATOR_POINT) == INFINITY_POINT
 
     def test_double_equals_add_self(self) -> None:
-        assert double(GENERATOR) == add(GENERATOR, GENERATOR)
+        assert double(GENERATOR_POINT) == add(GENERATOR_POINT, GENERATOR_POINT)
 
 
 class TestPointSecRoundtrip:
     def test_compressed_roundtrip(self) -> None:
-        ser = GENERATOR.to_sec_compressed()
+        ser = GENERATOR_POINT.to_sec_compressed()
         assert len(ser) == 33
         parsed = Point.from_sec_compressed(ser)
-        assert parsed == GENERATOR
+        assert parsed == GENERATOR_POINT
 
     def test_uncompressed_roundtrip(self) -> None:
-        ser = GENERATOR.to_sec_uncompressed()
+        ser = GENERATOR_POINT.to_sec_uncompressed()
         assert len(ser) == 65
         parsed = Point.from_sec_uncompressed(ser)
-        assert parsed == GENERATOR
+        assert parsed == GENERATOR_POINT
 
     def test_compressed_prefix(self) -> None:
-        ser = GENERATOR.to_sec_compressed()
+        ser = GENERATOR_POINT.to_sec_compressed()
         assert ser[0] in (0x02, 0x03)
 
     def test_invalid_sec(self) -> None:
@@ -134,45 +134,45 @@ class TestPointSecRoundtrip:
         from btx.encoding.sec import serialize_sec
 
         with pytest.raises(ValueError, match="Cannot serialize"):
-            serialize_sec(INFINITY)
+            serialize_sec(INFINITY_POINT)
 
 
 class TestPointArithmetic:
     def test_arithmetic_negate(self) -> None:
-        neg = GENERATOR.arithmetic.negate()
-        assert GENERATOR.y is not None
-        assert neg.x == GENERATOR.x
+        neg = GENERATOR_POINT.arithmetic.negate()
+        assert GENERATOR_POINT.y is not None
+        assert neg.x == GENERATOR_POINT.x
         assert neg.y is not None
-        assert neg.y == -GENERATOR.y % FIELD_PRIME
+        assert neg.y == -GENERATOR_POINT.y % FIELD_PRIME
 
     def test_arithmetic_add(self) -> None:
-        result = GENERATOR.arithmetic.add(GENERATOR)
-        assert result == double(GENERATOR)
+        result = GENERATOR_POINT.arithmetic.add(GENERATOR_POINT)
+        assert result == double(GENERATOR_POINT)
 
     def test_arithmetic_double(self) -> None:
-        result = GENERATOR.arithmetic.double()
-        assert result == double(GENERATOR)
+        result = GENERATOR_POINT.arithmetic.double()
+        assert result == double(GENERATOR_POINT)
 
     def test_arithmetic_multiply(self) -> None:
-        result = GENERATOR.arithmetic.multiply(2)
-        assert result == double(GENERATOR)
+        result = GENERATOR_POINT.arithmetic.multiply(2)
+        assert result == double(GENERATOR_POINT)
 
     def test_arithmetic_multiply_by_zero(self) -> None:
-        result = GENERATOR.arithmetic.multiply(0)
+        result = GENERATOR_POINT.arithmetic.multiply(0)
         assert result.infinity
 
     def test_arithmetic_is_on_curve(self) -> None:
-        assert GENERATOR.arithmetic.is_on_curve()
+        assert GENERATOR_POINT.arithmetic.is_on_curve()
 
     def test_arithmetic_is_on_curve_infinity(self) -> None:
-        assert INFINITY.arithmetic.is_on_curve()
+        assert INFINITY_POINT.arithmetic.is_on_curve()
 
     def test_arithmetic_serialize_compressed(self) -> None:
-        ser = GENERATOR.arithmetic.serialize(compressed=True)
+        ser = GENERATOR_POINT.arithmetic.serialize(compressed=True)
         assert len(ser) == 33
 
     def test_arithmetic_serialize_uncompressed(self) -> None:
-        ser = GENERATOR.arithmetic.serialize(compressed=False)
+        ser = GENERATOR_POINT.arithmetic.serialize(compressed=False)
         assert len(ser) == 65
 
 
@@ -206,6 +206,6 @@ class TestBackendDispatch:
         """Operations work with auto-resolved backend."""
         from btx.curve.dispatch import add, is_on_curve, negate
 
-        assert is_on_curve(GENERATOR)
-        neg = negate(GENERATOR)
-        assert add(GENERATOR, neg) == INFINITY
+        assert is_on_curve(GENERATOR_POINT)
+        neg = negate(GENERATOR_POINT)
+        assert add(GENERATOR_POINT, neg) == INFINITY_POINT

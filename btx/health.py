@@ -12,7 +12,7 @@ by external monitoring scripts:
   regressions early.
 - :func:`health` – aggregate everything into a single dict: package
   version, per-module import status, per-backend status, and a
-  smoke test (``multiply(1, GENERATOR)``) that confirms the active
+  smoke test (``multiply(1, GENERATOR_POINT)``) that confirms the active
   backend can perform a real curve operation.
 
 The aggregate report is suitable for direct JSON serialisation and
@@ -83,7 +83,7 @@ def check_imports() -> dict[str, bool]:
 
 def health() -> dict[str, Any]:
     """Run all health checks and return a comprehensive status dict."""
-    from btx.curve import GENERATOR, multiply
+    from btx.curve import GENERATOR_POINT, multiply
 
     status: dict[str, Any] = {
         "version": importlib.metadata.version("btx"),
@@ -92,7 +92,7 @@ def health() -> dict[str, Any]:
     }
 
     try:
-        p = multiply(1, GENERATOR)
+        p = multiply(1, GENERATOR_POINT)
         status["curve_operation"] = {
             "ok": not p.infinity and p.x is not None,
         }

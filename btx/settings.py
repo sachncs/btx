@@ -7,7 +7,7 @@ module-level :data:`settings` instance.  Three knobs are currently
 exposed:
 
 - :attr:`Settings.strict_mode` – raise on non-fatal issues instead
-  of returning ``None``/``INFINITY``.
+  of returning ``None``/``INFINITY_POINT``.
 - :attr:`Settings.default_backend` – preferred curve backend name
   (``"native"``, ``"libsecp"``, or ``None`` for auto-detect).
 - :attr:`Settings.max_extraction_inputs` – upper limit on the number

@@ -15,8 +15,8 @@ from hypothesis import assume, given
 from hypothesis import strategies as st
 
 from btx.curve import (
-    GENERATOR,
-    INFINITY,
+    GENERATOR_POINT,
+    INFINITY_POINT,
     add,
     double,
     is_on_curve,
@@ -98,10 +98,10 @@ def tx_strategy(draw: st.DrawFn) -> Tx:
 @given(small_scalars)
 def test_multiply_double_equals_double_add(a: int) -> None:
     """a*G + a*G == 2*(a*G) == (2a)*G"""
-    p = multiply(a, GENERATOR)
+    p = multiply(a, GENERATOR_POINT)
     sum_p = add(p, p)
     dbl_p = double(p)
-    dbl_scalar = multiply(2 * a, GENERATOR)
+    dbl_scalar = multiply(2 * a, GENERATOR_POINT)
     assert sum_p == dbl_p
     assert dbl_p == dbl_scalar
 
@@ -109,31 +109,31 @@ def test_multiply_double_equals_double_add(a: int) -> None:
 @given(small_scalars, small_scalars)
 def test_multiply_add_equals_add_multiply(a: int, b: int) -> None:
     """a*G + b*G == (a + b)*G"""
-    sum_p = add(multiply(a, GENERATOR), multiply(b, GENERATOR))
-    combined = multiply(a + b, GENERATOR)
+    sum_p = add(multiply(a, GENERATOR_POINT), multiply(b, GENERATOR_POINT))
+    combined = multiply(a + b, GENERATOR_POINT)
     assert sum_p == combined
 
 
 @given(small_scalars, small_scalars)
 def test_multiply_distributive(a: int, b: int) -> None:
     """(a + b)*G == a*G + b*G"""
-    left = multiply(a + b, GENERATOR)
-    right = add(multiply(a, GENERATOR), multiply(b, GENERATOR))
+    left = multiply(a + b, GENERATOR_POINT)
+    right = add(multiply(a, GENERATOR_POINT), multiply(b, GENERATOR_POINT))
     assert left == right
 
 
 @given(valid_scalars)
 def test_negate_add_returns_infinity(k: int) -> None:
-    """P + (-P) == INFINITY"""
-    p = multiply(k, GENERATOR)
+    """P + (-P) == INFINITY_POINT"""
+    p = multiply(k, GENERATOR_POINT)
     neg_p = negate(p)
-    assert add(p, neg_p) == INFINITY
+    assert add(p, neg_p) == INFINITY_POINT
 
 
 @given(small_scalars)
 def test_is_on_curve(k: int) -> None:
     """k*G is always on curve"""
-    p = multiply(k, GENERATOR)
+    p = multiply(k, GENERATOR_POINT)
     assert is_on_curve(p)
     assert not p.infinity
 
@@ -166,7 +166,7 @@ def test_der_roundtrip(r: int, s: int) -> None:
 @given(valid_scalars)
 def test_sec_compressed_roundtrip(k: int) -> None:
     """parse_sec(serialize_sec(P)) == P for compressed"""
-    p = multiply(k, GENERATOR)
+    p = multiply(k, GENERATOR_POINT)
     serialized = serialize_sec(p)
     parsed = parse_sec(serialized)
     assert parsed == p
@@ -176,7 +176,7 @@ def test_sec_compressed_roundtrip(k: int) -> None:
 @given(valid_scalars)
 def test_sec_uncompressed_roundtrip(k: int) -> None:
     """parse_sec(serialize_sec(P, compressed=False)) == P for uncompressed"""
-    p = multiply(k, GENERATOR)
+    p = multiply(k, GENERATOR_POINT)
     serialized = serialize_sec(p, compressed=False)
     parsed = parse_sec(serialized)
     assert parsed == p
@@ -236,40 +236,40 @@ def test_legacy_txid_unchanged(tx: Tx) -> None:
 @given(small_scalars, small_scalars, small_scalars)
 def test_add_commutative(a: int, b: int, c: int) -> None:
     """P + Q == Q + P"""
-    p = multiply(a, GENERATOR)
-    q = multiply(b, GENERATOR)
+    p = multiply(a, GENERATOR_POINT)
+    q = multiply(b, GENERATOR_POINT)
     assert add(p, q) == add(q, p)
 
 
 @given(small_scalars, small_scalars, small_scalars)
 def test_add_associative(a: int, b: int, c: int) -> None:
     """(P + Q) + R == P + (Q + R)"""
-    p = multiply(a, GENERATOR)
-    q = multiply(b, GENERATOR)
-    r = multiply(c, GENERATOR)
+    p = multiply(a, GENERATOR_POINT)
+    q = multiply(b, GENERATOR_POINT)
+    r = multiply(c, GENERATOR_POINT)
     assert add(add(p, q), r) == add(p, add(q, r))
 
 
 @given(small_scalars)
 def test_identity_element(k: int) -> None:
-    """P + INFINITY == P"""
-    p = multiply(k, GENERATOR)
-    assert add(p, INFINITY) == p
-    assert add(INFINITY, p) == p
+    """P + INFINITY_POINT == P"""
+    p = multiply(k, GENERATOR_POINT)
+    assert add(p, INFINITY_POINT) == p
+    assert add(INFINITY_POINT, p) == p
 
 
 @given(small_scalars, small_scalars)
 def test_double_add_equivalence(a: int, b: int) -> None:
     """double(P) == P + P"""
-    p = multiply(a + 1, GENERATOR)  # avoid INFINITY
+    p = multiply(a + 1, GENERATOR_POINT)  # avoid INFINITY_POINT
     assert double(p) == add(p, p)
 
 
 @given(valid_scalars)
 def test_multiply_zero_returns_infinity(k: int) -> None:
-    """0 * P == INFINITY"""
-    p = multiply(k, GENERATOR)
-    assert multiply(0, p) == INFINITY
+    """0 * P == INFINITY_POINT"""
+    p = multiply(k, GENERATOR_POINT)
+    assert multiply(0, p) == INFINITY_POINT
 
 
 @given(der_r, der_s)

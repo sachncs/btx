@@ -72,8 +72,8 @@ from btx.curve.params import (
 from btx.curve.point import Point
 
 # Singleton points
-GENERATOR = Point(x=GENERATOR_X, y=GENERATOR_Y)  # The secp256k1 generator point
-INFINITY = Point(infinity=True)  # The point at infinity
+GENERATOR_POINT = Point(x=GENERATOR_X, y=GENERATOR_Y)  # The secp256k1 generator point
+INFINITY_POINT = Point(infinity=True)  # The point at infinity
 
 __all__ = [
     "CURVE_A",
@@ -81,10 +81,10 @@ __all__ = [
     "CURVE_ORDER",
     "CurveBackend",
     "FIELD_PRIME",
-    "GENERATOR",
+    "GENERATOR_POINT",
     "GENERATOR_X",
     "GENERATOR_Y",
-    "INFINITY",
+    "INFINITY_POINT",
     "LibsecpBackend",
     "NativeBackend",
     "Point",

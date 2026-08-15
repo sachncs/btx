@@ -4,7 +4,7 @@
 
 import pytest
 
-from btx.curve import GENERATOR, INFINITY
+from btx.curve import GENERATOR_POINT, INFINITY_POINT
 from btx.encoding import (
     bytes_to_int,
     decode_der,
@@ -106,20 +106,20 @@ CURVE_ORDER = 0xFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFEBAAEDCE6AF48A03BBFD25E8CD0364141
 
 class TestSec:
     def test_roundtrip_compressed(self) -> None:
-        ser = serialize_sec(GENERATOR, compressed=True)
+        ser = serialize_sec(GENERATOR_POINT, compressed=True)
         assert len(ser) == 33
         parsed = parse_sec(ser)
-        assert parsed == GENERATOR
+        assert parsed == GENERATOR_POINT
 
     def test_roundtrip_uncompressed(self) -> None:
-        ser = serialize_sec(GENERATOR, compressed=False)
+        ser = serialize_sec(GENERATOR_POINT, compressed=False)
         assert len(ser) == 65
         parsed = parse_sec(ser)
-        assert parsed == GENERATOR
+        assert parsed == GENERATOR_POINT
 
     def test_infinity_raises(self) -> None:
         with pytest.raises(ValueError, match="Cannot serialize"):
-            serialize_sec(INFINITY)
+            serialize_sec(INFINITY_POINT)
 
     def test_invalid_sec(self) -> None:
         with pytest.raises(ValueError, match="Invalid SEC key length"):

@@ -6,7 +6,7 @@ from __future__ import annotations
 
 import pytest
 
-from btx.curve import GENERATOR, multiply
+from btx.curve import GENERATOR_POINT, multiply
 from btx.curve.params import CURVE_ORDER
 from btx.field import inverse as field_inverse
 from btx.signature.attack import (
@@ -26,7 +26,7 @@ from btx.signature.linearization.coefficients import (
 def __sign(d: int, k: int, z: int) -> tuple[int, int]:
     """Sign a message hash ``z`` with private key ``d`` and nonce ``k``."""
     k = k % CURVE_ORDER
-    R = multiply(k, GENERATOR)
+    R = multiply(k, GENERATOR_POINT)
     rx = R.x
     if rx is None:
         raise ValueError("Expected affine point, got infinity.")

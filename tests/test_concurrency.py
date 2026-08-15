@@ -11,8 +11,8 @@ import pytest
 
 from btx.curve import (
     CURVE_ORDER,
-    GENERATOR,
-    INFINITY,
+    GENERATOR_POINT,
+    INFINITY_POINT,
     NativeBackend,
     get_backend,
     multiply,
@@ -132,7 +132,7 @@ class TestBackendDispatchRaceCondition:
             try:
                 backend = NativeBackend()
                 set_backend(backend)
-                p = multiply(2, GENERATOR)
+                p = multiply(2, GENERATOR_POINT)
                 assert not p.infinity
             except Exception as exc:
                 errors.append(exc)
@@ -159,22 +159,22 @@ class TestMultiplyScalarNormalization:
 
     def test_negative_scalar_raises(self) -> None:
         with pytest.raises(ValueError, match="non-negative"):
-            multiply(-1, GENERATOR)
+            multiply(-1, GENERATOR_POINT)
 
     def test_zero_scalar(self) -> None:
-        assert multiply(0, GENERATOR) == INFINITY
+        assert multiply(0, GENERATOR_POINT) == INFINITY_POINT
 
     def test_one_scalar(self) -> None:
-        assert multiply(1, GENERATOR) == GENERATOR
+        assert multiply(1, GENERATOR_POINT) == GENERATOR_POINT
 
     def test_scalar_equal_curve_order(self) -> None:
-        assert multiply(CURVE_ORDER, GENERATOR) == INFINITY
+        assert multiply(CURVE_ORDER, GENERATOR_POINT) == INFINITY_POINT
 
     def test_scalar_above_curve_order(self) -> None:
-        assert multiply(CURVE_ORDER + 1, GENERATOR) == GENERATOR
+        assert multiply(CURVE_ORDER + 1, GENERATOR_POINT) == GENERATOR_POINT
 
     def test_large_scalar(self) -> None:
-        p = multiply(CURVE_ORDER * 100 + 42, GENERATOR)
+        p = multiply(CURVE_ORDER * 100 + 42, GENERATOR_POINT)
         assert not p.infinity
 
 

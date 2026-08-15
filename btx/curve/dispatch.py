@@ -42,7 +42,7 @@ backend_lock = threading.Lock()
 backend: CurveBackend | None = None
 
 # Pre-computation table for fixed-base multiplication with the generator.
-# G_TABLE[i] == GENERATOR * i  for i in 0..15, using 4-bit windows.
+# G_TABLE[i] == GENERATOR_POINT * i  for i in 0..15, using 4-bit windows.
 # Protected by g_table_lock for thread-safe lazy initialization.
 G_TABLE: list[Point] = []
 g_table_initialized = False

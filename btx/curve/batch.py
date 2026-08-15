@@ -30,7 +30,7 @@ from __future__ import annotations
 from btx.curve.dispatch import add, double
 from btx.curve.point import Point
 
-INFINITY = Point(infinity=True)
+INFINITY_POINT = Point(infinity=True)
 
 
 def multi_multiply(pairs: list[tuple[int, Point]]) -> Point:
@@ -50,23 +50,23 @@ def multi_multiply(pairs: list[tuple[int, Point]]) -> Point:
         empty or all scalars are zero.
     """
     if not pairs:
-        return INFINITY
+        return INFINITY_POINT
 
     # Determine the number of 4-bit windows needed.
     max_bits = max(s.bit_length() for s, _ in pairs)
     num_windows = (max_bits + 3) // 4
     if num_windows == 0:
-        return INFINITY
+        return INFINITY_POINT
 
     # Build look-up tables: table[i][w] = w * point_i  for w = 0..15
     tables: list[list[Point]] = []
     for _, point in pairs:
-        tbl: list[Point] = [INFINITY, point]
+        tbl: list[Point] = [INFINITY_POINT, point]
         for i in range(2, 16):
             tbl.append(add(tbl[i - 1], point))
         tables.append(tbl)
 
-    result = INFINITY
+    result = INFINITY_POINT
     for j in range(num_windows - 1, -1, -1):
         for _ in range(4):
             result = double(result)

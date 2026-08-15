@@ -34,7 +34,7 @@ import hmac
 import logging
 from typing import TYPE_CHECKING
 
-from btx.curve import GENERATOR
+from btx.curve import GENERATOR_POINT
 from btx.curve.dispatch import add, is_on_curve, multiply
 from btx.curve.params import CURVE_ORDER, FIELD_PRIME
 from btx.encoding.der import decode_der
@@ -94,7 +94,7 @@ def recover_public_key(
     r_inv = inverse(r, CURVE_ORDER)
 
     r1 = multiply((s * r_inv) % CURVE_ORDER, r_point)
-    r2 = multiply((r_inv * e_inv) % CURVE_ORDER, GENERATOR)
+    r2 = multiply((r_inv * e_inv) % CURVE_ORDER, GENERATOR_POINT)
     public_key = add(r1, r2)
 
     if public_key.infinity:
@@ -146,7 +146,7 @@ def verify_signature(
     u1 = (e * s_inv) % CURVE_ORDER
     u2 = (r * s_inv) % CURVE_ORDER
 
-    u1_g = multiply(u1, GENERATOR)
+    u1_g = multiply(u1, GENERATOR_POINT)
     u2_p = multiply(u2, public_key)
     point = add(u1_g, u2_p)
 

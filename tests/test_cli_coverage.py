@@ -10,7 +10,7 @@ import pytest
 from typer.testing import CliRunner
 
 from btx.cli.app import app, main, parse_input_values
-from btx.curve import INFINITY
+from btx.curve import INFINITY_POINT
 from btx.signature.record import Record
 
 runner = CliRunner()
@@ -147,7 +147,7 @@ def test_extract_with_records() -> None:
             + b"\xbb" * 32
             + b"\x01"
         ),
-        public_key=INFINITY,
+        public_key=INFINITY_POINT,
         script_type="p2pkh",
         sighash_flag=1,
         amount=100000,
@@ -178,7 +178,7 @@ def test_linearize_with_records() -> None:
             + b"\xbb" * 32
             + b"\x01"
         ),
-        public_key=INFINITY,
+        public_key=INFINITY_POINT,
         script_type="p2pkh",
         sighash_flag=1,
         amount=100000,
@@ -214,7 +214,7 @@ def test_extract_json_output() -> None:
         + b"\x02\x20"
         + b"\xbb" * 32
         + b"\x01",
-        public_key=INFINITY,
+        public_key=INFINITY_POINT,
         script_type="p2pkh",
         sighash_flag=1,
         amount=100000,
@@ -238,7 +238,7 @@ def test_extract_csv_output() -> None:
         + b"\x02\x20"
         + b"\xbb" * 32
         + b"\x01",
-        public_key=INFINITY,
+        public_key=INFINITY_POINT,
         script_type="p2pkh",
         sighash_flag=1,
         amount=100000,
@@ -259,7 +259,7 @@ def test_extract_format_option() -> None:
         + b"\x02\x20"
         + b"\xbb" * 32
         + b"\x01",
-        public_key=INFINITY,
+        public_key=INFINITY_POINT,
         script_type="p2pkh",
         sighash_flag=1,
         amount=100000,
@@ -289,7 +289,7 @@ def test_linearize_json_output() -> None:
         + b"\x02\x20"
         + b"\xbb" * 32
         + b"\x01",
-        public_key=INFINITY,
+        public_key=INFINITY_POINT,
         script_type="p2pkh",
         sighash_flag=1,
         amount=100000,
@@ -312,7 +312,7 @@ def test_linearize_csv_output() -> None:
         + b"\x02\x20"
         + b"\xbb" * 32
         + b"\x01",
-        public_key=INFINITY,
+        public_key=INFINITY_POINT,
         script_type="p2pkh",
         sighash_flag=1,
         amount=100000,

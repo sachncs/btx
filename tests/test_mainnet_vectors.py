@@ -4,7 +4,7 @@
 
 from __future__ import annotations
 
-from btx.curve import GENERATOR, Point, add, multiply
+from btx.curve import GENERATOR_POINT, Point, add, multiply
 from btx.curve.params import CURVE_ORDER
 from btx.encoding.der import decode_der
 from btx.encoding.hasher import tagged_hash
@@ -86,7 +86,7 @@ BIP143_P2SH_P2WPKH_UTXO_VALUES = [10_0000_0000]
 def build_taproot_keypath_tx() -> tuple[Tx, bytes]:
     """Build a Taproot key-path spending transaction (mock Schnorr sig)."""
     priv = 42
-    pub = multiply(priv, GENERATOR)
+    pub = multiply(priv, GENERATOR_POINT)
     xonly = point_to_xonly(pub)
     script_pubkey = build_p2tr(xonly)
 
@@ -107,7 +107,7 @@ def build_taproot_keypath_tx() -> tuple[Tx, bytes]:
 def build_taproot_scriptpath_tx() -> tuple[Tx, bytes]:
     """Build a Taproot script-path spending transaction (mock Schnorr sig)."""
     priv = 42
-    pub = multiply(priv, GENERATOR)
+    pub = multiply(priv, GENERATOR_POINT)
     xonly = point_to_xonly(pub)
 
     script = serialize_script([xonly, OP_CHECKSIG])
@@ -122,7 +122,7 @@ def build_taproot_scriptpath_tx() -> tuple[Tx, bytes]:
     tweak_int = int.from_bytes(tweak, "big")
     if tweak_int >= CURVE_ORDER:
         tweak_int = 1
-    Q = add(pub, multiply(tweak_int, GENERATOR))
+    Q = add(pub, multiply(tweak_int, GENERATOR_POINT))
     q_xonly = point_to_xonly(Q)
     script_pubkey = build_p2tr(q_xonly)
 

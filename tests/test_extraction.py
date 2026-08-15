@@ -23,7 +23,7 @@ from btx import (
     sighash_segwit,
     sighash_taproot,
 )
-from btx.curve import GENERATOR
+from btx.curve import GENERATOR_POINT
 
 
 class TestExtractSignatures:
@@ -229,7 +229,7 @@ class TestLinearizeSignatures:
             txid=b"\x00" * 32,
             input_index=0,
             signature=b"\x30\x06\x02\x01\x01\x02\x01\x01",
-            public_key=GENERATOR,
+            public_key=GENERATOR_POINT,
             script_type="p2pkh",
             sighash_flag=0x01,
             amount=0,
@@ -243,7 +243,7 @@ class TestLinearizeSignatures:
             txid=b"\x00" * 32,
             input_index=0,
             signature=b"\x30\x06\x02\x01\x01\x02\x01\x01",
-            public_key=GENERATOR,
+            public_key=GENERATOR_POINT,
             script_type="p2pkh",
             sighash_flag=0x01,
             amount=0,
@@ -252,7 +252,7 @@ class TestLinearizeSignatures:
             txid=b"\x01" * 32,
             input_index=0,
             signature=b"\x30\x06\x02\x01\x01\x02\x01\x01",
-            public_key=GENERATOR,
+            public_key=GENERATOR_POINT,
             script_type="p2pkh",
             sighash_flag=0x01,
             amount=0,

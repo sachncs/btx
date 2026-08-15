@@ -4,7 +4,7 @@
 
 import pytest
 
-from btx.curve import GENERATOR, multiply
+from btx.curve import GENERATOR_POINT, multiply
 from btx.encoding.hasher import hash256
 from btx.signature import Record, linearize_signatures
 from btx.signature.check import verify_sig
@@ -16,7 +16,7 @@ class TestRecord:
             txid=b"\x00" * 32,
             input_index=0,
             signature=b"\x30\x06\x02\x01\x01\x02\x01\x01",
-            public_key=GENERATOR,
+            public_key=GENERATOR_POINT,
             script_type="p2pkh",
             sighash_flag=0x01,
             amount=10000,
@@ -30,7 +30,7 @@ class TestRecord:
                 txid=b"\x00" * 31,
                 input_index=0,
                 signature=b"\x30\x06\x02\x01\x01\x02\x01\x01",
-                public_key=GENERATOR,
+                public_key=GENERATOR_POINT,
                 script_type="p2pkh",
                 sighash_flag=0x01,
                 amount=0,
@@ -43,7 +43,7 @@ class TestRecord:
             txid=b"\x00" * 32,
             input_index=0,
             signature=sig,
-            public_key=GENERATOR,
+            public_key=GENERATOR_POINT,
             script_type="p2pkh",
             sighash_flag=0x01,
             amount=0,
@@ -56,7 +56,7 @@ class TestRecord:
                 txid=b"\x00" * 32,
                 input_index=0,
                 signature=b"\x00\x01\x02",
-                public_key=GENERATOR,
+                public_key=GENERATOR_POINT,
                 script_type="p2pkh",
                 sighash_flag=0x01,
                 amount=0,
@@ -68,7 +68,7 @@ class TestRecord:
                 txid=b"\x00" * 32,
                 input_index=-1,
                 signature=b"\x30\x06\x02\x01\x01\x02\x01\x01",
-                public_key=GENERATOR,
+                public_key=GENERATOR_POINT,
                 script_type="p2pkh",
                 sighash_flag=0x01,
                 amount=0,
@@ -79,7 +79,7 @@ class TestRecord:
             txid=b"\x00" * 32,
             input_index=0,
             signature=b"\x30\x06\x02\x01\x01\x02\x01\x01",
-            public_key=GENERATOR,
+            public_key=GENERATOR_POINT,
             script_type="p2pkh",
             sighash_flag=0x01,
             amount=0,
@@ -95,16 +95,16 @@ class TestVerifySig:
 
         private_key = 1
         sig = sign(msg, private_key)
-        public_key = multiply(private_key, GENERATOR)
+        public_key = multiply(private_key, GENERATOR_POINT)
         assert verify_sig(msg, sig, public_key)
 
     def test_verify_invalid_sig_format(self) -> None:
-        result = verify_sig(b"\x00" * 32, b"\x00\x01\x02", GENERATOR)
+        result = verify_sig(b"\x00" * 32, b"\x00\x01\x02", GENERATOR_POINT)
         assert not result
 
     def test_verify_bad_r_s_range(self) -> None:
         result = verify_sig(
-            b"\x00" * 32, b"\x30\x06\x02\x01\x00\x02\x01\x01", GENERATOR
+            b"\x00" * 32, b"\x30\x06\x02\x01\x00\x02\x01\x01", GENERATOR_POINT
         )
         assert not result
 
@@ -120,7 +120,7 @@ class TestLinearization:
                 txid=b"\x01" * 32,
                 input_index=1,
                 signature=b"\x30\x06\x02\x01\x01\x02\x01\x01",
-                public_key=GENERATOR,
+                public_key=GENERATOR_POINT,
                 script_type="p2pkh",
                 sighash_flag=0x01,
                 amount=0,
@@ -129,7 +129,7 @@ class TestLinearization:
                 txid=b"\x00" * 32,
                 input_index=0,
                 signature=b"\x30\x06\x02\x01\x01\x02\x01\x01",
-                public_key=GENERATOR,
+                public_key=GENERATOR_POINT,
                 script_type="p2pkh",
                 sighash_flag=0x01,
                 amount=0,

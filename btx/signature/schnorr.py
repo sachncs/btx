@@ -22,7 +22,7 @@ Reference: BIP-340 "Schnorr Signatures for secp256k1".
 
 from __future__ import annotations
 
-from btx.curve import GENERATOR
+from btx.curve import GENERATOR_POINT
 from btx.curve.dispatch import add, multiply, negate
 from btx.curve.params import CURVE_ORDER, FIELD_PRIME
 from btx.encoding.hasher import tagged_hash
@@ -89,7 +89,7 @@ def verify_schnorr_signature(
     )
     e_int = int.from_bytes(e, "big") % CURVE_ORDER
 
-    sG = multiply(s, GENERATOR)
+    sG = multiply(s, GENERATOR_POINT)
     eP = multiply(e_int, pubkey_point)
     R = add(sG, negate(eP))
 

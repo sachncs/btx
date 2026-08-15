@@ -9,8 +9,8 @@ import pytest
 from btx.curve import (
     CURVE_ORDER,
     FIELD_PRIME,
-    GENERATOR,
-    INFINITY,
+    GENERATOR_POINT,
+    INFINITY_POINT,
     Point,
     double,
     multiply,
@@ -42,12 +42,12 @@ except ImportError:
 class TestLibsecBackend:
     def setup_method(self) -> None:
         self.backend = LibsecpBackend()
-        self.pt = GENERATOR
+        self.pt = GENERATOR_POINT
 
     def test_negate(self) -> None:
         result = self.backend.negate(self.pt)
         assert result != self.pt
-        assert self.backend.add(self.pt, result) == INFINITY
+        assert self.backend.add(self.pt, result) == INFINITY_POINT
 
     def test_add(self) -> None:
         doubled = self.backend.add(self.pt, self.pt)
@@ -65,7 +65,7 @@ class TestLibsecBackend:
         assert self.backend.is_on_curve(self.pt) is True
 
     def test_is_on_curve_false(self) -> None:
-        assert self.backend.is_on_curve(INFINITY) is False
+        assert self.backend.is_on_curve(INFINITY_POINT) is False
 
     def test_sqrt(self) -> None:
         from btx.curve.params import FIELD_PRIME
@@ -390,25 +390,25 @@ class TestParseMultisigRedeemScript:
 
 class TestOperationsEdgeCases:
     def test_negate_non_infinity_with_y(self) -> None:
-        from btx.curve import GENERATOR
+        from btx.curve import GENERATOR_POINT
         from btx.curve.operations import negate
 
-        result = negate(GENERATOR)
-        assert GENERATOR.y is not None
-        assert result.x == GENERATOR.x
+        result = negate(GENERATOR_POINT)
+        assert GENERATOR_POINT.y is not None
+        assert result.x == GENERATOR_POINT.x
         assert result.y is not None
-        assert result.y == FIELD_PRIME - GENERATOR.y
+        assert result.y == FIELD_PRIME - GENERATOR_POINT.y
 
     def test_add_both_infinity(self) -> None:
         from btx.curve.operations import add
 
-        result = add(INFINITY, INFINITY)
+        result = add(INFINITY_POINT, INFINITY_POINT)
         assert result.infinity
 
     def test_double_infinity(self) -> None:
         from btx.curve.operations import double
 
-        result = double(INFINITY)
+        result = double(INFINITY_POINT)
         assert result.infinity
 
     def test_double_point_with_y_zero(self) -> None:
@@ -421,25 +421,25 @@ class TestOperationsEdgeCases:
     def test_ops_multiply_by_zero(self) -> None:
         from btx.curve.operations import multiply as ops_multiply
 
-        result = ops_multiply(0, GENERATOR)
+        result = ops_multiply(0, GENERATOR_POINT)
         assert result.infinity
 
     def test_ops_multiply_infinity(self) -> None:
         from btx.curve.operations import multiply as ops_multiply
 
-        result = ops_multiply(5, INFINITY)
+        result = ops_multiply(5, INFINITY_POINT)
         assert result.infinity
 
     def test_ops_multiply_zero_after_reduction(self) -> None:
         from btx.curve.operations import multiply as ops_multiply
 
-        result = ops_multiply(CURVE_ORDER, GENERATOR)
+        result = ops_multiply(CURVE_ORDER, GENERATOR_POINT)
         assert result.infinity
 
     def test_is_on_curve_with_none_coords(self) -> None:
         from btx.curve.operations import is_on_curve
 
-        assert is_on_curve(INFINITY)
+        assert is_on_curve(INFINITY_POINT)
 
     def test_bits_zero(self) -> None:
         from btx.curve.operations import bits
@@ -459,18 +459,18 @@ class TestOperationsEdgeCases:
     def test_add_points_with_different_x(self) -> None:
         from btx.curve.operations import add
 
-        p1 = GENERATOR
+        p1 = GENERATOR_POINT
         p2 = double(p1)
         result = add(p1, p2)
         assert not result.infinity
-        assert result == multiply(3, GENERATOR)
+        assert result == multiply(3, GENERATOR_POINT)
 
     def test_add_points_negated(self) -> None:
         from btx.curve.operations import add
 
-        assert GENERATOR.y is not None
-        neg_gen = Point(x=GENERATOR.x, y=FIELD_PRIME - GENERATOR.y)
-        result = add(GENERATOR, neg_gen)
+        assert GENERATOR_POINT.y is not None
+        neg_gen = Point(x=GENERATOR_POINT.x, y=FIELD_PRIME - GENERATOR_POINT.y)
+        result = add(GENERATOR_POINT, neg_gen)
         assert result.infinity
 
 
@@ -489,15 +489,15 @@ class TestPointEdgeCases:
             Point(x=1, y=FIELD_PRIME)
 
     def test_point_eq_non_point(self) -> None:
-        assert (GENERATOR == "not-a-point") is False
+        assert (GENERATOR_POINT == "not-a-point") is False
 
     def test_point_eq_one_infinity(self) -> None:
-        assert GENERATOR != INFINITY
-        assert INFINITY != GENERATOR
+        assert GENERATOR_POINT != INFINITY_POINT
+        assert INFINITY_POINT != GENERATOR_POINT
 
     def test_infinity_serialize_uncompressed_raises(self) -> None:
         with pytest.raises(ValueError, match="Cannot serialize infinity"):
-            INFINITY.to_sec_uncompressed()
+            INFINITY_POINT.to_sec_uncompressed()
 
     def test_x_out_of_range(self) -> None:
         from btx.curve.params import FIELD_PRIME
@@ -506,14 +506,14 @@ class TestPointEdgeCases:
             Point(x=FIELD_PRIME, y=1)
 
     def test_serialize_compressed(self) -> None:
-        data = GENERATOR.to_sec_compressed()
+        data = GENERATOR_POINT.to_sec_compressed()
         assert len(data) == 33
         assert data[0] in (0x02, 0x03)
 
     def test_hash_consistency(self) -> None:
-        assert hash(GENERATOR) == hash(GENERATOR)
-        assert hash(INFINITY) == hash(INFINITY)
-        assert hash(GENERATOR) != hash(INFINITY)
+        assert hash(GENERATOR_POINT) == hash(GENERATOR_POINT)
+        assert hash(INFINITY_POINT) == hash(INFINITY_POINT)
+        assert hash(GENERATOR_POINT) != hash(INFINITY_POINT)
 
 
 # ── dispatch.py coverage ───────────────────────────────────────────────
@@ -523,7 +523,7 @@ class TestDispatchCoverage:
     def test_is_generator_infinity(self) -> None:
         from btx.curve.dispatch import is_generator
 
-        assert not is_generator(INFINITY)
+        assert not is_generator(INFINITY_POINT)
 
     def test_normalize(self) -> None:
         from btx.curve.dispatch import normalize
