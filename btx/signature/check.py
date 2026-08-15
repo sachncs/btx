@@ -38,6 +38,7 @@ from btx.curve import GENERATOR_POINT
 from btx.curve.dispatch import add, is_on_curve, multiply
 from btx.curve.params import CURVE_ORDER, FIELD_PRIME
 from btx.encoding.der import decode_der
+from btx.encoding.hasher import HASH_BYTE_LENGTH
 
 if TYPE_CHECKING:
     from btx.curve.point import Point
@@ -45,7 +46,6 @@ if TYPE_CHECKING:
 logger = logging.getLogger(__name__)
 
 PUBKEY_RECOVERY_OFFSET = 27
-HASH_BYTE_LENGTH = 32
 
 
 def recover_public_key(

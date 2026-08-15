@@ -20,6 +20,15 @@ be used directly as inputs to further hashing or as message digests.
 
 import hashlib
 
+HASH_BYTE_LENGTH: int = 32
+"""Length of a SHA-256 digest in bytes.
+
+The single canonical definition for the SHA-256 output size used by
+every Bitcoin hash function in this library.  Imported (rather than
+re-defined) by :mod:`btx.signature.check` and
+:mod:`btx.signature.signer`.
+"""
+
 
 def sha256(data: bytes) -> bytes:
     """Return the SHA-256 digest of *data*.
