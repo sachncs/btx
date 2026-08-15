@@ -183,7 +183,7 @@ def try_load_libsecp() -> CurveBackend | None:
         dependency is not installed.
     """
     try:
-        from btx.curve.backend.libsec import LibsecpBackend  # noqa: PLC0415
+        from btx.curve.backend.libsec import LibsecpBackend  # optional dependency
 
         return LibsecpBackend()
     except ImportError:

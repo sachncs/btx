@@ -9,6 +9,7 @@ import pytest
 
 from btx.curve import parse_public_key
 from btx.encoding.varint import encode_varint
+from btx.psbt.extraction import psbt_extract_signatures
 from btx.psbt.models import Psbt, PsbtInput, PsbtOutput
 from btx.psbt.parser import (
     parse_input_map,
@@ -18,7 +19,6 @@ from btx.psbt.parser import (
     parse_psbt,
     parse_psbt_hex,
     parse_witness_stack,
-    psbt_extract_signatures,
     serialize_input_map,
     serialize_key_value,
     serialize_output_map,
@@ -467,7 +467,7 @@ class TestPsbtExtractSignatures:
 
     def testextract_pubkey_from_elements_valid(self):
         from btx.encoding.sec import serialize_sec
-        from btx.psbt.parser import extract_pubkey_from_elements
+        from btx.psbt.extraction import extract_pubkey_from_elements
 
         pubkey_point = parse_public_key(VALID_PUBKEY)
         pubkey_element = serialize_sec(pubkey_point, compressed=True)
@@ -477,7 +477,7 @@ class TestPsbtExtractSignatures:
 
     def testextract_pubkey_from_elements_uncompressed(self):
         from btx.encoding.sec import serialize_sec
-        from btx.psbt.parser import extract_pubkey_from_elements
+        from btx.psbt.extraction import extract_pubkey_from_elements
 
         pubkey_point = parse_public_key(VALID_PUBKEY)
         pubkey_element = serialize_sec(pubkey_point, compressed=False)
@@ -485,19 +485,19 @@ class TestPsbtExtractSignatures:
         assert result == pubkey_point
 
     def testextract_pubkey_from_elements_no_pubkey(self):
-        from btx.psbt.parser import extract_pubkey_from_elements
+        from btx.psbt.extraction import extract_pubkey_from_elements
 
         result = extract_pubkey_from_elements([b"\x00", b"\x01"])
         assert result is None
 
     def testextract_pubkey_from_elements_invalid_length(self):
-        from btx.psbt.parser import extract_pubkey_from_elements
+        from btx.psbt.extraction import extract_pubkey_from_elements
 
         result = extract_pubkey_from_elements([b"\x02" + b"\x00" * 16])
         assert result is None
 
     def testextract_pubkey_from_elements_off_curve(self):
-        from btx.psbt.parser import extract_pubkey_from_elements
+        from btx.psbt.extraction import extract_pubkey_from_elements
 
         # 65-byte uncompressed SEC with x=0, y=1 — not on curve
         off_curve = b"\x04" + b"\x00" * 32 + b"\x01" * 32

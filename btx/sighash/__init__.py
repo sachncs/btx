@@ -32,6 +32,8 @@ References
 - BIP-341: "Taproot: SegWit version 1 spending rules"
 """
 
+from __future__ import annotations
+
 from abc import ABC, abstractmethod
 
 from btx.sighash.flag import (
@@ -50,6 +52,7 @@ from btx.sighash.flag import (
 from btx.sighash.legacy import sighash_legacy
 from btx.sighash.segwit import sighash_segwit
 from btx.sighash.taproot import sighash_taproot
+from btx.transaction.models import Tx
 
 __all__ = [
     "SIGHASH_ALL",
@@ -83,7 +86,7 @@ class SighashScheme(ABC):
     @abstractmethod
     def compute(
         self,
-        tx: object,
+        tx: Tx,
         input_index: int,
         script_code: bytes,
         value: int,
@@ -108,7 +111,7 @@ class LegacySighash(SighashScheme):
 
     def compute(
         self,
-        tx: object,
+        tx: Tx,
         input_index: int,
         script_code: bytes,
         value: int,
@@ -122,7 +125,7 @@ class SegwitSighash(SighashScheme):
 
     def compute(
         self,
-        tx: object,
+        tx: Tx,
         input_index: int,
         script_code: bytes,
         value: int,
@@ -136,15 +139,10 @@ class TaprootSighash(SighashScheme):
 
     def compute(
         self,
-        tx: object,
+        tx: Tx,
         input_index: int,
         script_code: bytes,
         value: int,
         sighash_flag: int,
     ) -> bytes:
-        return sighash_taproot(
-            tx,
-            input_index,
-            script_code,
-            sighash_flag,
-        )
+        return sighash_taproot(tx, input_index, script_code, sighash_flag)

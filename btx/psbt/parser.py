@@ -34,10 +34,6 @@ from __future__ import annotations
 import logging
 
 from btx.encoding.varint import decode_varint, encode_varint
-from btx.psbt.extraction import (  # noqa: F401
-    extract_pubkey_from_elements,
-    psbt_extract_signatures,
-)
 from btx.psbt.models import Psbt, PsbtInput, PsbtOutput
 from btx.transaction.parser import parse_tx
 

@@ -192,10 +192,10 @@ from btx.script import (
 )
 from btx.services import (
     BLOCKSTREAM_BASE_URL,
+    MEMPOOL_SPACE_BASE_URL,
     BaseBlockchainProvider,
     BlockchainInfoProvider,
     GenericHttpProvider,
-    MEMPOOL_SPACE_BASE_URL,
     async_batch_fetch_transactions,
     async_enrich_transaction,
     batch_enrich_transactions,

@@ -58,8 +58,6 @@ from btx.script.classifier import (
 from btx.script.parser import parse_script
 from btx.sighash.flag import SIGHASH_ALL
 from btx.signature.extraction.helpers import (
-    build_p2pkh_script_code,  # noqa: F401  re-exported
-    compute_sighash,  # noqa: F401  re-exported
     default_script_code,
     extract_pubkey_from_script_sig,
     p2wpkh_script_code,

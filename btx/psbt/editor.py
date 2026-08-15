@@ -25,7 +25,7 @@ Typical usage:
 from __future__ import annotations
 
 import dataclasses
-from typing import Self
+from typing import Any, Self
 
 from btx.psbt.models import Psbt, PsbtInput, PsbtOutput
 from btx.transaction.parser import parse_tx
@@ -75,11 +75,11 @@ class PsbtEditor:
         )
         return PsbtEditor(psbt)
 
-    def _replace_input(self, vin: int, **changes: object) -> None:
+    def _replace_input(self, vin: int, **changes: Any) -> None:
         """Replace the input at *vin* via :func:`dataclasses.replace`."""
         self.inputs[vin] = dataclasses.replace(self.inputs[vin], **changes)
 
-    def _replace_output(self, vout: int, **changes: object) -> None:
+    def _replace_output(self, vout: int, **changes: Any) -> None:
         """Replace the output at *vout* via :func:`dataclasses.replace`."""
         self.outputs[vout] = dataclasses.replace(self.outputs[vout], **changes)
 

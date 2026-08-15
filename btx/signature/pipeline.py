@@ -39,9 +39,14 @@ import logging
 import signal
 import uuid
 from collections import defaultdict
-from collections.abc import Sequence
-from concurrent.futures import ProcessPoolExecutor, ThreadPoolExecutor, as_completed
-from dataclasses import dataclass, field
+from collections.abc import Callable, Sequence
+from concurrent.futures import (
+    Future,
+    ProcessPoolExecutor,
+    ThreadPoolExecutor,
+    as_completed,
+)
+from dataclasses import dataclass
 from threading import Lock
 
 from btx.encoding.der import decode_der
@@ -267,6 +272,52 @@ def batch_extract(
             )
             return (label, str(exc))
 
+    def run_pool(
+        executor: ThreadPoolExecutor | ProcessPoolExecutor,
+        worker_fn: Callable[
+            [str | bytes, Sequence[bytes] | None, Sequence[int] | None],
+            list[Record] | tuple[str, str],
+        ],
+        check_shutdown: bool,
+    ) -> None:
+        """Submit work to *executor* and harvest results into the shared lists."""
+        nonlocal successful
+        future_map: dict[Future, str] = {}
+        for tx_input, tx_scripts, tx_values in zip(
+            transactions, scripts, values, strict=True
+        ):
+            if check_shutdown and is_shutdown_requested():
+                logger.warning(
+                    "[%s] Shutdown detected, skipping remaining submissions.", rid
+                )
+                break
+            label = tx_input[:64] if isinstance(tx_input, str) else "<bytes>"
+            fut = executor.submit(worker_fn, tx_input, tx_scripts, tx_values)
+            future_map[fut] = label
+
+        for future in as_completed(future_map):
+            label = future_map[future]
+            try:
+                fut_result = future.result()
+            except Exception as exc:
+                logger.warning(
+                    "[%s] Unexpected worker exception for %s: %s",
+                    rid,
+                    label,
+                    exc,
+                    exc_info=True,
+                )
+                with lock:
+                    errors.append((label, str(exc)))
+                continue
+            if isinstance(fut_result, tuple):
+                with lock:
+                    errors.append(fut_result)
+            else:
+                with lock:
+                    all_records.extend(fut_result)
+                    successful += 1
+
     if max_workers <= 1:
         for tx_input, tx_scripts, tx_values in zip(
             transactions, scripts, values, strict=True
@@ -281,80 +332,11 @@ def batch_extract(
                 all_records.extend(outcome)
                 successful += 1
     elif use_process_pool:
-        with ProcessPoolExecutor(max_workers=max_workers) as executor:
-            future_map = {}
-            for tx_input, tx_scripts, tx_values in zip(
-                transactions, scripts, values, strict=True
-            ):
-                label = tx_input[:64] if isinstance(tx_input, str) else "<bytes>"
-                fut = executor.submit(
-                    process_single_worker, tx_input, tx_scripts, tx_values
-                )
-                future_map[fut] = label
-
-            for future in as_completed(future_map):
-                label = future_map[future]
-                try:
-                    fut_result = future.result()
-                except Exception as exc:
-                    logger.warning(
-                        "[%s] Unexpected worker exception for %s: %s",
-                        rid,
-                        label,
-                        exc,
-                        exc_info=True,
-                    )
-                    with lock:
-                        errors.append((label, str(exc)))
-                    continue
-                if isinstance(fut_result, tuple):
-                    with lock:
-                        errors.append(fut_result)
-                else:
-                    with lock:
-                        all_records.extend(fut_result)
-                        successful += 1
+        with ProcessPoolExecutor(max_workers=max_workers) as process_executor:
+            run_pool(process_executor, process_single_worker, check_shutdown=False)
     else:
-        with ThreadPoolExecutor(  # type: ignore[assignment]
-            max_workers=max_workers
-        ) as executor:
-            future_map = {}
-            for tx_input, tx_scripts, tx_values in zip(
-                transactions, scripts, values, strict=True
-            ):
-                if is_shutdown_requested():
-                    logger.warning(
-                        "[%s] Shutdown detected, skipping remaining submissions.", rid
-                    )
-                    break
-                label = tx_input[:64] if isinstance(tx_input, str) else "<bytes>"
-                fut = executor.submit(
-                    process_one_with_shutdown, tx_input, tx_scripts, tx_values
-                )
-                future_map[fut] = label
-
-            for future in as_completed(future_map):
-                label = future_map[future]
-                try:
-                    fut_result = future.result()
-                except Exception as exc:
-                    logger.warning(
-                        "[%s] Unexpected worker exception for %s: %s",
-                        rid,
-                        label,
-                        exc,
-                        exc_info=True,
-                    )
-                    with lock:
-                        errors.append((label, str(exc)))
-                    continue
-                if isinstance(fut_result, tuple):
-                    with lock:
-                        errors.append(fut_result)
-                else:
-                    with lock:
-                        all_records.extend(fut_result)
-                        successful += 1
+        with ThreadPoolExecutor(max_workers=max_workers) as thread_executor:
+            run_pool(thread_executor, process_one_with_shutdown, check_shutdown=True)
 
     batch_result = BatchResult(
         items=tuple(all_records),
@@ -367,8 +349,8 @@ def batch_extract(
         "[%s] Batch complete: %d / %d successful, %d errors.",
         rid,
         batch_result.successful,
-batch_result.total,
-            len(batch_result.errors),
+        batch_result.total,
+        len(batch_result.errors),
     )
     return batch_result
 

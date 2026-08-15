@@ -317,7 +317,7 @@ class GenericHttpProvider(BaseBlockchainProvider):
             raw = fetch_text(url)
             try:
                 data = json.loads(raw)
-                if isinstance(data, (int, float)):
+                if isinstance(data, int | float):
                     return int(data)
                 return int(data.get(self.value_key, 0))
             except (json.JSONDecodeError, KeyError):
@@ -500,7 +500,7 @@ def post_data(url: str, data: bytes, *, timeout: int = HTTP_TIMEOUT) -> str:
 def enrich_transaction(
     tx_hex: str,
     *,
-    provider: BlockchainProvider | None = None,
+    provider: BaseBlockchainProvider | None = None,
 ) -> tuple[list[bytes], list[int]]:
     """Fetch UTXO scripts and values for all inputs in a transaction.
 
@@ -509,7 +509,7 @@ def enrich_transaction(
 
     Args:
         tx_hex: The raw transaction as a hex-encoded string.
-        provider: A ``BlockchainProvider`` instance.  If ``None``,
+        provider: A ``BaseBlockchainProvider`` instance.  If ``None``,
             a blockstream provider is created automatically.
 
     Returns:
@@ -540,7 +540,7 @@ def enrich_transaction(
 def fetch_and_extract(
     txid_or_hex: str,
     *,
-    provider: BlockchainProvider | None = None,
+    provider: BaseBlockchainProvider | None = None,
 ) -> list[Record]:
     """Fetch a transaction and extract signatures in one call.
 
@@ -552,7 +552,7 @@ def fetch_and_extract(
     Args:
         txid_or_hex: A 64-character txid **or** a hex-encoded raw
             transaction.
-        provider: A ``BlockchainProvider`` instance.  If ``None``,
+        provider: A ``BaseBlockchainProvider`` instance.  If ``None``,
             a blockstream provider is created automatically.
 
     Returns:
@@ -586,13 +586,13 @@ def fetch_and_extract(
 def broadcast_transaction(
     tx_hex: str,
     *,
-    provider: BlockchainProvider | None = None,
+    provider: BaseBlockchainProvider | None = None,
 ) -> str:
     """Broadcast a raw transaction to the Bitcoin network.
 
     Args:
         tx_hex: The raw transaction as a hex-encoded string.
-        provider: A ``BlockchainProvider`` instance.  If ``None``,
+        provider: A ``BaseBlockchainProvider`` instance.  If ``None``,
             a blockstream provider is created automatically.
 
     Returns:
@@ -656,7 +656,7 @@ async def async_enrich_transaction(
 def batch_fetch_transactions(
     txids: list[str],
     *,
-    provider: BlockchainProvider | None = None,
+    provider: BaseBlockchainProvider | None = None,
     max_workers: int = 8,
 ) -> dict[str, str]:
     """Fetch multiple transactions in parallel.
@@ -666,7 +666,7 @@ def batch_fetch_transactions(
 
     Args:
         txids: List of 64-character transaction IDs to fetch.
-        provider: A ``BlockchainProvider`` instance. If ``None``,
+        provider: A ``BaseBlockchainProvider`` instance. If ``None``,
             a blockstream provider is created automatically.
         max_workers: Maximum number of parallel workers (default 8).
 
@@ -700,14 +700,14 @@ def batch_fetch_transactions(
 def batch_enrich_transactions(
     tx_hexes: list[str],
     *,
-    provider: BlockchainProvider | None = None,
+    provider: BaseBlockchainProvider | None = None,
     max_workers: int = 8,
 ) -> list[tuple[list[bytes], list[int]]]:
     """Enrich multiple transactions with UTXO data in parallel.
 
     Args:
         tx_hexes: List of raw transaction hex strings.
-        provider: A ``BlockchainProvider`` instance. If ``None``,
+        provider: A ``BaseBlockchainProvider`` instance. If ``None``,
             a blockstream provider is created automatically.
         max_workers: Maximum number of parallel workers (default 8).
 
@@ -728,7 +728,7 @@ def batch_enrich_transactions(
 
     results: list[tuple[list[bytes], list[int]]] = []
     with ThreadPoolExecutor(max_workers=max_workers) as executor:
-        futures = [executor.submit(_enrich_one, tx_hex) for tx_hex in tx_hexes]
+        futures = [executor.submit(enrich_one, tx_hex) for tx_hex in tx_hexes]
         for future in as_completed(futures):
             results.append(future.result())
 

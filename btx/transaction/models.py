@@ -29,7 +29,7 @@ from dataclasses import dataclass
 from typing import TYPE_CHECKING, Any
 
 if TYPE_CHECKING:
-    from btx.sighash.flag import SighashFlagLike
+    pass
 
 
 @dataclass(frozen=True, slots=True)

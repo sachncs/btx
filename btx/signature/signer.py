@@ -34,7 +34,7 @@ from typing import TYPE_CHECKING
 from btx.curve import CURVE_ORDER, GENERATOR_POINT, multiply
 from btx.encoding.der import encode_der
 from btx.encoding.hasher import HASH_BYTE_LENGTH
-from btx.signature.extraction.engine import compute_sighash
+from btx.signature.extraction.helpers import compute_sighash
 
 if TYPE_CHECKING:
     from btx.transaction.models import Tx

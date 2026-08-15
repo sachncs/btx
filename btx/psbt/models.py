@@ -153,6 +153,6 @@ class Psbt:
         Returns:
             A ``SignatureCollection`` containing all extracted records.
         """
-        from btx.psbt.parser import psbt_extract_signatures
+        from btx.psbt.extraction import psbt_extract_signatures
 
         return psbt_extract_signatures(self, input_values=input_values)

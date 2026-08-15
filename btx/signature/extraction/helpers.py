@@ -135,15 +135,12 @@ def compute_sighash(tx: Tx, vin: int, script: bytes, flag: int, value: int) -> b
     from btx.sighash import (
         LegacySighash,
         SegwitSighash,
+        SighashScheme,
         TaprootSighash,
     )
 
-    if (
-        len(script) >= 2
-        and script[0] == 0x00
-        and script[1] in (0x14, 0x20)
-    ):
-        scheme = SegwitSighash()
+    if len(script) >= 2 and script[0] == 0x00 and script[1] in (0x14, 0x20):
+        scheme: SighashScheme = SegwitSighash()
     elif (
         len(script) >= 2
         and script[0] == 0x51  # OP_1 leaf version for taproot script path

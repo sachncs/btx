@@ -45,9 +45,7 @@ class SignatureCollection:
         """Return the record at *index*."""
         return self.records[index]
 
-    def sort_records(
-        self, key: Callable[[Record], Any]
-    ) -> SignatureCollection:
+    def sort_records(self, key: Callable[[Record], Any]) -> SignatureCollection:
         """Return a new collection sorted by *key*.
 
         Args:

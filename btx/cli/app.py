@@ -37,10 +37,22 @@ from pathlib import Path
 
 import typer
 
+from btx import __version__
+from btx.curve import parse_public_key
 from btx.encoding.hex import decode_hex, encode_hex
+from btx.health import health as run_health
+from btx.script import classify_script_pubkey, parse_script
+from btx.services.blockchain import (
+    BlockchainInfoProvider,
+    blockstream_provider,
+    broadcast_transaction,
+    mempool_space_provider,
+)
 from btx.services.serializer import tx_to_json
 from btx.signature import extract_signatures, linearize_signatures
+from btx.signature.check import recover_public_key, verify_signature
 from btx.signature.record import Record
+from btx.signature.signer import sign as sign_msg
 from btx.transaction import parse_tx
 
 app = typer.Typer(name="btx")
@@ -54,39 +66,15 @@ logging initialisation state without having to parse logger
 configuration.  Mutated only through :func:`configure_logging`.
 """
 
-
-def format_json(record: logging.LogRecord) -> str:
-    """Format a :class:`logging.LogRecord` as a JSON string.
-
-    Produces structured log entries suitable for ingestion by log
-    aggregators (ELK, Datadog, etc.).
-
-    Args:
-        record: The log record to serialize.
-
-    Returns:
-        A JSON-encoded string with the standard structured fields.
-    """
-    return json.dumps(
-        {
-            "timestamp": datetime.fromtimestamp(record.created, tz=UTC).isoformat(),
-            "level": record.levelname,
-            "logger": record.name,
-            "module": record.module,
-            "function": record.funcName,
-            "line": record.lineno,
-            "message": record.getMessage(),
-        },
-        default=str,
-    )
+EXIT_OK: int = 0
+EXIT_ERROR: int = 1
+"""Process exit codes used by :func:`main`."""
 
 
-class JsonFormatter(logging.Formatter):
-    """Logging formatter that delegates to :func:`format_json`."""
-
-    def format(self, record: logging.LogRecord) -> str:
-        """Format *record* by delegating to :func:`format_json`."""
-        return format_json(record)
+def fail(message: str) -> typer.Exit:
+    """Print *message* to stderr and return a ``typer.Exit(1)`` for ``raise``."""
+    typer.echo(f"Error: {message}", err=True)
+    raise typer.Exit(EXIT_ERROR)
 
 
 def configure_logging() -> None:
@@ -129,6 +117,40 @@ def configure_logging() -> None:
     LOGGING_CONFIGURED = True
 
 
+def format_json(record: logging.LogRecord) -> str:
+    """Format a :class:`logging.LogRecord` as a JSON string.
+
+    Produces structured log entries suitable for ingestion by log
+    aggregators (ELK, Datadog, etc.).
+
+    Args:
+        record: The log record to serialize.
+
+    Returns:
+        A JSON-encoded string with the standard structured fields.
+    """
+    return json.dumps(
+        {
+            "timestamp": datetime.fromtimestamp(record.created, tz=UTC).isoformat(),
+            "level": record.levelname,
+            "logger": record.name,
+            "module": record.module,
+            "function": record.funcName,
+            "line": record.lineno,
+            "message": record.getMessage(),
+        },
+        default=str,
+    )
+
+
+class JsonFormatter(logging.Formatter):
+    """Logging formatter that delegates to :func:`format_json`."""
+
+    def format(self, record: logging.LogRecord) -> str:
+        """Format *record* by delegating to :func:`format_json`."""
+        return format_json(record)
+
+
 def parse_input_values(value_str: str) -> list[int | None]:
     """Parse a comma-separated string of input values into integers.
 
@@ -153,15 +175,12 @@ def parse_input_values(value_str: str) -> list[int | None]:
 
 
 def resolve_output_format(
-    *,
-    json_output: bool,
-    csv_output: bool,
-    output_format: str,
+    *, json_output: bool, csv_output: bool, output_format: str
 ) -> str:
     """Resolve the effective output format, erroring on conflicting flags."""
     if json_output and csv_output:
         typer.echo("--json and --csv are mutually exclusive", err=True)
-        raise typer.Exit(1)
+        raise typer.Exit(EXIT_ERROR)
     if output_format != "text":
         return output_format
     if json_output:
@@ -180,15 +199,15 @@ def read_tx_hex(tx_hex: str | None, input_file: Path | None) -> str:
         return input_file.read_text().strip()
     if tx_hex is not None:
         return tx_hex
-    typer.echo("Either provide tx_hex as argument or use --input-file", err=True)
-    raise typer.Exit(1)
+    fail("Either provide tx_hex as argument or use --input-file")
+    raise typer.Exit(EXIT_ERROR)
 
 
 def output_records(records: list[Record], fmt: str) -> None:
     """Output records (for ``extract``) in the requested format."""
     if not records:
         typer.echo("No signatures found.")
-        raise typer.Exit(0)
+        raise typer.Exit(EXIT_OK)
 
     if fmt == "json":
         data = [
@@ -236,7 +255,7 @@ def output_sorted_records(records: list[Record], fmt: str) -> None:
     """Output sorted/linearized records (for ``linearize``) in the requested format."""
     if not records:
         typer.echo("No signatures found.")
-        raise typer.Exit(0)
+        raise typer.Exit(EXIT_OK)
 
     if fmt == "json":
         data = [
@@ -264,6 +283,18 @@ def output_sorted_records(records: list[Record], fmt: str) -> None:
             )
 
 
+def _decode_tx(tx_hex_resolved: str):
+    """Decode a tx hex string into a :class:`Tx`.
+
+    Args:
+        tx_hex_resolved: Hex string of the transaction.
+
+    Returns:
+        The parsed ``Tx`` and the number of bytes consumed.
+    """
+    return parse_tx(decode_hex(tx_hex_resolved))
+
+
 @app.command()
 def decode(
     tx_hex: str | None = typer.Argument(None, help="Transaction hex"),
@@ -273,15 +304,8 @@ def decode(
 ) -> None:
     """Decode a raw transaction and output as JSON."""
     configure_logging()
-    try:
-        tx_hex_resolved = read_tx_hex(tx_hex, input_file)
-        tx_bytes = decode_hex(tx_hex_resolved)
-        tx, _ = parse_tx(tx_bytes)
-        typer.echo(json.dumps(tx_to_json(tx), indent=2))
-    except (ValueError, OSError, TypeError, AttributeError) as exc:
-        logger.error("decode failed", exc_info=True)
-        typer.echo(f"Error: {exc}", err=True)
-        raise typer.Exit(1) from exc
+    tx, _ = _decode_tx(read_tx_hex(tx_hex, input_file))
+    typer.echo(json.dumps(tx_to_json(tx), indent=2))
 
 
 @app.command()
@@ -303,34 +327,25 @@ def extract(
 ) -> None:
     """Extract ECDSA signatures from a raw transaction hex."""
     configure_logging()
-    try:
-        fmt = resolve_output_format(
-            json_output=json_output,
-            csv_output=csv_output,
-            output_format=output_format,
+    fmt = resolve_output_format(
+        json_output=json_output, csv_output=csv_output, output_format=output_format
+    )
+    tx, _ = _decode_tx(read_tx_hex(tx_hex, input_file))
+
+    script_pubkeys = [decode_hex(s) for s in utxo_scripts] if utxo_scripts else None
+
+    if progress:
+        typer.echo(
+            f"Parsed tx with {len(tx.inputs)} inputs, {len(tx.outputs)} outputs.",
+            err=True,
         )
-        tx_hex_resolved = read_tx_hex(tx_hex, input_file)
-        tx_bytes = decode_hex(tx_hex_resolved)
-        tx, _ = parse_tx(tx_bytes)
 
-        script_pubkeys = [decode_hex(s) for s in utxo_scripts] if utxo_scripts else None
+    records = extract_signatures(tx, script_pubkeys, utxo_values)
 
-        if progress:
-            typer.echo(
-                f"Parsed tx with {len(tx.inputs)} inputs, {len(tx.outputs)} outputs.",
-                err=True,
-            )
+    if progress:
+        typer.echo(f" Found {len(records)} signature(s).", err=True)
 
-        records = extract_signatures(tx, script_pubkeys, utxo_values)
-
-        if progress:
-            typer.echo(f" Found {len(records)} signature(s).", err=True)
-
-        output_records(records, fmt)
-    except (ValueError, OSError, IndexError, TypeError, AttributeError) as exc:
-        logger.error("extract failed", exc_info=True)
-        typer.echo(f"Error: {exc}", err=True)
-        raise typer.Exit(1) from exc
+    output_records(records, fmt)
 
 
 @app.command()
@@ -346,41 +361,37 @@ def linearize(
 ) -> None:
     """Extract and linearize (sort) signatures from a raw transaction hex."""
     configure_logging()
-    try:
-        fmt = resolve_output_format(
-            json_output=json_output,
-            csv_output=csv_output,
-            output_format=output_format,
+    fmt = resolve_output_format(
+        json_output=json_output, csv_output=csv_output, output_format=output_format
+    )
+    tx, _ = _decode_tx(read_tx_hex(tx_hex, input_file))
+
+    if progress:
+        typer.echo(
+            f"Parsed tx with {len(tx.inputs)} inputs, {len(tx.outputs)} outputs.",
+            err=True,
         )
-        tx_hex_resolved = read_tx_hex(tx_hex, input_file)
-        tx_bytes = decode_hex(tx_hex_resolved)
-        tx, _ = parse_tx(tx_bytes)
 
-        if progress:
-            typer.echo(
-                f"Parsed tx with {len(tx.inputs)} inputs, {len(tx.outputs)} outputs.",
-                err=True,
-            )
+    records = extract_signatures(tx)
+    sorted_records = linearize_signatures(records)
 
-        records = extract_signatures(tx)
-        sorted_records = linearize_signatures(records)
+    if progress:
+        typer.echo(f" Linearized {len(sorted_records)} signature(s).", err=True)
 
-        if progress:
-            typer.echo(f" Linearized {len(sorted_records)} signature(s).", err=True)
-
-        output_sorted_records(sorted_records, fmt)
-    except (ValueError, OSError, IndexError, TypeError, AttributeError) as exc:
-        logger.error("linearize failed", exc_info=True)
-        typer.echo(f"Error: {exc}", err=True)
-        raise typer.Exit(1) from exc
+    output_sorted_records(sorted_records, fmt)
 
 
 @app.command()
 def version() -> None:
     """Print the installed btx package version."""
-    from btx import __version__ as ver
+    typer.echo(f"btx v{__version__}")
 
-    typer.echo(f"btx v{ver}")
+
+_PROVIDERS = {
+    "blockstream": blockstream_provider,
+    "mempool": mempool_space_provider,
+    "blockchain_info": BlockchainInfoProvider,
+}
 
 
 @app.command()
@@ -397,37 +408,20 @@ def broadcast(
 ) -> None:
     """Broadcast a raw transaction to the Bitcoin network."""
     configure_logging()
-    try:
-        from btx.services.blockchain import (
-            BlockchainInfoProvider,
-            blockstream_provider,
-            mempool_space_provider,
+    if provider_name not in _PROVIDERS:
+        fail(
+            f"Unknown provider: {provider_name}. "
+            f"Choose from: {', '.join(_PROVIDERS)}"
         )
+    provider = _PROVIDERS[provider_name]()
+    txid = broadcast_transaction(read_tx_hex(tx_hex, input_file), provider=provider)
+    typer.echo(txid)
 
-        providers = {
-            "blockstream": blockstream_provider,
-            "mempool": mempool_space_provider,
-            "blockchain_info": BlockchainInfoProvider,
-        }
-        provider_factory = providers.get(provider_name)
-        if provider_factory is None:
-            typer.echo(
-                f"Unknown provider: {provider_name}. "
-                f"Choose from: {', '.join(providers)}",
-                err=True,
-            )
-            raise typer.Exit(1)
 
-        hex_data = read_tx_hex(tx_hex, input_file)
-        provider = provider_factory()
-        from btx.services.blockchain import broadcast_transaction
-
-        txid = broadcast_transaction(hex_data, provider=provider)
-        typer.echo(txid)
-    except (ValueError, OSError, IndexError, TypeError, AttributeError) as exc:
-        logger.error("broadcast failed", exc_info=True)
-        typer.echo(f"Error: {exc}", err=True)
-        raise typer.Exit(1) from exc
+_SCHEMAS = {
+    "extraction": "docs/schemas/extraction.json",
+    "health": "docs/schemas/health.json",
+}
 
 
 @app.command()
@@ -436,23 +430,12 @@ def schema(
 ) -> None:
     """Print the JSON Schema for a CLI output format."""
     configure_logging()
-    schemas = {
-        "extraction": "docs/schemas/extraction.json",
-        "health": "docs/schemas/health.json",
-    }
-    path = schemas.get(output_type)
-    if path is None:
-        typer.echo(
-            f"Unknown schema: {output_type}. Choose from: {', '.join(schemas)}",
-            err=True,
-        )
-        raise typer.Exit(1)
-    from pathlib import Path
-
-    schema_path = Path(__file__).resolve().parent.parent.parent / path
+    rel = _SCHEMAS.get(output_type)
+    if rel is None:
+        fail(f"Unknown schema: {output_type}. Choose from: {', '.join(_SCHEMAS)}")
+    schema_path = Path(__file__).resolve().parent.parent.parent / str(rel)
     if not schema_path.exists():
-        typer.echo(f"Schema file not found: {schema_path}", err=True)
-        raise typer.Exit(1)
+        fail(f"Schema file not found: {schema_path}")
     typer.echo(schema_path.read_text())
 
 
@@ -471,140 +454,89 @@ def install_completion() -> None:
 def health() -> None:
     """Run health checks and print a JSON status report."""
     configure_logging()
-    try:
-        from btx.health import health as run_health
-
-        status = run_health()
-        typer.echo(json.dumps(status, indent=2, default=str))
-        if not status.get("curve_operation", False):
-            logger.critical("health check FAILED: curve operation failed")
-            raise typer.Exit(1)
-    except (ValueError, OSError, TypeError, AttributeError) as exc:
-        logger.error("health check failed", exc_info=True)
-        typer.echo(f"Error: {exc}", err=True)
-        raise typer.Exit(1) from exc
+    status = run_health()
+    typer.echo(json.dumps(status, indent=2, default=str))
+    if not status.get("curve_operation", False):
+        logger.critical("health check FAILED: curve operation failed")
+        raise typer.Exit(EXIT_ERROR)
 
 
 @app.command()
-def parse_script(
+def parse_script_cmd(
     script_hex: str = typer.Argument(..., help="Script bytes as hex"),
 ) -> None:
     """Parse and decompile a Bitcoin script."""
     configure_logging()
-    try:
-        from btx.script import classify_script_pubkey, parse_script
-
-        script = decode_hex(script_hex)
-        chunks = parse_script(script)
-        st = classify_script_pubkey(script)
-        typer.echo(f"Script type: {st}")
-        typer.echo(f"Chunks ({len(chunks)}):")
-        for i, chunk in enumerate(chunks):
-            typer.echo(f"  [{i}] opcode=0x{chunk.opcode:02x} data={chunk.data!r}")
-    except (ValueError, TypeError) as exc:
-        typer.echo(f"Error: {exc}", err=True)
-        raise typer.Exit(1) from exc
+    script = decode_hex(script_hex)
+    chunks = parse_script(script)
+    st = classify_script_pubkey(script)
+    typer.echo(f"Script type: {st}")
+    typer.echo(f"Chunks ({len(chunks)}):")
+    for i, chunk in enumerate(chunks):
+        typer.echo(f"  [{i}] opcode=0x{chunk.opcode:02x} data={chunk.data!r}")
 
 
-@app.command()
-def sign(
-    tx_hex: str = typer.Argument(..., help="Raw transaction hex"),
-    input_index: int = typer.Option(0, "--vin", help="Input index to sign"),
-    privkey: str = typer.Option(
-        ..., "--privkey", help="Private key as hex (32 bytes)"
-    ),
-    script: str = typer.Option(
-        "", "--script", help="Script code as hex (empty for raw pubkey)"
-    ),
-    sighash: int = typer.Option(0x01, "--sighash", help="SIGHASH flag byte"),
+@app.command(name="sign")
+def sign_cmd(
+    message_hash: str = typer.Argument(..., help="32-byte message hash as hex"),
+    privkey: str = typer.Option(..., "--privkey", help="Private key as hex (32 bytes)"),
     input_file: Path | None = typer.Option(
-        None, "--input-file", help="Read tx hex from file"
+        None, "--input-file", help="Read message hash from file"
     ),
 ) -> None:
-    """Sign a transaction input and print the DER signature."""
-    configure_logging()
-    try:
-        from btx.encoding.der import encode_der
-        from btx.signature.signer import sign as sign_msg
+    """Sign a 32-byte message hash with a private key.
 
-        tx_hex_resolved = read_tx_hex(tx_hex, input_file)
-        tx_bytes = decode_hex(tx_hex_resolved)
-        d = int(privkey, 16)
-        script_code = decode_hex(script) if script else b""
-        sig = sign_msg(tx_bytes, input_index, d, script_code, sighash)
-        typer.echo(encode_hex(encode_der(*sig)))
-    except (ValueError, TypeError) as exc:
-        typer.echo(f"Error: {exc}", err=True)
-        raise typer.Exit(1) from exc
+    Outputs the DER-encoded signature as hex.
+
+    NOTE: this signs an arbitrary 32-byte digest, not a transaction
+    input.  For transaction-level signing workflows, use the
+    ``btx.signature.sign_tx_input`` Python API directly.
+    """
+    configure_logging()
+    msg = decode_hex(read_tx_hex(message_hash, input_file))
+    if len(msg) != 32:
+        fail(f"message hash must be 32 bytes, got {len(msg)}")
+    d = int(privkey, 16)
+    typer.echo(sign_msg(msg, d).hex())
 
 
 @app.command()
 def verify(
-    tx_hex: str = typer.Argument(..., help="Raw transaction hex"),
+    message_hash: str = typer.Argument(..., help="32-byte message hash as hex"),
     pubkey: str = typer.Option(..., "--pubkey", help="Public key as hex"),
     signature: str = typer.Option(..., "--signature", help="DER signature as hex"),
-    script: str = typer.Option("", "--script", help="Script code as hex"),
-    sighash: int = typer.Option(0x01, "--sighash", help="SIGHASH flag byte"),
     input_file: Path | None = typer.Option(
-        None, "--input-file", help="Read tx hex from file"
+        None, "--input-file", help="Read message hash from file"
     ),
 ) -> None:
-    """Verify an ECDSA signature against a public key."""
+    """Verify an ECDSA signature against a public key for a message hash."""
     configure_logging()
-    try:
-        from btx.curve import parse_public_key
-        from btx.encoding.der import decode_der
-        from btx.signature.check import verify_signature
-
-        tx_hex_resolved = read_tx_hex(tx_hex, input_file)
-        tx_bytes = decode_hex(tx_hex_resolved)
-        pk = parse_public_key(decode_hex(pubkey))
-        r, s = decode_der(decode_hex(signature))
-        script_code = decode_hex(script) if script else b""
-        ok = verify_signature(tx_bytes, pk, (r, s), script_code, sighash)
-        typer.echo("valid" if ok else "invalid")
-        if not ok:
-            raise typer.Exit(1)
-    except (ValueError, TypeError) as exc:
-        typer.echo(f"Error: {exc}", err=True)
-        raise typer.Exit(1) from exc
+    msg = decode_hex(read_tx_hex(message_hash, input_file))
+    pk = parse_public_key(decode_hex(pubkey))
+    ok = verify_signature(msg, decode_hex(signature), pk)
+    typer.echo("valid" if ok else "invalid")
+    if not ok:
+        raise typer.Exit(EXIT_ERROR)
 
 
 @app.command()
 def recover(
-    tx_hex: str = typer.Argument(..., help="Raw transaction hex"),
-    input_index: int = typer.Option(0, "--vin", help="Input index"),
+    message_hash: str = typer.Argument(..., help="32-byte message hash as hex"),
     signature: str = typer.Option(..., "--signature", help="DER signature as hex"),
     recovery_flag: int = typer.Option(
-        0, "--recid", help="Recovery ID (0..3)"
+        27, "--recid", help="Recovery flag (27..30 compressed, 31..34 uncompressed)"
     ),
-    script: str = typer.Option("", "--script", help="Script code as hex"),
-    sighash: int = typer.Option(0x01, "--sighash", help="SIGHASH flag byte"),
     input_file: Path | None = typer.Option(
-        None, "--input-file", help="Read tx hex from file"
+        None, "--input-file", help="Read message hash from file"
     ),
 ) -> None:
     """Recover the public key from an ECDSA signature."""
     configure_logging()
-    try:
-        from btx.encoding.der import decode_der
-        from btx.signature.check import recover_public_key
-
-        tx_hex_resolved = read_tx_hex(tx_hex, input_file)
-        tx_bytes = decode_hex(tx_hex_resolved)
-        r, s = decode_der(decode_hex(signature))
-        script_code = decode_hex(script) if script else b""
-        pk = recover_public_key(
-            tx_bytes, decode_der(decode_hex(signature))[0],
-            recovery_flag, script_code, sighash,
-        )
-        if pk is None or pk.infinity:
-            typer.echo("Recovery failed", err=True)
-            raise typer.Exit(1)
-        typer.echo(encode_hex(pk.serialize(compressed=True)))
-    except (ValueError, TypeError) as exc:
-        typer.echo(f"Error: {exc}", err=True)
-        raise typer.Exit(1) from exc
+    msg = decode_hex(read_tx_hex(message_hash, input_file))
+    pk = recover_public_key(msg, decode_hex(signature), recovery_flag)
+    if pk is None or pk.infinity:
+        fail("recovery failed")
+    typer.echo(encode_hex(pk.serialize(compressed=True)))
 
 
 def main(args: Sequence[str] | None = None) -> int:
@@ -622,10 +554,10 @@ def main(args: Sequence[str] | None = None) -> int:
             app(args)
         else:
             app()
-    except typer.Exit as e:
-        return getattr(e, "exit_code", 0) or 0
-    except Exception as exc:
-        logger.critical("Unhandled CLI error", exc_info=True)
+    except typer.Exit as exc:
+        return getattr(exc, "exit_code", 0) or 0
+    except (ValueError, OSError, KeyError, IndexError) as exc:
+        logger.critical("Unhandled CLI error: %s", exc, exc_info=True)
         typer.echo(f"Unexpected error: {exc}", err=True)
-        return 1
-    return 0
+        return EXIT_ERROR
+    return EXIT_OK

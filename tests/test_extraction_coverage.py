@@ -1045,14 +1045,14 @@ class TestExtractScriptType:
 
 class TestExtractComputeSighash:
     def test_legacy(self) -> None:
-        from btx.signature.extraction.engine import compute_sighash
+        from btx.signature.extraction.helpers import compute_sighash
 
         tx = base_tx()
         hs = compute_sighash(tx, 0, b"\x00" * 22, 0x01, 0)
         assert len(hs) == 32
 
     def test_segwit(self) -> None:
-        from btx.signature.extraction.engine import compute_sighash
+        from btx.signature.extraction.helpers import compute_sighash
 
         tx = base_tx(witness=Witness((b"\x01" * 64,)))
         hs = compute_sighash(tx, 0, b"\x00" * 22, 0x01, 1000)

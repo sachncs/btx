@@ -213,11 +213,11 @@ def tx_from_dict(data: dict[str, object]) -> Tx:
         raise ValueError("version must be an int.")
 
     inputs_raw = data.get("inputs")
-    if not isinstance(inputs_raw, (list, tuple)):
+    if not isinstance(inputs_raw, list | tuple):
         raise ValueError("inputs must be a sequence.")
 
     outputs_raw = data.get("outputs")
-    if not isinstance(outputs_raw, (list, tuple)):
+    if not isinstance(outputs_raw, list | tuple):
         raise ValueError("outputs must be a sequence.")
 
     lock_time = data.get("lock_time", 0)

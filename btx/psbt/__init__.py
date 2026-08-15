@@ -40,6 +40,7 @@ most a few dozen entries per map and kilobyte-sized values).
 """
 
 from btx.psbt.editor import PsbtEditor
+from btx.psbt.extraction import psbt_extract_signatures
 from btx.psbt.models import Psbt, PsbtInput, PsbtOutput
 from btx.psbt.parser import (
     parse_keypath_value,
@@ -47,7 +48,6 @@ from btx.psbt.parser import (
     parse_psbt_from_file,
     parse_psbt_hex,
     parse_psbt_impl,
-    psbt_extract_signatures,
     serialize_psbt,
 )
 from btx.psbt.pipeline import (

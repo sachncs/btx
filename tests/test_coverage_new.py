@@ -14,8 +14,6 @@ from btx.curve.params import FIELD_PRIME
 from btx.encoding.der import encode_der
 from btx.encoding.hasher import hash256, sha256
 from btx.psbt import Psbt, PsbtEditor, PsbtInput, PsbtOutput
-from btx.psbt.editor import PsbtEditor
-from btx.psbt.models import PsbtInput, PsbtOutput
 from btx.script import (
     build_p2pkh,
     build_p2wpkh,
@@ -48,10 +46,10 @@ from btx.script.taproot import (
 from btx.services.blockchain import (
     BlockchainInfoProvider,
     blockstream_provider,
-    mempool_space_provider,
     enrich_transaction,
     fetch_and_extract,
     fetch_text,
+    mempool_space_provider,
 )
 from btx.services.serializer import serialize_legacy_tx, serialize_tx
 from btx.sighash.flag import SIGHASH_ALL
@@ -1620,7 +1618,7 @@ class TestSignerEdge:
 
 class TestPsbtExtractSignatures:
     def test_psbt_extract_signatures(self) -> None:
-        from btx.psbt.parser import psbt_extract_signatures
+        from btx.psbt.extraction import psbt_extract_signatures
 
         tx = make_test_tx()
         raw = serialize_legacy_tx(tx)
