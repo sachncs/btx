@@ -6,9 +6,9 @@ This subpackage owns every aspect of the Bitcoin transaction model:
 
 - :mod:`btx.transaction.models` – immutable ``frozen=True,
   slots=True`` dataclasses: :class:`OutPoint`, :class:`TxIn`,
-  :class:`TxOut`, :class:`Witness`, :class:`Tx`, plus the
-  :class:`TxSerializer` / :class:`TxRbf` / :class:`TxSighash` composed
-  engines bound to ``Tx`` for fluent domain-chain access.
+  :class:`TxOut`, :class:`Witness`, :class:`Tx`.  Domain operations
+  (serialisation, RBF detection, sighash computation, etc.) are
+  exposed as direct methods on :class:`Tx`.
 - :mod:`btx.transaction.parser` – wire-format deserialisation
   (legacy + SegWit) with explicit limits (max tx size, input/output
   counts, witness item count and size).

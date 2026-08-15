@@ -120,24 +120,24 @@ class TestTx:
         with pytest.raises(Exception):
             tx.version = 3  # type: ignore[misc]
 
-    def test_serializer_property(self) -> None:
+    def test_serialize(self) -> None:
         tx = Tx(version=2, inputs=(), outputs=(), lock_time=0)
-        ser = tx.serializer.serialize()
+        ser = tx.serialize()
         assert len(ser) > 0
-        legacy = tx.serializer.serialize_legacy()
+        legacy = tx.serialize_legacy()
         assert legacy == ser
 
-    def test_serializer_to_json(self) -> None:
+    def test_to_json(self) -> None:
         tx = Tx(version=2, inputs=(), outputs=(), lock_time=0)
-        js = tx.serializer.to_json()
+        js = tx.to_json()
         assert js["version"] == 2
 
-    def test_rbf_property_not_opt_in(self) -> None:
+    def test_rbf_not_opt_in(self) -> None:
         tx = Tx(version=2, inputs=(), outputs=(), lock_time=0)
-        assert not tx.rbf.is_opt_in()
-        assert not tx.rbf.has_sequence_lock()
+        assert not tx.is_opt_in_rbf()
+        assert not tx.has_sequence_lock()
 
-    def test_sighash_property(self) -> None:
+    def test_sighash_legacy(self) -> None:
         txin = TxIn(
             previous_output=OutPoint(txid=b"\x00" * 32, vout=0),
             script_sig=b"",
@@ -145,7 +145,7 @@ class TestTx:
             witness=Witness(()),
         )
         tx = Tx(version=2, inputs=(txin,), outputs=(), lock_time=0)
-        h = tx.sighash.legacy(0, b"", 0x01)
+        h = tx.sighash_legacy(0, b"", 0x01)
         assert len(h) == 32
 
     def test_sighash_segwit(self) -> None:
@@ -156,5 +156,5 @@ class TestTx:
             witness=Witness(()),
         )
         tx = Tx(version=2, inputs=(txin,), outputs=(), lock_time=0)
-        h = tx.sighash.segwit(0, b"", 0, 0x01)
+        h = tx.sighash_segwit(0, b"", 0, 0x01)
         assert len(h) == 32
