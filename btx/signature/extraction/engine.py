@@ -42,8 +42,9 @@ For each extracted signature, the dispatcher:
 from __future__ import annotations
 
 import logging
+from abc import ABC, abstractmethod
 from collections.abc import Sequence
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, ClassVar
 
 from btx.curve import INFINITY_POINT, Point
 from btx.encoding.der import decode_der
@@ -75,17 +76,71 @@ if TYPE_CHECKING:
 # ── Polymorphic extraction strategies (Strategy pattern) ────────────
 
 
-class LegacyExtractor:
+class BaseExtractor(ABC):
+    """Abstract base for script-path signature extractors.
+
+    Subclasses implement two instance methods:
+
+    - :meth:`can_handle` reports whether this extractor handles a
+      given ``(script_type, is_segwit)`` pair.
+    - :meth:`extract` performs the actual signature extraction for
+      one input.
+
+    The legacy static-method convention is removed: extractors are
+    instantiated and registered as instances, enabling future
+    per-extractor state (e.g. caching).
+
+    Attributes:
+        name: Unique registry key for this extractor.
+    """
+
+    name: ClassVar[str]
+
+    @abstractmethod
+    def can_handle(self, script_type: str, is_segwit: bool) -> bool:
+        """Return True if this extractor handles the given script type.
+
+        Args:
+            script_type: The classified script type (e.g. ``"p2pkh"``).
+            is_segwit: Whether the input carries witness data.
+
+        Returns:
+            ``True`` if this extractor should handle the input.
+        """
+
+    @abstractmethod
+    def extract(
+        self,
+        tx: Tx,
+        vin: int,
+        txin: TxIn,
+        script_pubkey: bytes,
+        value: int,
+    ) -> list[Record]:
+        """Extract signatures from this input.
+
+        Args:
+            tx: The parent transaction.
+            vin: Index of the input being processed.
+            txin: The ``TxIn`` providing scriptSig and witness data.
+            script_pubkey: The previous output's ``scriptPubKey``.
+            value: The UTXO value in satoshis (for SegWit sighash).
+
+        Returns:
+            A list of :class:`~btx.signature.record.Record` instances.
+        """
+
+
+class LegacyExtractor(BaseExtractor):
     """Extractor for non-SegWit (legacy P2PK/P2PKH) inputs."""
 
-    name = "legacy"
+    name: ClassVar[str] = "legacy"
 
-    @staticmethod
-    def can_handle(script_type: str, is_segwit: bool) -> bool:
+    def can_handle(self, script_type: str, is_segwit: bool) -> bool:
         return not is_segwit
 
-    @staticmethod
     def extract(
+        self,
         tx: Tx,
         vin: int,
         txin: TxIn,
@@ -98,17 +153,16 @@ class LegacyExtractor:
         return extract_legacy(tx, vin, script_pubkey, parsed_sig)
 
 
-class P2WPKHExtractor:
+class P2WPKHExtractor(BaseExtractor):
     """Extractor for P2WPKH (SegWit v0 key-path) inputs."""
 
-    name = P2WPKH
+    name: ClassVar[str] = P2WPKH
 
-    @staticmethod
-    def can_handle(script_type: str, is_segwit: bool) -> bool:
+    def can_handle(self, script_type: str, is_segwit: bool) -> bool:
         return script_type == P2WPKH and is_segwit
 
-    @staticmethod
     def extract(
+        self,
         tx: Tx,
         vin: int,
         txin: TxIn,
@@ -118,17 +172,16 @@ class P2WPKHExtractor:
         return extract_p2wpkh(tx, vin, script_pubkey, value, txin.witness.items)
 
 
-class P2WSHExtractor:
+class P2WSHExtractor(BaseExtractor):
     """Extractor for P2WSH (SegWit v0 script-path) inputs."""
 
-    name = P2WSH
+    name: ClassVar[str] = P2WSH
 
-    @staticmethod
-    def can_handle(script_type: str, is_segwit: bool) -> bool:
+    def can_handle(self, script_type: str, is_segwit: bool) -> bool:
         return script_type == P2WSH and is_segwit
 
-    @staticmethod
     def extract(
+        self,
         tx: Tx,
         vin: int,
         txin: TxIn,
@@ -138,17 +191,16 @@ class P2WSHExtractor:
         return extract_p2wsh(tx, vin, script_pubkey, value, txin.witness.items)
 
 
-class P2SHSegWitExtractor:
+class P2SHSegWitExtractor(BaseExtractor):
     """Extractor for P2SH-wrapped SegWit inputs."""
 
-    name = f"p2sh_{P2WPKH}"
+    name: ClassVar[str] = f"p2sh_{P2WPKH}"
 
-    @staticmethod
-    def can_handle(script_type: str, is_segwit: bool) -> bool:
+    def can_handle(self, script_type: str, is_segwit: bool) -> bool:
         return script_type == P2SH and is_segwit
 
-    @staticmethod
     def extract(
+        self,
         tx: Tx,
         vin: int,
         txin: TxIn,
@@ -158,17 +210,16 @@ class P2SHSegWitExtractor:
         return extract_p2sh_segwit(tx, vin, script_pubkey, value, txin)
 
 
-class TaprootExtractor:
+class TaprootExtractor(BaseExtractor):
     """Extractor for P2TR (Taproot) inputs — both key-path and script-path."""
 
-    name = P2TR
+    name: ClassVar[str] = P2TR
 
-    @staticmethod
-    def can_handle(script_type: str, is_segwit: bool) -> bool:
+    def can_handle(self, script_type: str, is_segwit: bool) -> bool:
         return script_type == P2TR and is_segwit
 
-    @staticmethod
     def extract(
+        self,
         tx: Tx,
         vin: int,
         txin: TxIn,
@@ -180,12 +231,12 @@ class TaprootExtractor:
 
 # ── Built-in extractor registry ──────────────────────────────────────
 
-BUILTIN_EXTRACTOR_CLASSES: list[type] = [
-    LegacyExtractor,
-    P2WPKHExtractor,
-    P2WSHExtractor,
-    P2SHSegWitExtractor,
-    TaprootExtractor,
+BUILTIN_EXTRACTOR_INSTANCES: list[BaseExtractor] = [
+    LegacyExtractor(),
+    P2WPKHExtractor(),
+    P2WSHExtractor(),
+    P2SHSegWitExtractor(),
+    TaprootExtractor(),
 ]
 
 BUILTINS_REGISTERED: bool = False
@@ -208,8 +259,8 @@ def register_builtin_extractors() -> None:
     global BUILTINS_REGISTERED
     if BUILTINS_REGISTERED:
         return
-    for ext_cls in BUILTIN_EXTRACTOR_CLASSES:
-        register_plugin(ext_cls())
+    for extractor in BUILTIN_EXTRACTOR_INSTANCES:
+        register_plugin(extractor)
     BUILTINS_REGISTERED = True
 
 
