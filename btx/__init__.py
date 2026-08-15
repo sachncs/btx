@@ -113,7 +113,7 @@ from btx.encoding import (
     tagged_hash,
 )
 from btx.exceptions import (
-    BitcoinError,
+    BtxError,
     NotInvertible,
     ParsingError,
     PointError,
@@ -261,7 +261,7 @@ from btx.transaction import (
 )
 
 __all__ = [
-    "BitcoinError",
+    "BtxError",
     "BlockchainInfoProvider",
     "BlockchainProvider",
     "BlockstreamProvider",

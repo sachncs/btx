@@ -51,7 +51,7 @@ from collections import defaultdict
 from dataclasses import dataclass
 
 from btx.curve.params import CURVE_ORDER
-from btx.exceptions import BitcoinError
+from btx.exceptions import BtxError
 from btx.field import inverse as field_inverse
 from btx.signature.linearization.coefficients import (
     LinearCoefficientCollection,
@@ -59,7 +59,7 @@ from btx.signature.linearization.coefficients import (
 )
 
 
-class NonceRecoveryError(BitcoinError):
+class NonceRecoveryError(BtxError):
     """Raised when nonce or private-key recovery fails."""
 
 
