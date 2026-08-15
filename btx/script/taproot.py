@@ -162,8 +162,8 @@ def compute_tweak(internal_key: bytes, merkle_root: bytes) -> bytes:
 def is_valid_leaf_version(version: int) -> bool:
     """Check if a byte is a valid taproot leaf version.
 
-    Valid leaf versions have bit 0 set (odd) and the remaining bits
-    specify the leaf version. The current standard is 0xC0.
+    Valid leaf versions have bit 0 clear (even) and the remaining
+    bits specify the leaf version. The current standard is 0xC0.
 
     Args:
         version: The leaf version byte.

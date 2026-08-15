@@ -72,6 +72,14 @@ def handle_shutdown(signum: int, frame: object) -> None:
 
 
 def is_shutdown_requested() -> bool:
+    """Return True if :func:`handle_shutdown` has been invoked.
+
+    Reads the module-level flag under the package :data:`shutdown_lock`
+    so concurrent readers see a consistent value.
+
+    Returns:
+        True if shutdown was requested via SIGTERM/SIGINT.
+    """
     with shutdown_lock:
         return shutdown_requested
 

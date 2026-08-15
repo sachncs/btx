@@ -260,6 +260,22 @@ class GenericHttpProvider(BaseBlockchainProvider):
         value_json_key: str = "value",
         outputs_json_key: str = "vout",
     ) -> None:
+        """Initialize a generic HTTP provider with customisable URL patterns.
+
+        Args:
+            base_url: Base URL of the API (trailing ``/`` is stripped).
+            tx_hex_path: URL path for fetching transaction hex.
+                Use ``{txid}`` as a placeholder.
+            tx_json_path: URL path for fetching full transaction JSON.
+            utxo_script_path: URL path for UTXO script lookup (optional).
+                Use ``{txid}`` and ``{vout}`` as placeholders.
+            utxo_value_path: URL path for UTXO value lookup (optional).
+            broadcast_path: URL path for broadcasting transactions.
+            script_json_key: JSON key for the script in UTXO responses.
+            value_json_key: JSON key for the value in UTXO responses.
+            outputs_json_key: JSON key for the outputs array in
+                transaction JSON.
+        """
         super().__init__(base_url)
         self.tx_hex_path = tx_hex_path
         self.tx_json_path = tx_json_path
