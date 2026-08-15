@@ -105,9 +105,7 @@ def test_signer_imports() -> None:
 
 def test_settings_import() -> None:
     assert btx.settings is not None
-    assert hasattr(btx.settings, "strict_mode")
     assert hasattr(btx.settings, "default_backend")
-    assert hasattr(btx.settings, "max_extraction_inputs")
 
 
 def test_no_circular_imports() -> None:

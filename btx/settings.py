@@ -2,96 +2,56 @@
 # SPDX-License-Identifier: MIT
 """Application-wide settings singleton for the btx package.
 
-A small, mutable, thread-safe configuration holder exposed as the
-module-level :data:`settings` instance.  Three knobs are currently
+A frozen, dataclass-based configuration holder exposed as the
+module-level :data:`settings` instance.  One knob is currently
 exposed:
 
-- :attr:`Settings.strict_mode` – raise on non-fatal issues instead
-  of returning ``None``/``INFINITY_POINT``.
 - :attr:`Settings.default_backend` – preferred curve backend name
   (``"native"``, ``"libsecp"``, or ``None`` for auto-detect).
-- :attr:`Settings.max_extraction_inputs` – upper limit on the number
-  of transaction inputs processed during a single extraction.
 
-All accessors are guarded by an internal lock so concurrent reads and
-writes from multiple threads are safe.  The class uses ``__slots__``
-to keep the per-instance memory footprint to a handful of bytes.
+All access is via standard frozen-dataclass attribute reads (no
+locks needed; the instance is immutable).  Mutations must use
+:func:`dataclasses.replace`, which is atomic at the Python level
+but **not** safe across concurrent threads — callers requiring
+thread-safe mutation should wrap ``replace()`` in an external lock.
+
+The instance is created at module load time:
+``python -c "import btx; print(btx.settings.default_backend)"``.
 """
 
 from __future__ import annotations
 
-import threading
+from dataclasses import dataclass
 
 
+@dataclass(frozen=True, slots=True)
 class Settings:
-    """Mutable singleton holding package-level configuration.
+    """Immutable singleton holding package-level configuration.
 
     Attributes:
-        strict_mode: If True, raise exceptions on non-fatal issues.
         default_backend: Preferred curve backend name (``"native"`` or
             ``"libsecp"``), or ``None`` for auto-detect.
-        max_extraction_inputs: Upper limit on transaction inputs processed
-            during signature extraction.
     """
 
-    __slots__ = (
-        "__lock",
-        "__strict_mode",
-        "__default_backend",
-        "__max_extraction_inputs",
-    )
+    default_backend: str | None = None
 
-    def __init__(self) -> None:
-        self.__lock = threading.Lock()
-        self.__strict_mode: bool = False
-        self.__default_backend: str | None = None
-        self.__max_extraction_inputs: int = 100_000
+    def __post_init__(self) -> None:
+        """Validate ``default_backend`` is one of the allowed values.
 
-    @property
-    def strict_mode(self) -> bool:
-        """Whether to raise exceptions on non-fatal issues."""
-        with self.__lock:
-            return self.__strict_mode
-
-    @strict_mode.setter
-    def strict_mode(self, value: bool) -> None:
-        with self.__lock:
-            self.__strict_mode = bool(value)
-
-    @property
-    def default_backend(self) -> str | None:
-        """Preferred curve backend name, or ``None`` for auto-detect."""
-        with self.__lock:
-            return self.__default_backend
-
-    @default_backend.setter
-    def default_backend(self, value: str | None) -> None:
+        Raises:
+            ValueError: If ``default_backend`` is not ``None``,
+                ``"native"``, or ``"libsecp"``.
+        """
         allowed = (None, "native", "libsecp")
-        if value not in allowed:
-            raise ValueError(f"default_backend must be one of {allowed}.")
-        with self.__lock:
-            self.__default_backend = value
-
-    @property
-    def max_extraction_inputs(self) -> int:
-        """Maximum transaction inputs to process during extraction."""
-        with self.__lock:
-            return self.__max_extraction_inputs
-
-    @max_extraction_inputs.setter
-    def max_extraction_inputs(self, value: int) -> None:
-        if value < 1:
-            raise ValueError("max_extraction_inputs must be >= 1.")
-        with self.__lock:
-            self.__max_extraction_inputs = value
+        if self.default_backend not in allowed:
+            raise ValueError(
+                f"default_backend must be one of {allowed}, "
+                f"got {self.default_backend!r}."
+            )
 
     def __repr__(self) -> str:
-        with self.__lock:
-            return (
-                f"Settings(strict_mode={self.__strict_mode}, "
-                f"default_backend={self.__default_backend!r}, "
-                f"max_extraction_inputs={self.__max_extraction_inputs})"
-            )
+        """Return a developer-friendly representation."""
+        return f"Settings(default_backend={self.default_backend!r})"
 
 
 settings = Settings()

@@ -22,19 +22,16 @@ from btx.settings import Settings
 
 
 class TestSettingsThreadSafety:
-    def test_concurrent_read_write(self) -> None:
-        local_settings = Settings()
+    def test_concurrent_reads(self) -> None:
+        """Concurrent reads on a frozen dataclass are always safe."""
+        local_settings = Settings(default_backend="native")
         errors: list[Exception] = []
 
         def worker() -> None:
             try:
-                local_settings.strict_mode = True
-                _ = local_settings.strict_mode
-                local_settings.max_extraction_inputs = 500
-                _ = local_settings.max_extraction_inputs
-                local_settings.default_backend = "native"
-                _ = local_settings.default_backend
-                local_settings.strict_mode = False
+                for _ in range(100):
+                    _ = local_settings.default_backend
+                    _ = repr(local_settings)
             except Exception as exc:
                 errors.append(exc)
 
@@ -46,26 +43,13 @@ class TestSettingsThreadSafety:
 
         assert not errors
 
-    def test_settings_repr_thread_safe(self) -> None:
-        local_settings = Settings()
-        errors: list[Exception] = []
+    def test_frozen_blocks_mutation(self) -> None:
+        """A frozen dataclass rejects attribute assignment."""
+        import dataclasses
 
-        def worker() -> None:
-            try:
-                local_settings.strict_mode = True
-                _ = repr(local_settings)
-                local_settings.strict_mode = False
-                _ = repr(local_settings)
-            except Exception as exc:
-                errors.append(exc)
-
-        threads = [threading.Thread(target=worker) for _ in range(4)]
-        for t in threads:
-            t.start()
-        for t in threads:
-            t.join()
-
-        assert not errors
+        s = Settings(default_backend="native")
+        with pytest.raises(dataclasses.FrozenInstanceError):
+            s.default_backend = "libsecp"  # type: ignore[misc]
 
 
 class TestBackendDispatchRaceCondition:

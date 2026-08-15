@@ -2,16 +2,14 @@
 # SPDX-License-Identifier: MIT
 from pytest import fixture
 
-from btx.settings import settings
-
 
 @fixture(autouse=True)
 def reset_settings() -> None:
     """Reset the global settings singleton before each test.
 
-    Prevents test-pollution when tests modify module-level
-    ``btx.settings.settings``.
+    The current :class:`btx.settings.Settings` is a frozen dataclass,
+    so this fixture is a no-op kept for backward compatibility — it
+    no longer mutates the singleton.  Tests that need a non-default
+    :class:`btx.settings.Settings` should construct one locally.
     """
-    settings.strict_mode = False
-    settings.default_backend = None
-    settings.max_extraction_inputs = 100_000
+    pass
