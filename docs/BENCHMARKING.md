@@ -1,6 +1,6 @@
 # Benchmarking
 
-This document explains how to run and interpret benchmarks for the bitcoin library.
+This document explains how to run and interpret benchmarks for the btx library.
 
 ## Running Benchmarks
 
@@ -150,7 +150,7 @@ CI automatically compares:
 
 ```python
 import pytest
-from bitcoin import parse_tx
+from btx import parse_tx
 
 
 @pytest.fixture

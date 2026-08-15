@@ -4,72 +4,72 @@ API Reference
 Subpackages
 -----------
 
-.. automodule:: bitcoin.curve
+.. automodule:: btx.curve
    :members:
    :undoc-members:
    :show-inheritance:
 
-.. automodule:: bitcoin.encoding
+.. automodule:: btx.encoding
    :members:
    :undoc-members:
    :show-inheritance:
 
-.. automodule:: bitcoin.field
+.. automodule:: btx.field
    :members:
    :undoc-members:
    :show-inheritance:
 
-.. automodule:: bitcoin.script
+.. automodule:: btx.script
    :members:
    :undoc-members:
    :show-inheritance:
 
-.. automodule:: bitcoin.transaction
+.. automodule:: btx.transaction
    :members:
    :undoc-members:
    :show-inheritance:
 
-.. automodule:: bitcoin.sighash
+.. automodule:: btx.sighash
    :members:
    :undoc-members:
    :show-inheritance:
 
-.. automodule:: bitcoin.signature
+.. automodule:: btx.signature
    :members:
    :undoc-members:
    :show-inheritance:
 
-.. automodule:: bitcoin.signature.attack
+.. automodule:: btx.signature.attack
    :members:
    :undoc-members:
    :show-inheritance:
 
-.. automodule:: bitcoin.signature.extraction
+.. automodule:: btx.signature.extraction
    :members:
    :undoc-members:
    :show-inheritance:
 
-.. automodule:: bitcoin.psbt
+.. automodule:: btx.psbt
    :members:
    :undoc-members:
    :show-inheritance:
 
-.. automodule:: bitcoin.services
+.. automodule:: btx.services
    :members:
    :undoc-members:
    :show-inheritance:
 
-.. automodule:: bitcoin.cli
+.. automodule:: btx.cli
    :members:
    :undoc-members:
    :show-inheritance:
 
-.. automodule:: bitcoin.exceptions
+.. automodule:: btx.exceptions
    :members:
    :undoc-members:
    :show-inheritance:
 
-.. automodule:: bitcoin.settings
+.. automodule:: btx.settings
    :members:
    :undoc-members:
    :show-inheritance:

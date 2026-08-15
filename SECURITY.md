@@ -34,9 +34,9 @@ up.
 
 ## Scope
 
-This policy covers the `bitcoin` Python package (PyPI: [`bitcoin`][pypi]).
+This policy covers the `btx` Python package (PyPI: [`btx`][pypi]).
 Vulnerabilities in **transitive dependencies** should be reported to their
 respective maintainers.
 
-[gh-advisory]: https://github.com/sachncs/bitcoin/security/advisories/new
-[pypi]: https://pypi.org/project/bitcoin/
+[gh-advisory]: https://github.com/sachncs/btx/security/advisories/new
+[pypi]: https://pypi.org/project/btx/

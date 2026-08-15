@@ -1,12 +1,12 @@
 # Modules
 
-## `bitcoin.field` — Modular Arithmetic
+## `btx.field` — Modular Arithmetic
 
 **Submodules**: `modular.py`, `sqrt.py`
 
 **Dependencies**: None (stdlib)
 
-**Public API** (re-exported via `bitcoin.field`):
+**Public API** (re-exported via `btx.field`):
 | Symbol | Kind | Description |
 |--------|------|-------------|
 | `inverse` | Function | Extended Euclidean modular inverse |
@@ -15,11 +15,11 @@
 | `validate_non_negative` | Function | Assert value is non-negative int |
 | `NotInvertible` | Exception | Raised when value has no modular inverse |
 
-**Consumers**: `bitcoin.curve`, `bitcoin.signature`
+**Consumers**: `btx.curve`, `btx.signature`
 
 ---
 
-## `bitcoin.curve` — ECC Point Operations
+## `btx.curve` — ECC Point Operations
 
 **Submodules**: `params.py`, `point.py`, `operations.py`, `dispatch.py`, `libsecp256k1.py`, `backend/base.py`, `backend/native.py`, `backend/libsec.py`
 
@@ -47,7 +47,7 @@
 
 ---
 
-## `bitcoin.encoding` — Binary Encoding
+## `btx.encoding` — Binary Encoding
 
 **Submodules**: `hex.py`, `binary.py`, `varint.py`, `der.py`, `sec.py`, `hasher.py`
 
@@ -69,7 +69,7 @@
 
 ---
 
-## `bitcoin.script` — Bitcoin Script
+## `btx.script` — Bitcoin Script
 
 **Submodules**: `opcodes.py`, `parser.py`, `classifier.py`, `builder.py`, `taproot.py`
 
@@ -96,7 +96,7 @@
 
 ---
 
-## `bitcoin.transaction` — Transaction Models
+## `btx.transaction` — Transaction Models
 
 **Submodules**: `models.py`, `parser.py`, `tx.py`, `builder.py`
 
@@ -120,7 +120,7 @@
 
 ---
 
-## `bitcoin.sighash` — Sighash Computation
+## `btx.sighash` — Sighash Computation
 
 **Submodules**: `flag.py`, `legacy.py`, `segwit.py`, `taproot.py`
 
@@ -139,7 +139,7 @@
 
 ---
 
-## `bitcoin.signature` — Signature Type, Extraction & Linearization
+## `btx.signature` — Signature Type, Extraction & Linearization
 
 **Submodules**: `record.py`, `collection.py`, `check.py`, `attack.py`, `signer.py`, `schnorr.py`, `batch_verify.py`, `memzero.py`, `pipeline.py`, `extraction/engine.py`, `extraction/plugins.py`, `linearization/engine.py`, `linearization/coefficients.py`
 
@@ -164,7 +164,7 @@
 | `batch_extract` | Function | Multi-transaction extraction with threading |
 | `correlate_across_transactions` | Function | Nonce reuse detection across transactions |
 
-From `bitcoin.signature.attack`:
+From `btx.signature.attack`:
 | Symbol | Kind | Description |
 |--------|------|-------------|
 | `NonceReuseGroup` | Dataclass | Group of signatures sharing the same `r` |
@@ -177,7 +177,7 @@ From `bitcoin.signature.attack`:
 
 ---
 
-## `bitcoin.psbt` — PSBT Parsing
+## `btx.psbt` — PSBT Parsing
 
 **Submodules**: `models.py`, `parser.py`, `editor.py`
 
@@ -199,7 +199,7 @@ From `bitcoin.signature.attack`:
 
 ---
 
-## `bitcoin.services` — Serialization & Blockchain
+## `btx.services` — Serialization & Blockchain
 
 **Submodules**: `serializer.py`, `blockchain.py`
 
@@ -217,7 +217,7 @@ From `bitcoin.signature.attack`:
 
 ---
 
-## `bitcoin.cli` — CLI
+## `btx.cli` — CLI
 
 **Submodules**: `app.py`
 
@@ -230,11 +230,11 @@ From `bitcoin.signature.attack`:
 | `linearize` | Extract + sort by txid/vin |
 | `version` | Print version |
 
-**Entry point**: `bitcoin` (console_scripts) or `python -m bitcoin.cli`
+**Entry point**: `btx` (console_scripts) or `python -m btx.cli`
 
 ---
 
-## `bitcoin.exceptions` — Exception Types
+## `btx.exceptions` — Exception Types
 
 **Dependencies**: None
 
@@ -253,7 +253,7 @@ From `bitcoin.signature.attack`:
 
 ---
 
-## `bitcoin.settings` — Global Settings
+## `btx.settings` — Global Settings
 
 **Dependencies**: None
 

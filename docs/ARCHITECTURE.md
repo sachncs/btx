@@ -41,7 +41,7 @@ field  →  curve  →  encoding  →  script  →  transaction  →  sighash  �
 
 ## Public Interface
 
-The public API surface is defined in `bitcoin/__init__.py` with an explicit `__all__`. Every public symbol is re-exported from the top-level `bitcoin` package.
+The public API surface is defined in `btx/__init__.py` with an explicit `__all__`. Every public symbol is re-exported from the top-level `btx` package.
 
 ## Backend Architecture
 

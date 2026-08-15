@@ -6,10 +6,10 @@
 User input (raw tx hex string)
         │
         ▼
-  bitcoin/cli/app.py  (decode hex → bytes)
+  btx/cli/app.py  (decode hex → bytes)
         │
         ▼
-  bitcoin.transaction.parser.parse_tx()  →  (Tx, bytes_consumed)
+  btx.transaction.parser.parse_tx()  →  (Tx, bytes_consumed)
         │
         ▼
   For each input:
@@ -19,7 +19,7 @@ User input (raw tx hex string)
     └─ P2TR taproot        → script.taproot.parse_taproot_witness_stack()
         │
         ▼
-  bitcoin.signature.extraction.engine.extract_signatures()
+  btx.signature.extraction.engine.extract_signatures()
     │
     ├─ For each input:
     │   ├─ Determine script type (script.classifier)
@@ -59,7 +59,7 @@ extract() → list[Record] → linearize_signatures() → sort by (txid, input_i
 ## 3. Batch Extraction (Python API)
 
 ```
-bitcoin.signature.pipeline.batch_extract()
+btx.signature.pipeline.batch_extract()
     │
     ├─ ThreadPoolExecutor(max_workers)
     │   └─ For each raw tx: parse_tx() → extract_signatures()
@@ -70,7 +70,7 @@ bitcoin.signature.pipeline.batch_extract()
 Nonce correlation across transactions:
 
 ```
-bitcoin.signature.pipeline.correlate_across_transactions()
+btx.signature.pipeline.correlate_across_transactions()
     │
     ├─ Collect all r-values across grouped records
     ├─ Find r-value collisions between different transactions
@@ -177,7 +177,7 @@ enrich_transaction(tx, provider=BlockstreamProvider())
 ## File-by-file flow map
 
 ```
-CLI (bitcoin/cli/app.py)
+CLI (btx/cli/app.py)
   ↓ calls
 transaction/parser.py → transaction/models.py (Tx, TxIn, TxOut, Witness)
   ↓ calls

@@ -2,9 +2,9 @@
 
 ## General
 
-### What is the bitcoin library?
+### What is the btx library?
 
-The bitcoin library is a pure-Python package for parsing Bitcoin transactions, extracting ECDSA and Schnorr signatures, and performing cryptographic operations on the secp256k1 curve. It's designed for security research, transaction analysis, and building Bitcoin tools.
+The btx library is a pure-Python package for parsing Bitcoin transactions, extracting ECDSA and Schnorr signatures, and performing cryptographic operations on the secp256k1 curve. It's designed for security research, transaction analysis, and building Bitcoin tools.
 
 ### Is it production-ready?
 
@@ -30,7 +30,7 @@ Python 3.12 and later (3.12, 3.13, 3.14).
 No. `coincurve` is optional. The library includes a pure-Python backend that's always available. Install `coincurve` only if you need accelerated point multiplication:
 
 ```bash
-pip install bitcoin[coincurve]
+pip install btx[coincurve]
 ```
 
 ### Can I use it with virtual environments?
@@ -40,7 +40,7 @@ Yes. We recommend using virtual environments:
 ```bash
 python -m venv .venv
 source .venv/bin/activate
-pip install bitcoin
+pip install btx
 ```
 
 ## Usage
@@ -48,7 +48,7 @@ pip install bitcoin
 ### How do I parse a raw transaction?
 
 ```python
-from bitcoin import parse_tx
+from btx import parse_tx
 
 raw_hex = "0200000001..."
 tx, bytes_consumed = parse_tx(bytes.fromhex(raw_hex))
@@ -57,7 +57,7 @@ tx, bytes_consumed = parse_tx(bytes.fromhex(raw_hex))
 ### How do I extract signatures?
 
 ```python
-from bitcoin import parse_tx, extract_signatures
+from btx import parse_tx, extract_signatures
 
 tx, _ = parse_tx(bytes.fromhex(raw_hex))
 records = extract_signatures(tx)
@@ -75,7 +75,7 @@ records = extract_signatures(tx,
 ### How do I verify a signature?
 
 ```python
-from bitcoin import verify_sig
+from btx import verify_sig
 
 ok = verify_sig(message_hash, der_sig, public_key)
 ```
@@ -83,10 +83,10 @@ ok = verify_sig(message_hash, der_sig, public_key)
 ### How do I detect nonce reuse?
 
 ```python
-from bitcoin.signature.linearization.coefficients import (
+from btx.signature.linearization.coefficients import (
     LinearCoefficientCollection, derive_linear_coefficients,
 )
-from bitcoin.signature.attack import detect_nonce_reuse, recover_from_nonce_reuse
+from btx.signature.attack import detect_nonce_reuse, recover_from_nonce_reuse
 
 collection = LinearCoefficientCollection(records=tuple(
     derive_linear_coefficients(r=rec.r, s=rec.s, z=rec.z, input_index=i)
@@ -118,19 +118,19 @@ for group in groups:
 
 ```bash
 # Check version
-bitcoin version
+btx version
 
 # Decode a transaction
-bitcoin decode <tx-hex>
+btx decode <tx-hex>
 
 # Extract signatures
-bitcoin extract <tx-hex>
+btx extract <tx-hex>
 
 # Output as JSON
-bitcoin extract <tx-hex> --json
+btx extract <tx-hex> --json
 
 # Linearize signatures
-bitcoin linearize <tx-hex>
+btx linearize <tx-hex>
 ```
 
 ### Can I use it via python -m?
@@ -138,11 +138,11 @@ bitcoin linearize <tx-hex>
 Yes:
 
 ```bash
-python -m bitcoin.cli decode <tx-hex>
-python -m bitcoin.cli extract <tx-hex>
-python -m bitcoin.cli linearize <tx-hex>
-python -m bitcoin.cli version
-python -m bitcoin.cli health
+python -m btx.cli decode <tx-hex>
+python -m btx.cli extract <tx-hex>
+python -m btx.cli linearize <tx-hex>
+python -m btx.cli version
+python -m btx.cli health
 ```
 
 ## Troubleshooting
@@ -152,13 +152,13 @@ python -m bitcoin.cli health
 Install the optional coincurve dependency:
 
 ```bash
-pip install bitcoin[coincurve]
+pip install btx[coincurve]
 ```
 
 Or use the pure-Python backend (default):
 
 ```python
-from bitcoin import set_backend
+from btx import set_backend
 set_backend("native")
 ```
 

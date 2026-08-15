@@ -1,6 +1,6 @@
-# Contributing to bitcoin
+# Contributing to btx
 
-Thank you for your interest in contributing to the bitcoin library! This document provides guidelines and instructions for contributing.
+Thank you for your interest in contributing to the btx library! This document provides guidelines and instructions for contributing.
 
 ## Table of Contents
 
@@ -24,12 +24,12 @@ This project follows the [Contributor Covenant Code of Conduct](CODE_OF_CONDUCT.
 1. **Fork the repository** on GitHub
 2. **Clone your fork** locally:
    ```bash
-   git clone https://github.com/YOUR_USERNAME/bitcoin.git
-   cd bitcoin
+   git clone https://github.com/YOUR_USERNAME/btx.git
+   cd btx
    ```
 3. **Add the upstream remote**:
    ```bash
-   git remote add upstream https://github.com/sachncs/bitcoin.git
+   git remote add upstream https://github.com/sachncs/btx.git
    ```
 4. **Create a branch** for your changes:
    ```bash
@@ -47,8 +47,8 @@ This project follows the [Contributor Covenant Code of Conduct](CODE_OF_CONDUCT.
 
 ```bash
 # Clone and set up
-git clone https://github.com/sachncs/bitcoin.git
-cd bitcoin
+git clone https://github.com/sachncs/btx.git
+cd btx
 ./setup.sh
 ```
 
@@ -189,7 +189,7 @@ make test-cov      # Run with coverage (99%+ required)
 
 ```python
 import pytest
-from bitcoin import parse_tx, extract_signatures
+from btx import parse_tx, extract_signatures
 
 class TestMyFeature:
     """Tests for my new feature."""
@@ -272,7 +272,7 @@ def my_function(param1: str, param2: int = 0) -> bool:
 
 ## Releasing
 
-1. **Update version** in `pyproject.toml` and `bitcoin/__init__.py`
+1. **Update version** in `pyproject.toml` and `btx/__init__.py`
 2. **Update CHANGELOG.md**:
    - Change `[Unreleased]` to `[X.Y.Z] - YYYY-MM-DD`
    - Add new `[Unreleased]` section
@@ -296,6 +296,6 @@ The release workflow will automatically:
 
 ## Questions?
 
-- Open a [GitHub Discussion](https://github.com/sachncs/bitcoin/discussions)
-- Check existing [issues](https://github.com/sachncs/bitcoin/issues)
+- Open a [GitHub Discussion](https://github.com/sachncs/btx/discussions)
+- Check existing [issues](https://github.com/sachncs/btx/issues)
 - Review the [architecture documentation](docs/ARCHITECTURE.md)

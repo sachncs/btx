@@ -1,16 +1,16 @@
 <p align="center">
-  <h1 align="center">bitcoin</h1>
+  <h1 align="center">btx</h1>
   <p align="center">Pure-Python parsing, signature extraction, and nonce-reuse analysis for the Bitcoin secp256k1 stack.</p>
   <p align="center">
     <a href="#installation"><img src="https://img.shields.io/badge/python-3.12%20%7C%203.13%20%7C%203.14-blue" alt="Python"></a>
     <a href="LICENSE"><img src="https://img.shields.io/badge/license-MIT-green" alt="License"></a>
-    <a href="https://github.com/sachncs/bitcoin/actions"><img src="https://img.shields.io/github/actions/workflow/status/sachncs/bitcoin/ci.yml?branch=master" alt="CI"></a>
-    <a href="https://pypi.org/project/bitcoin/"><img src="https://img.shields.io/pypi/v/bitcoin" alt="PyPI"></a>
-    <a href="https://github.com/sachncs/bitcoin/stargazers"><img src="https://img.shields.io/github/stars/sachncs/bitcoin" alt="Stars"></a>
+    <a href="https://github.com/sachncs/btx/actions"><img src="https://img.shields.io/github/actions/workflow/status/sachncs/btx/ci.yml?branch=master" alt="CI"></a>
+    <a href="https://pypi.org/project/btx/"><img src="https://img.shields.io/pypi/v/btx" alt="PyPI"></a>
+    <a href="https://github.com/sachncs/btx/stargazers"><img src="https://img.shields.io/github/stars/sachncs/btx" alt="Stars"></a>
   </p>
 </p>
 
-**bitcoin** is a pure-Python library for parsing raw Bitcoin transactions,
+**btx** is a pure-Python library for parsing raw Bitcoin transactions,
 extracting ECDSA and Schnorr signatures (`r`, `s`, `z`), deriving
 linearised ECDSA relations, recovering nonce reuse, and verifying
 signatures — all on the secp256k1 curve. The core library has **no
@@ -41,20 +41,20 @@ optional, isolated services layer.
 ### From PyPI
 
 ```bash
-pip install bitcoin
+pip install btx
 ```
 
 For accelerated point multiplication via libsecp256k1 (optional):
 
 ```bash
-pip install bitcoin[coincurve]
+pip install btx[coincurve]
 ```
 
 ### From source
 
 ```bash
-git clone https://github.com/sachncs/bitcoin.git
-cd bitcoin
+git clone https://github.com/sachncs/btx.git
+cd btx
 pip install -e ".[dev]"
 ```
 
@@ -68,40 +68,40 @@ pip install -e ".[dev]"
 
 ```bash
 # Decode a raw transaction
-bitcoin decode <tx-hex>
+btx decode <tx-hex>
 
 # Extract signatures
-bitcoin extract <tx-hex>
+btx extract <tx-hex>
 
 # With UTXO metadata (needed for SegWit v0 sighash)
-bitcoin extract <tx-hex> --utxo-value 100000000
+btx extract <tx-hex> --utxo-value 100000000
 
 # Output as JSON
-bitcoin extract <tx-hex> --json
+btx extract <tx-hex> --json
 
 # Linearise (sort) signatures by txid/vin
-bitcoin linearize <tx-hex>
+btx linearize <tx-hex>
 
 # Run health checks
-bitcoin health
+btx health
 ```
 
 ### Python API
 
 ```python
-import bitcoin
+import btx
 
 # Parse a raw transaction
-tx, _ = bitcoin.parse_tx(bytes.fromhex(raw_hex))
+tx, _ = btx.parse_tx(bytes.fromhex(raw_hex))
 
 # Extract signatures
-records = bitcoin.extract_signatures(tx)
+records = btx.extract_signatures(tx)
 
 # Linearise (sort) signatures
-sorted_records = bitcoin.linearize_signatures(records)
+sorted_records = btx.linearize_signatures(records)
 
 # Verify a signature
-ok = bitcoin.verify_sig(message_hash, der_sig, public_key)
+ok = btx.verify_sig(message_hash, der_sig, public_key)
 ```
 
 ---
@@ -111,7 +111,7 @@ ok = bitcoin.verify_sig(message_hash, der_sig, public_key)
 ### Extract Signatures
 
 ```python
-from bitcoin import parse_tx, extract_signatures, encode_hex
+from btx import parse_tx, extract_signatures, encode_hex
 
 tx, _ = parse_tx(bytes.fromhex(raw_hex))
 records = extract_signatures(tx)
@@ -133,10 +133,10 @@ records = extract_signatures(
 ### Nonce Reuse Detection
 
 ```python
-from bitcoin.signature.linearization.coefficients import (
+from btx.signature.linearization.coefficients import (
     LinearCoefficientCollection, derive_linear_coefficients,
 )
-from bitcoin.signature.attack import detect_nonce_reuse, recover_from_nonce_reuse
+from btx.signature.attack import detect_nonce_reuse, recover_from_nonce_reuse
 
 collection = LinearCoefficientCollection(records=tuple(
     derive_linear_coefficients(r=rec.r, s=rec.s, z=rec.z, input_index=i)
@@ -155,7 +155,7 @@ for group in groups:
 ### Sighash Computation
 
 ```python
-from bitcoin import (
+from btx import (
     sighash_legacy, sighash_segwit, sighash_taproot,
     SIGHASH_ALL, SIGHASH_NONE, SIGHASH_SINGLE, SIGHASH_ANYONECANPAY,
 )
@@ -166,7 +166,7 @@ h = sighash_segwit(tx, input_index, script_code, amount, SIGHASH_ALL)
 ### Script Classification
 
 ```python
-from bitcoin import (
+from btx import (
     parse_script, serialize_script,
     classify_script_pubkey, classify_script_sig,
     classify_detailed, is_op_return, is_bare_multisig, has_timelocks,
@@ -180,7 +180,7 @@ print(detail)  # P2WPKH, P2SH, P2TR, MULTISIG, ...
 ### Blockchain Data Providers
 
 ```python
-from bitcoin import BlockstreamProvider, BlockchainInfoProvider, MempoolSpaceProvider
+from btx import BlockstreamProvider, BlockchainInfoProvider, MempoolSpaceProvider
 
 provider = BlockstreamProvider()
 tx_hex = provider.get_transaction_hex("txid...")
@@ -196,21 +196,21 @@ so each layer can be understood and tested in isolation:
 
 ```
 ┌─────────────────────────────────────────────────────────────────┐
-│  bitcoin.cli            Typer-based command-line interface       │
+│  btx.cli            Typer-based command-line interface       │
 ├─────────────────────────────────────────────────────────────────┤
-│  bitcoin.services       Blockchain data providers + async batch   │
+│  btx.services       Blockchain data providers + async batch   │
 ├─────────────────────────────────────────────────────────────────┤
-│  bitcoin.signature      Extraction, linearisation, attacks, sig  │
+│  btx.signature      Extraction, linearisation, attacks, sig  │
 ├─────────────────────────────────────────────────────────────────┤
-│  bitcoin.descriptor     Miniscript parsing, compilation, analyse │
-│  bitcoin.psbt           BIP-174 parse, edit, extract, batch     │
-│  bitcoin.sighash        Legacy, SegWit v0, Taproot sighash        │
-│  bitcoin.transaction    Tx models, parser, builder, fee, RBF     │
-│  bitcoin.script         Script parse, classify, build, Taproot   │
+│  btx.descriptor     Miniscript parsing, compilation, analyse │
+│  btx.psbt           BIP-174 parse, edit, extract, batch     │
+│  btx.sighash        Legacy, SegWit v0, Taproot sighash        │
+│  btx.transaction    Tx models, parser, builder, fee, RBF     │
+│  btx.script         Script parse, classify, build, Taproot   │
 ├─────────────────────────────────────────────────────────────────┤
-│  bitcoin.encoding       hex, varint, DER, SEC, hasher            │
-│  bitcoin.field          inverse, sqrt (Tonelli-Shanks, p≡3 mod 4)│
-│  bitcoin.curve          secp256k1 params, point, operations,     │
+│  btx.encoding       hex, varint, DER, SEC, hasher            │
+│  btx.field          inverse, sqrt (Tonelli-Shanks, p≡3 mod 4)│
+│  btx.curve          secp256k1 params, point, operations,     │
 │                         dispatch, batch, pluggable backends      │
 └─────────────────────────────────────────────────────────────────┘
 ```
@@ -232,7 +232,7 @@ Layering rules:
   semantics and predictable hashing.
 - The package root re-exports every public symbol; no need to
   chase submodules.
-- No `from bitcoin.foo import _bar` is ever required — every
+- No `from btx.foo import _bar` is ever required — every
   documented helper has a plain public name.
 - Network I/O is opt-in: the core library is import-safe in
   air-gapped environments.
@@ -250,7 +250,7 @@ Layering rules:
 ### Settings singleton
 
 ```python
-from bitcoin import settings
+from btx import settings
 
 settings.strict_mode = True               # raise on non-fatal issues
 settings.default_backend = "libsecp"      # or "native" / None
@@ -279,21 +279,21 @@ re-exported from their submodules:
 
 | Helper | Module |
 |--------|--------|
-| `collect_info`, `collect_keys`, `contains_op`, `estimate_satisfaction`, `sorted_unique` | `bitcoin.descriptor` |
-| `split_args`, `emit_script` | `bitcoin.descriptor` |
-| `DescriptorError`, `DescriptorInfo`, `DescriptorNode`, `ESTIMATED_SATISFACTION` | `bitcoin.descriptor` |
-| `parse_psbt_impl`, `parse_psbt_worker`, `process_psbt_batch`, `process_psbt_batch_with` | `bitcoin.psbt` |
-| `process_single_worker`, `BUILTINS_REGISTERED` | `bitcoin.signature` |
-| `registry` | `bitcoin.signature.extraction.plugins` |
-| `LOGGING_CONFIGURED` | `bitcoin.cli` |
-| `CURVE_A`, `CURVE_B` | `bitcoin.curve` |
+| `collect_info`, `collect_keys`, `contains_op`, `estimate_satisfaction`, `sorted_unique` | `btx.descriptor` |
+| `split_args`, `emit_script` | `btx.descriptor` |
+| `DescriptorError`, `DescriptorInfo`, `DescriptorNode`, `ESTIMATED_SATISFACTION` | `btx.descriptor` |
+| `parse_psbt_impl`, `parse_psbt_worker`, `process_psbt_batch`, `process_psbt_batch_with` | `btx.psbt` |
+| `process_single_worker`, `BUILTINS_REGISTERED` | `btx.signature` |
+| `registry` | `btx.signature.extraction.plugins` |
+| `LOGGING_CONFIGURED` | `btx.cli` |
+| `CURVE_A`, `CURVE_B` | `btx.curve` |
 
 ---
 
 ## Project Structure
 
 ```
-bitcoin/
+btx/
 ├── __init__.py          # Public API surface (191 symbols)
 ├── cli/                 # Typer CLI commands
 ├── curve/               # secp256k1 point operations & pluggable backends
@@ -359,7 +359,7 @@ chore: update ruff config
 
 ```bash
 pytest                       # 868 tests
-pytest --cov=bitcoin         # With coverage report
+pytest --cov=btx         # With coverage report
 make test-cov                # Via Makefile
 ```
 

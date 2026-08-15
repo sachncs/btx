@@ -1,34 +1,34 @@
 # Getting Started
 
-This guide will help you get up and running with the bitcoin library quickly.
+This guide will help you get up and running with the btx library quickly.
 
 ## Installation
 
 ### From PyPI
 
 ```bash
-pip install bitcoin
+pip install btx
 ```
 
 With optional C-backed acceleration:
 
 ```bash
-pip install bitcoin[coincurve]
+pip install btx[coincurve]
 ```
 
 ### From Source
 
 ```bash
-git clone https://github.com/sachncs/bitcoin.git
-cd bitcoin
+git clone https://github.com/sachncs/btx.git
+cd btx
 pip install -e ".[dev]"
 ```
 
 ### Using uv (Recommended for Development)
 
 ```bash
-git clone https://github.com/sachncs/bitcoin.git
-cd bitcoin
+git clone https://github.com/sachncs/btx.git
+cd btx
 ./setup.sh  # Creates venv, installs deps, runs tests
 ```
 
@@ -37,7 +37,7 @@ cd bitcoin
 ### Parse a Transaction
 
 ```python
-from bitcoin import parse_tx, extract_signatures
+from btx import parse_tx, extract_signatures
 
 # Parse raw transaction hex
 raw_hex = "0200000001..."
@@ -50,7 +50,7 @@ print(f"Transaction ID: {tx.txid().hex()}")
 ### Extract Signatures
 
 ```python
-from bitcoin import parse_tx, extract_signatures, encode_hex
+from btx import parse_tx, extract_signatures, encode_hex
 
 tx, _ = parse_tx(bytes.fromhex(raw_hex))
 records = extract_signatures(tx)
@@ -62,8 +62,8 @@ for rec in records:
 ### Verify a Signature
 
 ```python
-from bitcoin import verify_sig
-from bitcoin.encoding import sha256
+from btx import verify_sig
+from btx.encoding import sha256
 
 message_hash = sha256(b"message to verify")
 public_key = bytes.fromhex("02...")  # Compressed public key
@@ -79,25 +79,25 @@ The library includes a command-line tool for quick analysis:
 
 ```bash
 # Check version
-bitcoin version
+btx version
 
 # Decode a transaction
-bitcoin decode <tx-hex>
+btx decode <tx-hex>
 
 # Extract signatures
-bitcoin extract <tx-hex>
+btx extract <tx-hex>
 
 # Extract with UTXO info (needed for SegWit)
-bitcoin extract <tx-hex> --utxo-value 100000000
+btx extract <tx-hex> --utxo-value 100000000
 
 # Output as JSON
-bitcoin extract <tx-hex> --json
+btx extract <tx-hex> --json
 
 # Linearize (sort) signatures
-bitcoin linearize <tx-hex>
+btx linearize <tx-hex>
 
 # Health check
-bitcoin health
+btx health
 ```
 
 ## Common Patterns
@@ -107,7 +107,7 @@ bitcoin health
 SegWit transactions require UTXO values and/or scriptPubKeys for sighash computation:
 
 ```python
-from bitcoin import parse_tx, extract_signatures
+from btx import parse_tx, extract_signatures
 
 tx, _ = parse_tx(bytes.fromhex(raw_hex))
 
@@ -123,7 +123,7 @@ records = extract_signatures(tx,
 Process multiple transactions efficiently:
 
 ```python
-from bitcoin import batch_extract, correlate_across_transactions
+from btx import batch_extract, correlate_across_transactions
 
 tx_hexes = ["0200...", "0200..."]  # Multiple transactions
 
@@ -137,10 +137,10 @@ correlations = correlate_across_transactions(results)
 ### Nonce Reuse Detection
 
 ```python
-from bitcoin.signature.linearization.coefficients import (
+from btx.signature.linearization.coefficients import (
     LinearCoefficientCollection, derive_linear_coefficients,
 )
-from bitcoin.signature.attack import detect_nonce_reuse, recover_from_nonce_reuse
+from btx.signature.attack import detect_nonce_reuse, recover_from_nonce_reuse
 
 # Derive linear coefficients from extracted signatures
 collection = LinearCoefficientCollection(records=tuple(
@@ -171,7 +171,7 @@ for group in groups:
 ### Programmatic Settings
 
 ```python
-from bitcoin import settings
+from btx import settings
 
 # Enable strict mode (raises on non-fatal issues)
 settings.strict_mode = True

@@ -9,7 +9,7 @@ uv run pytest tests/ -v
 With coverage:
 
 ```bash
-uv run pytest tests/ --cov=bitcoin
+uv run pytest tests/ --cov=btx
 ```
 
 ## Test Files
@@ -47,15 +47,15 @@ The project targets **80%+ line coverage**. Current CI gate rejects drops below 
 Run:
 
 ```bash
-uv run pytest tests/ --cov=bitcoin --cov-fail-under=80
+uv run pytest tests/ --cov=btx --cov-fail-under=80
 ```
 
 ## Linting & Type Checking
 
 ```bash
-uv run mypy bitcoin/ tests/
-uv run ruff check bitcoin/ tests/
-uv run yapf -d -r bitcoin/
+uv run mypy btx/ tests/
+uv run ruff check btx/ tests/
+uv run yapf -d -r btx/
 ```
 
 ## CI Matrix

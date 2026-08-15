@@ -1,8 +1,8 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "https://github.com/sachncs/bitcoin/docs/schemas/health.json",
+  "$id": "https://github.com/sachncs/btx/docs/schemas/health.json",
   "title": "Bitcoin Health Check Output",
-  "description": "Schema for the JSON output of `bitcoin health` command.",
+  "description": "Schema for the JSON output of `btx health` command.",
   "type": "object",
   "properties": {
     "version": {
@@ -13,7 +13,7 @@
     "imports": {
       "type": "object",
       "patternProperties": {
-        "^bitcoin\\.": {"type": "boolean"}
+        "^btx\\.": {"type": "boolean"}
       },
       "description": "Per-module import status (true = importable)."
     },

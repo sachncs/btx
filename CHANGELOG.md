@@ -10,12 +10,12 @@ All notable changes to this project will be documented in this file.
   `collect_keys`, `contains_op`, `emit_script`, `estimate_satisfaction`,
   `sorted_unique`, `split_args`, `parse_psbt_impl`, `parse_psbt_worker`,
   `process_psbt_batch`, `process_psbt_batch_with`, `CURVE_A`, `CURVE_B`.
-- Public `BUILTINS_REGISTERED` flag in `bitcoin.signature.extraction.engine`
-  and public `registry` dict in `bitcoin.signature.extraction.plugins`
+- Public `BUILTINS_REGISTERED` flag in `btx.signature.extraction.engine`
+  and public `registry` dict in `btx.signature.extraction.plugins`
   so callers can introspect plugin registration state.
-- Public `LOGGING_CONFIGURED` flag in `bitcoin.cli.app`.
+- Public `LOGGING_CONFIGURED` flag in `btx.cli.app`.
 - `CURVE_A = 0` and `CURVE_B = 7` constants exported from
-  `bitcoin.curve.params` (and the package root) so the documented curve
+  `btx.curve.params` (and the package root) so the documented curve
   equation `y² = x³ + a·x + b (mod p)` is fully representable in Python.
 - Comprehensive module-, class-, and method-level docstrings (Google
   style) across every module, including algorithm background sections
@@ -29,33 +29,33 @@ All notable changes to this project will be documented in this file.
 
 ### Changed
 - Promoted semi-private (`__name`) helpers to plain public names:
-  - `bitcoin.descriptor.analyzer`: `__ESTIMATED_SATISFACTION` →
+  - `btx.descriptor.analyzer`: `__ESTIMATED_SATISFACTION` →
     `ESTIMATED_SATISFACTION`, `__collect_info` → `collect_info`,
     `__contains_op` → `contains_op`, `__estimate_satisfaction` →
     `estimate_satisfaction`, `__sorted_unique` → `sorted_unique`,
     `__collect_keys` → `collect_keys`.
-  - `bitcoin.descriptor.compiler`: `__split_args` → `split_args`,
+  - `btx.descriptor.compiler`: `__split_args` → `split_args`,
     `__emit_script` → `emit_script`.
-  - `bitcoin.psbt.parser`: `__parse_psbt_impl` → `parse_psbt_impl`.
-  - `bitcoin.psbt.pipeline`: `__parse_psbt_worker` → `parse_psbt_worker`.
-  - `bitcoin.signature.pipeline`: `__process_single_worker` →
+  - `btx.psbt.parser`: `__parse_psbt_impl` → `parse_psbt_impl`.
+  - `btx.psbt.pipeline`: `__parse_psbt_worker` → `parse_psbt_worker`.
+  - `btx.signature.pipeline`: `__process_single_worker` →
     `process_single_worker`.
-  - `bitcoin.signature.extraction.engine`: `__BUILTINS_REGISTERED` →
+  - `btx.signature.extraction.engine`: `__BUILTINS_REGISTERED` →
     `BUILTINS_REGISTERED`.
-  - `bitcoin.signature.extraction.plugins`: `__registry` → `registry`.
-  - `bitcoin.cli.app`: `__LOGGING_CONFIGURED` → `LOGGING_CONFIGURED`.
+  - `btx.signature.extraction.plugins`: `__registry` → `registry`.
+  - `btx.cli.app`: `__LOGGING_CONFIGURED` → `LOGGING_CONFIGURED`.
 - Each renamed helper received a full Google-style docstring explaining
   intent, parameters, return values, side effects, and edge cases.
 - Expanded module-level docstrings across every package
-  (`bitcoin.curve`, `bitcoin.encoding`, `bitcoin.field`,
-  `bitcoin.script`, `bitcoin.sighash`, `bitcoin.transaction`,
-  `bitcoin.signature`, `bitcoin.descriptor`, `bitcoin.psbt`,
-  `bitcoin.services`, `bitcoin.cli`) with architecture overviews,
+  (`btx.curve`, `btx.encoding`, `btx.field`,
+  `btx.script`, `btx.sighash`, `btx.transaction`,
+  `btx.signature`, `btx.descriptor`, `btx.psbt`,
+  `btx.services`, `btx.cli`) with architecture overviews,
   design notes, and references to BIPs and RFCs.
 - `services/blockchain.py`: `async_enrich_transaction` and
   `async_batch_fetch_transactions` now carry full Google-style
   docstrings matching their sync counterparts.
-- `bitcoin/__init__.py`: rewritten as a layered package overview with
+- `btx/__init__.py`: rewritten as a layered package overview with
   deduplicated, alphabetised `__all__` listing 191 public symbols.
 
 ### Atomic commits in this release
@@ -152,14 +152,14 @@ All notable changes to this project will be documented in this file.
 - Hypothesis stateful testing via `RuleBasedStateMachine`.
 
 ### Changed
-- CLI entry point renamed from `secp` to `bitcoin`.
+- CLI entry point renamed from `secp` to `btx`.
 - `Settings` singleton replaces old file/env-var `Config`.
 - All exception classes now inherit from `BitcoinError(ValueError)`.
 - `verify_sig` uses constant-time comparison (`hmac.compare_digest`).
 - DoS limits enforced: `MAX_INPUTS`, `MAX_OUTPUTS`, `MAX_WITNESS_ITEMS`.
 
 ### Removed
-- Dead code: `bitcoin/compat.py`, `bitcoin/signature/memzero.py`.
+- Dead code: `btx/compat.py`, `btx/signature/memzero.py`.
 - Duplicate exception classes from `exceptions.py` (canonical versions in `attack.py`).
 - `InvalidSecp256k1PointError` (never raised).
 - Dead `logger` imports and definitions from `dispatch.py`, `blockchain.py`, `attack.py`.
@@ -195,7 +195,7 @@ All notable changes to this project will be documented in this file.
 - Optional `coincurve` backend for accelerated curve operations.
 
 ### Changed
-- Package renamed from `secp` to `bitcoin`.
+- Package renamed from `secp` to `btx`.
 - `models.py` is now a zero-import leaf module (no circular import risk).
 - Codebase restructured into 10 packages with strict layering.
 

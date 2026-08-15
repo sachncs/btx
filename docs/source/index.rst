@@ -1,4 +1,4 @@
-Welcome to bitcoin's documentation!
+Welcome to btx's documentation!
 ====================================
 
 .. toctree::
