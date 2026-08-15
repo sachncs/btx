@@ -137,43 +137,58 @@ class TestPointSecRoundtrip:
             serialize_sec(INFINITY_POINT)
 
 
-class TestPointArithmetic:
-    def test_arithmetic_negate(self) -> None:
-        neg = GENERATOR_POINT.arithmetic.negate()
+class TestPointMethods:
+    def test_negate(self) -> None:
+        neg = GENERATOR_POINT.negate()
         assert GENERATOR_POINT.y is not None
         assert neg.x == GENERATOR_POINT.x
         assert neg.y is not None
         assert neg.y == -GENERATOR_POINT.y % FIELD_PRIME
 
-    def test_arithmetic_add(self) -> None:
-        result = GENERATOR_POINT.arithmetic.add(GENERATOR_POINT)
+    def test_add(self) -> None:
+        result = GENERATOR_POINT.add(GENERATOR_POINT)
         assert result == double(GENERATOR_POINT)
 
-    def test_arithmetic_double(self) -> None:
-        result = GENERATOR_POINT.arithmetic.double()
+    def test_double(self) -> None:
+        result = GENERATOR_POINT.double()
         assert result == double(GENERATOR_POINT)
 
-    def test_arithmetic_multiply(self) -> None:
-        result = GENERATOR_POINT.arithmetic.multiply(2)
+    def test_multiply(self) -> None:
+        result = GENERATOR_POINT.multiply(2)
         assert result == double(GENERATOR_POINT)
 
-    def test_arithmetic_multiply_by_zero(self) -> None:
-        result = GENERATOR_POINT.arithmetic.multiply(0)
+    def test_multiply_by_zero(self) -> None:
+        result = GENERATOR_POINT.multiply(0)
         assert result.infinity
 
-    def test_arithmetic_is_on_curve(self) -> None:
-        assert GENERATOR_POINT.arithmetic.is_on_curve()
+    def test_is_on_curve(self) -> None:
+        assert GENERATOR_POINT.is_on_curve()
 
-    def test_arithmetic_is_on_curve_infinity(self) -> None:
-        assert INFINITY_POINT.arithmetic.is_on_curve()
+    def test_is_on_curve_infinity(self) -> None:
+        assert INFINITY_POINT.is_on_curve()
 
-    def test_arithmetic_serialize_compressed(self) -> None:
-        ser = GENERATOR_POINT.arithmetic.serialize(compressed=True)
+    def test_serialize_compressed(self) -> None:
+        ser = GENERATOR_POINT.serialize(compressed=True)
         assert len(ser) == 33
 
-    def test_arithmetic_serialize_uncompressed(self) -> None:
-        ser = GENERATOR_POINT.arithmetic.serialize(compressed=False)
+    def test_serialize_uncompressed(self) -> None:
+        ser = GENERATOR_POINT.serialize(compressed=False)
         assert len(ser) == 65
+
+    def test_operator_add(self) -> None:
+        assert GENERATOR_POINT + GENERATOR_POINT == double(GENERATOR_POINT)
+
+    def test_operator_sub(self) -> None:
+        assert GENERATOR_POINT - GENERATOR_POINT == INFINITY_POINT
+
+    def test_operator_mul(self) -> None:
+        assert GENERATOR_POINT * 2 == double(GENERATOR_POINT)
+
+    def test_operator_rmul(self) -> None:
+        assert 2 * GENERATOR_POINT == double(GENERATOR_POINT)
+
+    def test_operator_neg(self) -> None:
+        assert -GENERATOR_POINT == GENERATOR_POINT.negate()
 
 
 class TestBackendDispatch:

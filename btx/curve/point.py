@@ -2,9 +2,8 @@
 # SPDX-License-Identifier: MIT
 """The ``Point`` value type — a point on the secp256k1 curve.
 
-Defines the immutable, slot-based :class:`Point` value object and the
-:class:`PointArithmetic` composed engine exposed via
-``point.arithmetic`` for fluent chained arithmetic.
+Defines the immutable, slot-based :class:`Point` value object with
+direct arithmetic methods.
 
 Design choices:
 
@@ -16,10 +15,9 @@ Design choices:
   systems internally.
 - :attr:`Point.infinity` is the point at infinity (the secp256k1 group
   identity); its ``x``/``y`` are always ``None``.
-- The composed :class:`PointArithmetic` engine is the recommended way
-  to perform multi-step arithmetic (``point.arithmetic.multiply(k)
-  .add(other)``), avoiding top-level ``from btx.curve import
-  operations`` at call sites.
+- Arithmetic methods (``negate``, ``add``, ``double``, ``multiply``,
+  ``is_on_curve``) are first-class on the value type, supporting the
+  Python operator overloads (``+``, ``-``, ``*``, unary ``-``).
 
 Validation is performed eagerly in :meth:`Point.__init__`; points
 constructed without an on-curve check must be verified before use in
@@ -31,106 +29,19 @@ from __future__ import annotations
 from btx.curve.params import CURVE_B, FIELD_PRIME
 
 
-class PointArithmetic:
-    """Composed arithmetic engine for point operations.
-
-    Accessed via ``point.arithmetic``.  Provides domain-chain access to
-    curve arithmetic without exposing the underlying operations module.
-
-    Args:
-        point: The Point instance this engine is bound to.
-    """
-
-    __slots__ = ("__point",)
-
-    def __init__(self, point: Point) -> None:
-        self.__point: Point = point
-
-    def negate(self) -> Point:
-        """Return the additive inverse of the bound point.
-
-        Returns:
-            The negated Point, or the point at infinity unchanged.
-        """
-        from btx.curve.operations import negate
-
-        return negate(self.__point)
-
-    def add(self, other: Point) -> Point:
-        """Return the sum of the bound point and *other*.
-
-        Args:
-            other: The point to add.
-
-        Returns:
-            The sum Point.
-        """
-        from btx.curve.operations import add
-
-        return add(self.__point, other)
-
-    def double(self) -> Point:
-        """Return the bound point doubled (2 * point).
-
-        Returns:
-            The doubled Point.
-        """
-        from btx.curve.operations import double
-
-        return double(self.__point)
-
-    def multiply(self, scalar: int) -> Point:
-        """Return scalar multiplication scalar * point.
-
-        Args:
-            scalar: The scalar multiplier (non-negative).
-
-        Returns:
-            The resulting Point.
-
-        Raises:
-            ValueError: If *scalar* is negative.
-        """
-        from btx.curve.operations import multiply
-
-        return multiply(scalar, self.__point)
-
-    def is_on_curve(self) -> bool:
-        """Check whether the bound point lies on the secp256k1 curve.
-
-        Returns:
-            True if the point is on the curve.  The point at infinity
-            is always considered on the curve.
-        """
-        from btx.curve.operations import is_on_curve
-
-        return is_on_curve(self.__point)
-
-    def serialize(self, compressed: bool = True) -> bytes:
-        """Serialize the bound point to SEC-encoded bytes.
-
-        Args:
-            compressed: Whether to use compressed encoding (default True).
-
-        Returns:
-            SEC-encoded bytes.
-
-        Raises:
-            ValueError: If the point is at infinity.
-        """
-        if compressed:
-            return self.__point.to_sec_compressed()
-        return self.__point.to_sec_uncompressed()
-
-
 class Point:
     """An affine point on secp256k1, or the point at infinity.
 
     Slots are used for a compact memory layout.  The point is guaranteed
     to lie on the curve when *infinity* is ``False``.
+
+    Attributes:
+        x: The affine x-coordinate, or ``None`` for the point at infinity.
+        y: The affine y-coordinate, or ``None`` for the point at infinity.
+        infinity: ``True`` if this is the point at infinity.
     """
 
-    __slots__ = ("__x", "__y", "__infinity")
+    __slots__ = ("x", "y", "__infinity")
 
     def __init__(
         self, x: int | None = None, y: int | None = None, *, infinity: bool = False
@@ -146,8 +57,8 @@ class Point:
             ValueError: If not infinity and x or y is missing or out of range.
         """
         if infinity:
-            self.__x: int | None = None
-            self.__y: int | None = None
+            self.x: int | None = None
+            self.y: int | None = None
             self.__infinity: bool = True
             return
         if x is None or y is None:
@@ -156,37 +67,106 @@ class Point:
             raise ValueError(f"x coordinate out of field: {x}")
         if not (0 <= y < FIELD_PRIME):
             raise ValueError(f"y coordinate out of field: {y}")
-        self.__x = x
-        self.__y = y
+        self.x = x
+        self.y = y
         self.__infinity = False
 
-    # -- read-only properties ------------------------------------------------
-
-    @property
-    def x(self) -> int | None:
-        """The affine x-coordinate, or ``None`` for the point at infinity."""
-        return self.__x
-
-    @property
-    def y(self) -> int | None:
-        """The affine y-coordinate, or ``None`` for the point at infinity."""
-        return self.__y
+    # -- read-only property (only infinity remains mangled) -----------------
 
     @property
     def infinity(self) -> bool:
         """``True`` if this is the point at infinity."""
         return self.__infinity
 
-    # -- composed engine access ---------------------------------------------
+    # -- arithmetic methods --------------------------------------------------
 
-    @property
-    def arithmetic(self) -> PointArithmetic:
-        """Access point arithmetic via a composed engine.
+    def negate(self) -> Point:
+        """Return the additive inverse of this point.
 
         Returns:
-            A ``PointArithmetic`` instance bound to this point.
+            The negated Point, or the point at infinity unchanged.
         """
-        return PointArithmetic(self)
+        from btx.curve.operations import negate
+
+        return negate(self)
+
+    def add(self, other: Point) -> Point:
+        """Return the sum of this point and *other*.
+
+        Args:
+            other: The point to add.
+
+        Returns:
+            The sum Point.
+        """
+        from btx.curve.operations import add
+
+        return add(self, other)
+
+    def double(self) -> Point:
+        """Return this point doubled (2 * point).
+
+        Returns:
+            The doubled Point.
+        """
+        from btx.curve.operations import double
+
+        return double(self)
+
+    def multiply(self, scalar: int) -> Point:
+        """Return scalar multiplication ``scalar * point``.
+
+        Args:
+            scalar: The scalar multiplier (non-negative).
+
+        Returns:
+            The resulting Point.
+
+        Raises:
+            ValueError: If *scalar* is negative.
+        """
+        from btx.curve.operations import multiply
+
+        return multiply(scalar, self)
+
+    def is_on_curve(self) -> bool:
+        """Check whether this point lies on the secp256k1 curve.
+
+        Returns:
+            ``True`` if the point is on the curve.  The point at
+            infinity is always considered on the curve.
+        """
+        from btx.curve.operations import is_on_curve
+
+        return is_on_curve(self)
+
+    # -- operator overloading ------------------------------------------------
+
+    def __add__(self, other: Point) -> Point:
+        """Return ``self + other`` via :meth:`add`."""
+        return self.add(other)
+
+    def __sub__(self, other: Point) -> Point:
+        """Return ``self - other`` via :meth:`add` and :meth:`negate`."""
+        return self.add(other.negate())
+
+    def __mul__(self, scalar: int) -> Point:
+        """Return ``scalar * self`` via :meth:`multiply`.
+
+        Raises:
+            TypeError: If *scalar* is not an int.
+        """
+        if not isinstance(scalar, int):
+            return NotImplemented
+        return self.multiply(scalar)
+
+    def __rmul__(self, scalar: int) -> Point:
+        """Return ``scalar * self`` for ``scalar * point``."""
+        return self.__mul__(scalar)
+
+    def __neg__(self) -> Point:
+        """Return ``-self`` via :meth:`negate`."""
+        return self.negate()
 
     # -- equality / hashing --------------------------------------------------
 
@@ -198,19 +178,19 @@ class Point:
             return True
         if self.__infinity != other.__infinity:
             return False
-        return self.__x == other.__x and self.__y == other.__y
+        return self.x == other.x and self.y == other.y
 
     def __hash__(self) -> int:
         """Return a hash based on the point's coordinates."""
         if self.__infinity:
             return hash((True,))
-        return hash((False, self.__x, self.__y))
+        return hash((False, self.x, self.y))
 
     def __repr__(self) -> str:
         """Return a developer-friendly string representation."""
         if self.__infinity:
             return "Point(infinity=True)"
-        return f"Point(x=0x{self.__x:064x}, y=0x{self.__y:064x})"
+        return f"Point(x=0x{self.x:064x}, y=0x{self.y:064x})"
 
     # -- constructors --------------------------------------------------------
 
@@ -273,8 +253,8 @@ class Point:
         Raises:
             ValueError: If this is the point at infinity.
         """
-        y = self.__y
-        x = self.__x
+        y = self.y
+        x = self.x
         if y is None or x is None:
             raise ValueError("Cannot serialize infinity point.")
         prefix = bytes([0x02 | (y & 1)])
@@ -284,13 +264,29 @@ class Point:
         """Encode this point as a 65-byte uncompressed SEC key.
 
         Returns:
-            The 65-byte SEC-uncompressed encoding.
+            The 65-byte uncompressed SEC encoding.
 
         Raises:
             ValueError: If this is the point at infinity.
         """
-        x = self.__x
-        y = self.__y
+        x = self.x
+        y = self.y
         if x is None or y is None:
             raise ValueError("Cannot serialize infinity point.")
         return b"\x04" + x.to_bytes(32, "big") + y.to_bytes(32, "big")
+
+    def serialize(self, compressed: bool = True) -> bytes:
+        """Serialize this point to SEC-encoded bytes.
+
+        Args:
+            compressed: Whether to use compressed encoding (default ``True``).
+
+        Returns:
+            SEC-encoded bytes (33 bytes if compressed, 65 bytes otherwise).
+
+        Raises:
+            ValueError: If this is the point at infinity.
+        """
+        if compressed:
+            return self.to_sec_compressed()
+        return self.to_sec_uncompressed()

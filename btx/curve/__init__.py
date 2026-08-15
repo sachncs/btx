@@ -13,8 +13,9 @@ Layers
 - :mod:`btx.curve.params` – SEC-1 curve constants (``p``, ``n``,
   ``a``, ``b``, generator coordinates).
 - :mod:`btx.curve.point` – immutable :class:`Point` type with
-  ``__slots__`` storage and a domain-chain
-  :class:`PointArithmetic` engine accessed via ``point.arithmetic``.
+  ``__slots__`` storage, direct arithmetic methods (``negate``,
+  ``add``, ``double``, ``multiply``, ``is_on_curve``) and Python
+  operator overloads (``+``, ``-``, ``*``, unary ``-``).
 - :mod:`btx.curve.backend` – pluggable :class:`CurveBackend` ABC
   with two concrete implementations: :class:`NativeBackend` (pure
   Python) and :class:`LibsecpBackend` (optional ``coincurve``/libsecp256k1
