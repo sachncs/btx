@@ -485,6 +485,128 @@ def health() -> None:
         raise typer.Exit(1) from exc
 
 
+@app.command()
+def parse_script(
+    script_hex: str = typer.Argument(..., help="Script bytes as hex"),
+) -> None:
+    """Parse and decompile a Bitcoin script."""
+    configure_logging()
+    try:
+        from btx.script import classify_script_pubkey, parse_script
+
+        script = decode_hex(script_hex)
+        chunks = parse_script(script)
+        st = classify_script_pubkey(script)
+        typer.echo(f"Script type: {st}")
+        typer.echo(f"Chunks ({len(chunks)}):")
+        for i, chunk in enumerate(chunks):
+            typer.echo(f"  [{i}] opcode=0x{chunk.opcode:02x} data={chunk.data!r}")
+    except (ValueError, TypeError) as exc:
+        typer.echo(f"Error: {exc}", err=True)
+        raise typer.Exit(1) from exc
+
+
+@app.command()
+def sign(
+    tx_hex: str = typer.Argument(..., help="Raw transaction hex"),
+    input_index: int = typer.Option(0, "--vin", help="Input index to sign"),
+    privkey: str = typer.Option(
+        ..., "--privkey", help="Private key as hex (32 bytes)"
+    ),
+    script: str = typer.Option(
+        "", "--script", help="Script code as hex (empty for raw pubkey)"
+    ),
+    sighash: int = typer.Option(0x01, "--sighash", help="SIGHASH flag byte"),
+    input_file: Path | None = typer.Option(
+        None, "--input-file", help="Read tx hex from file"
+    ),
+) -> None:
+    """Sign a transaction input and print the DER signature."""
+    configure_logging()
+    try:
+        from btx.encoding.der import encode_der
+        from btx.signature.signer import sign as sign_msg
+
+        tx_hex_resolved = read_tx_hex(tx_hex, input_file)
+        tx_bytes = decode_hex(tx_hex_resolved)
+        d = int(privkey, 16)
+        script_code = decode_hex(script) if script else b""
+        sig = sign_msg(tx_bytes, input_index, d, script_code, sighash)
+        typer.echo(encode_hex(encode_der(*sig)))
+    except (ValueError, TypeError) as exc:
+        typer.echo(f"Error: {exc}", err=True)
+        raise typer.Exit(1) from exc
+
+
+@app.command()
+def verify(
+    tx_hex: str = typer.Argument(..., help="Raw transaction hex"),
+    pubkey: str = typer.Option(..., "--pubkey", help="Public key as hex"),
+    signature: str = typer.Option(..., "--signature", help="DER signature as hex"),
+    script: str = typer.Option("", "--script", help="Script code as hex"),
+    sighash: int = typer.Option(0x01, "--sighash", help="SIGHASH flag byte"),
+    input_file: Path | None = typer.Option(
+        None, "--input-file", help="Read tx hex from file"
+    ),
+) -> None:
+    """Verify an ECDSA signature against a public key."""
+    configure_logging()
+    try:
+        from btx.curve import parse_public_key
+        from btx.encoding.der import decode_der
+        from btx.signature.check import verify_signature
+
+        tx_hex_resolved = read_tx_hex(tx_hex, input_file)
+        tx_bytes = decode_hex(tx_hex_resolved)
+        pk = parse_public_key(decode_hex(pubkey))
+        r, s = decode_der(decode_hex(signature))
+        script_code = decode_hex(script) if script else b""
+        ok = verify_signature(tx_bytes, pk, (r, s), script_code, sighash)
+        typer.echo("valid" if ok else "invalid")
+        if not ok:
+            raise typer.Exit(1)
+    except (ValueError, TypeError) as exc:
+        typer.echo(f"Error: {exc}", err=True)
+        raise typer.Exit(1) from exc
+
+
+@app.command()
+def recover(
+    tx_hex: str = typer.Argument(..., help="Raw transaction hex"),
+    input_index: int = typer.Option(0, "--vin", help="Input index"),
+    signature: str = typer.Option(..., "--signature", help="DER signature as hex"),
+    recovery_flag: int = typer.Option(
+        0, "--recid", help="Recovery ID (0..3)"
+    ),
+    script: str = typer.Option("", "--script", help="Script code as hex"),
+    sighash: int = typer.Option(0x01, "--sighash", help="SIGHASH flag byte"),
+    input_file: Path | None = typer.Option(
+        None, "--input-file", help="Read tx hex from file"
+    ),
+) -> None:
+    """Recover the public key from an ECDSA signature."""
+    configure_logging()
+    try:
+        from btx.encoding.der import decode_der
+        from btx.signature.check import recover_public_key
+
+        tx_hex_resolved = read_tx_hex(tx_hex, input_file)
+        tx_bytes = decode_hex(tx_hex_resolved)
+        r, s = decode_der(decode_hex(signature))
+        script_code = decode_hex(script) if script else b""
+        pk = recover_public_key(
+            tx_bytes, decode_der(decode_hex(signature))[0],
+            recovery_flag, script_code, sighash,
+        )
+        if pk is None or pk.infinity:
+            typer.echo("Recovery failed", err=True)
+            raise typer.Exit(1)
+        typer.echo(encode_hex(pk.serialize(compressed=True)))
+    except (ValueError, TypeError) as exc:
+        typer.echo(f"Error: {exc}", err=True)
+        raise typer.Exit(1) from exc
+
+
 def main(args: Sequence[str] | None = None) -> int:
     """CLI entry point — delegates to the Typer app.
 
