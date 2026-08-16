@@ -85,7 +85,7 @@ while r ≠ 0:
     q = old_r // r
     old_r, r = r, old_r − q·r
     old_t, t = t, old_t − q·t
-if old_r ≠ 1: raise NotInvertible
+if old_r ≠ 1: raise ValueError
 return old_t mod modulus
 ```
 
