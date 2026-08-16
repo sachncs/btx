@@ -19,8 +19,8 @@ P2TR ``scriptPubKey``.
 Design: Strategy pattern with plugin registry
 ---------------------------------------------
 
-The five built-in extractors are normal classes that satisfy the
-:class:`~btx.signature.extraction.plugins.ExtractorPlugin` protocol.
+The five built-in extractors are subclasses of
+:class:`~btx.signature.extraction.engine.BaseExtractor`.
 They are registered via :func:`register_builtin_extractors` (called
 automatically by :func:`extract_signatures`) and selected per-input
 via the registry.  This avoids a hard-coded ``if/elif`` chain and
@@ -145,6 +145,18 @@ class LegacyExtractor(BaseExtractor):
         script_pubkey: bytes,
         value: int,
     ) -> list[Record]:
+        """Extract signatures from a legacy (non-SegWit) input.
+
+        Args:
+            tx: The parent transaction.
+            vin: Index of the input being processed.
+            txin: The ``TxIn`` providing scriptSig data.
+            script_pubkey: The previous output's ``scriptPubKey``.
+            value: The UTXO value in satoshis (unused by legacy).
+
+        Returns:
+            A list of :class:`~btx.signature.record.Record` instances.
+        """
         parsed_sig: Sequence[object] = (
             list(parse_script(txin.script_sig)) if txin.script_sig else []
         )
@@ -167,6 +179,18 @@ class P2WPKHExtractor(BaseExtractor):
         script_pubkey: bytes,
         value: int,
     ) -> list[Record]:
+        """Extract signatures from a P2WPKH (SegWit v0 key-path) input.
+
+        Args:
+            tx: The parent transaction.
+            vin: Index of the input being processed.
+            txin: The ``TxIn`` providing witness data.
+            script_pubkey: The previous output's ``scriptPubKey``.
+            value: The UTXO value in satoshis (used for SegWit sighash).
+
+        Returns:
+            A list of :class:`~btx.signature.record.Record` instances.
+        """
         return extract_p2wpkh(tx, vin, script_pubkey, value, txin.witness.items)
 
 
@@ -186,6 +210,18 @@ class P2WSHExtractor(BaseExtractor):
         script_pubkey: bytes,
         value: int,
     ) -> list[Record]:
+        """Extract signatures from a P2WSH (SegWit v0 script-path) input.
+
+        Args:
+            tx: The parent transaction.
+            vin: Index of the input being processed.
+            txin: The ``TxIn`` providing witness data.
+            script_pubkey: The previous output's ``scriptPubKey``.
+            value: The UTXO value in satoshis (used for SegWit sighash).
+
+        Returns:
+            A list of :class:`~btx.signature.record.Record` instances.
+        """
         return extract_p2wsh(tx, vin, script_pubkey, value, txin.witness.items)
 
 
@@ -205,6 +241,18 @@ class P2SHSegWitExtractor(BaseExtractor):
         script_pubkey: bytes,
         value: int,
     ) -> list[Record]:
+        """Extract signatures from a P2SH-wrapped SegWit input.
+
+        Args:
+            tx: The parent transaction.
+            vin: Index of the input being processed.
+            txin: The ``TxIn`` providing scriptSig and witness data.
+            script_pubkey: The previous output's ``scriptPubKey``.
+            value: The UTXO value in satoshis (used for SegWit sighash).
+
+        Returns:
+            A list of :class:`~btx.signature.record.Record` instances.
+        """
         return extract_p2sh_segwit(tx, vin, script_pubkey, value, txin)
 
 
@@ -224,6 +272,20 @@ class TaprootExtractor(BaseExtractor):
         script_pubkey: bytes,
         value: int,
     ) -> list[Record]:
+        """Extract signatures from a P2TR (Taproot) input.
+
+        Handles both key-path and script-path spends.
+
+        Args:
+            tx: The parent transaction.
+            vin: Index of the input being processed.
+            txin: The ``TxIn`` providing witness data.
+            script_pubkey: The previous output's ``scriptPubKey``.
+            value: The UTXO value in satoshis (used for Taproot sighash).
+
+        Returns:
+            A list of :class:`~btx.signature.record.Record` instances.
+        """
         return extract_taproot(tx, vin, script_pubkey, value, txin.witness.items)
 
 
