@@ -385,6 +385,47 @@ class TestSighashTaproot:
         assert len(h) == 32
 
 
+class TestComputeSighashDispatch:
+    """``compute_sighash`` dispatches to the correct ``SighashScheme``."""
+
+    def test_taproot_script_path(self) -> None:
+        """A script code starting with a BIP-342 leaf version routes to
+        Taproot and produces the expected digest."""
+        from btx.encoding.hasher import tagged_hash
+        from btx.encoding.varint import encode_varint
+        from btx.sighash.taproot import TAPROOT_SCRIPT_PATH_PREFIXES
+        from btx.signature.extraction.helpers import compute_sighash
+
+        tapleaf = bytes([TAPROOT_SCRIPT_PATH_PREFIXES[0]]) + SCRIPT
+        digest = compute_sighash(TX_TAPROOT, 0, tapleaf, 0x00, 10000)
+        assert len(digest) == 32
+
+        expected_tapleaf_hash = tagged_hash(
+            "TapLeaf",
+            bytes([TAPROOT_SCRIPT_PATH_PREFIXES[0]])
+            + encode_varint(len(tapleaf))
+            + tapleaf,
+        )
+        assert digest == sighash_taproot(
+            TX_TAPROOT, 0, tapleaf, 0x00, tapleaf_hash=expected_tapleaf_hash
+        )
+
+    def test_segwit(self) -> None:
+        """An ``OP_0`` witness-program script code routes to SegWit v0."""
+        from btx.signature.extraction.helpers import compute_sighash
+
+        script_code = b"\x00\x14" + b"\x22" * 20
+        digest = compute_sighash(TX_TAPROOT, 0, script_code, 0x01, 10000)
+        assert digest == sighash_segwit(TX_TAPROOT, 0, script_code, 10000, 0x01)
+
+    def test_legacy(self) -> None:
+        """Any other script code routes to the legacy scheme."""
+        from btx.signature.extraction.helpers import compute_sighash
+
+        digest = compute_sighash(TX_TAPROOT, 0, SCRIPT, 0x01, 0)
+        assert digest == sighash_legacy(TX_TAPROOT, 0, SCRIPT, 0x01)
+
+
 # ===================================================================
 # serializer.py
 # ===================================================================
