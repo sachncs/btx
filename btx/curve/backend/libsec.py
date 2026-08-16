@@ -44,6 +44,15 @@ class LibsecpBackend(CurveBackend):
     """
 
     def __init__(self) -> None:
+        """Initialise the libsecp256k1 backend.
+
+        Verifies that the ``coincurve`` optional dependency is
+        importable via :func:`btx.curve.libsecp256k1.check`.
+
+        Raises:
+            ImportError: If ``coincurve`` (libsecp256k1 C bindings) is
+                not installed.
+        """
         check_libsecp256k1()
         logger.debug(
             "LibsecpBackend initialised; negate/add/double fall back to "
