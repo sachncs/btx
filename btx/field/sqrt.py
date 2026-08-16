@@ -12,13 +12,10 @@ solution::
 rather than the general Tonelli-Shanks loop.
 
 If *a* is not a quadratic residue, :func:`sqrt` raises
-:exc:`~btx.exceptions.PointError` rather than returning a
-non-existent root — callers that need the principal root should
-verify the input is a residue first (e.g. by checking that the result
-squares back to the input).
+:exc:`ValueError` rather than returning a non-existent root — callers
+that need the principal root should verify the input is a residue
+first (e.g. by checking that the result squares back to the input).
 """
-
-from btx.exceptions import PointError
 
 
 def pow_mod(value: int, exponent: int, modulus: int) -> int:
@@ -52,10 +49,10 @@ def sqrt(value: int, field_prime: int) -> int:
         Integer *root* such that ``(root * root) % field_prime == value``.
 
     Raises:
-        PointError: If *value* is not a quadratic residue modulo
+        ValueError: If *value* is not a quadratic residue modulo
             *field_prime*.
     """
     root = pow_mod(value, (field_prime + 1) // 4, field_prime)
     if (root * root) % field_prime != value % field_prime:
-        raise PointError(f"No square root for value modulo {field_prime}.")
+        raise ValueError(f"No square root for value modulo {field_prime}.")
     return root
