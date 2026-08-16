@@ -6,7 +6,7 @@ from __future__ import annotations
 
 import pytest
 
-from btx import OutPoint, ParsingError, Tx, TxIn, TxOut, Witness, make_tx, parse_tx
+from btx import OutPoint, Tx, TxIn, TxOut, Witness, make_tx, parse_tx
 from btx.services.serializer import serialize_legacy_tx, serialize_tx
 
 
@@ -129,8 +129,8 @@ class TestParseTx:
         assert parsed.lock_time == 500000000
 
     def test_truncated_bytes(self) -> None:
-        """Incomplete transaction raises ParsingError."""
-        with pytest.raises((ParsingError, ValueError)):
+        """Incomplete transaction raises ValueError."""
+        with pytest.raises((ValueError,)):
             parse_tx(b"\x01\x00\x00\x00")
 
     def test_make_tx_empty_fields(self) -> None:
