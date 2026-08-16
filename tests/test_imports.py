@@ -48,9 +48,8 @@ def test_class_imports() -> None:
 
 
 def test_exception_imports() -> None:
-    assert btx.NotInvertible is not None
-    assert btx.PointError is not None
-    assert btx.ParsingError is not None
+    assert btx.BtxError is not None
+    assert btx.UnsupportedScriptPathError is not None
 
 
 def test_removed_exceptions_gone() -> None:
@@ -63,6 +62,9 @@ def test_removed_exceptions_gone() -> None:
         "NotInvertibleError",
         "InvalidLinearCoefficientError",
         "NonInvertibleLinearCoefficientError",
+        "NotInvertible",
+        "PointError",
+        "ParsingError",
     ):
         assert not hasattr(btx.exceptions, name), f"{name} should have been removed"
 
