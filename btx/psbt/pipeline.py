@@ -59,7 +59,7 @@ def process_psbt_batch(
     *,
     max_workers: int = 1,
     request_id: str | None = None,
-) -> BatchResult:
+) -> BatchResult[Psbt]:
     """Parse multiple PSBT files, optionally in parallel.
 
     Args:
@@ -86,7 +86,6 @@ def process_psbt_batch(
             except Exception as exc:
                 logger.warning("[%s] Failed to parse %s: %s", rid, path, exc)
                 errors.append((path, str(exc)))
-        successful = len(all_psbts)
     else:
         with ProcessPoolExecutor(max_workers=max_workers) as executor:
             fut_map = {executor.submit(parse_psbt_worker, p): p for p in paths}
@@ -102,14 +101,10 @@ def process_psbt_batch(
                     errors.append(worker_result)
                 else:
                     all_psbts.append(worker_result)
-        successful = len(all_psbts)
 
-    batch_result = BatchResult(
+    batch_result = BatchResult[Psbt](
         items=tuple(all_psbts),
         errors=tuple(errors),
-        total=len(paths),
-        successful=successful,
-        failed=len(paths) - successful,
     )
     logger.info(
         "[%s] PSBT batch complete: %d / %d successful.",
@@ -126,7 +121,7 @@ def process_psbt_batch_with(
     *,
     max_workers: int = 1,
     request_id: str | None = None,
-) -> BatchResult:
+) -> BatchResult[Psbt]:
     """Parse and transform multiple PSBTs in parallel.
 
     *transform* is called on each successfully parsed PSBT and may
@@ -151,12 +146,9 @@ def process_psbt_batch_with(
         except Exception as exc:
             logger.warning("Transform failed for one PSBT: %s", exc)
             new_errors.append(("<transform>", str(exc)))
-    return BatchResult(
+    return BatchResult[Psbt](
         items=tuple(transformed),
         errors=tuple(new_errors),
-        total=raw.total,
-        successful=len(transformed),
-        failed=raw.total - len(transformed),
     )
 
 
