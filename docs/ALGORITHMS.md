@@ -9,7 +9,7 @@ Input: a (mod p)
 Output: x such that a·x ≡ 1 (mod p)
 
 def inverse(a, p):
-    if a == 0: raise NotInvertible
+    if a == 0: raise ValueError
     lm, hm = 1, 0
     low, high = a % p, p
     while low > 1:
