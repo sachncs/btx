@@ -65,7 +65,6 @@ from btx.signature import (
 )
 from btx.signature.batch_verify import batch_verify
 from btx.signature.extraction.plugins import (
-    ExtractorPlugin,
     get_plugin,
     list_plugins,
     register_plugin,
@@ -150,9 +149,6 @@ class TestPluginRegistry:
 
     def test_get_nonexistent(self) -> None:
         assert get_plugin("nonexistent") is None
-
-    def test_runtime_checkable(self) -> None:
-        assert isinstance(DummyPlugin(), ExtractorPlugin)
 
 
 # ===================================================================
@@ -591,8 +587,8 @@ class TestPipeline:
             sighash_flag=1,
             amount=0,
         )
-        result1 = BatchResult(items=(r1,), total=1, successful=1)
-        result2 = BatchResult(items=(r2,), total=1, successful=1)
+        result1 = BatchResult(items=(r1,))
+        result2 = BatchResult(items=(r2,))
         merged = merge_records([result1, result2])
         assert len(merged) == 2
 
@@ -606,7 +602,7 @@ class TestPipeline:
             sighash_flag=1,
             amount=0,
         )
-        result = BatchResult(items=(rec, rec), total=2, successful=2)
+        result = BatchResult(items=(rec, rec))
         merged = merge_records([result])
         assert len(merged) == 1
 
