@@ -112,13 +112,7 @@ from btx.encoding import (
     sha256,
     tagged_hash,
 )
-from btx.exceptions import (
-    BtxError,
-    NotInvertible,
-    ParsingError,
-    PointError,
-    UnsupportedScriptPathError,
-)
+from btx.exceptions import BtxError, UnsupportedScriptPathError
 from btx.field import inverse, pow_mod, sqrt, validate_non_negative
 from btx.psbt import (
     Psbt,
@@ -258,7 +252,6 @@ from btx.transaction import (
     is_opt_in_rbf,
     make_tx,
     parse_tx,
-    total_output_value,
     tx_from_dict,
 )
 
@@ -287,7 +280,6 @@ __all__ = [
     "MULTISIG",
     "NON_STANDARD",
     "NativeBackend",
-    "NotInvertible",
     "OP_0",
     "OP_1",
     "OP_16",
@@ -313,9 +305,7 @@ __all__ = [
     "P2TR",
     "P2WPKH",
     "P2WSH",
-    "ParsingError",
     "Point",
-    "PointError",
     "Psbt",
     "PsbtEditor",
     "PsbtInput",
@@ -449,7 +439,6 @@ __all__ = [
     "sqrt",
     "sqrt_field",
     "tagged_hash",
-    "total_output_value",
     "tx_from_dict",
     "tx_to_json",
     "validate_non_negative",
