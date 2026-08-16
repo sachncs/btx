@@ -50,6 +50,16 @@ if TYPE_CHECKING:
 
 NO_CODESEPARATOR = 0xFFFFFFFF
 
+# BIP-341/342 leaf version byte for Tapscript.  The only currently
+# defined leaf version is 0xC0 (Tapscript); BIP-341 reserves future
+# leaf versions to bytes ``v`` with ``(v & 0xfe) == 0xc0`` and
+# ``v != 0x50``.
+LEAF_VERSION_TAPSCRIPT = 0xC0
+
+# Leaf-version bytes that identify a Taproot script-path spend when
+# they appear as the first byte of the script code.
+TAPROOT_SCRIPT_PATH_PREFIXES: tuple[int, ...] = (LEAF_VERSION_TAPSCRIPT,)
+
 # BIP-341 hash_type extension byte values
 HASH_TYPE_KEY_PATH = 0
 HASH_TYPE_SCRIPT_PATH = 1
