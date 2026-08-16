@@ -36,6 +36,8 @@ from __future__ import annotations
 
 from abc import ABC, abstractmethod
 
+from btx.encoding.hasher import tagged_hash
+from btx.encoding.varint import encode_varint
 from btx.sighash.flag import (
     SIGHASH_ALL,
     SIGHASH_ALL_ANYONECANPAY,
@@ -51,7 +53,11 @@ from btx.sighash.flag import (
 )
 from btx.sighash.legacy import sighash_legacy
 from btx.sighash.segwit import sighash_segwit
-from btx.sighash.taproot import sighash_taproot
+from btx.sighash.taproot import (
+    LEAF_VERSION_TAPSCRIPT,
+    TAPROOT_SCRIPT_PATH_PREFIXES,
+    sighash_taproot,
+)
 from btx.transaction.models import Tx
 
 __all__ = [
@@ -64,9 +70,11 @@ __all__ = [
     "SIGHASH_NONE_ANYONECANPAY",
     "SIGHASH_SINGLE",
     "SIGHASH_SINGLE_ANYONECANPAY",
+    "LEAF_VERSION_TAPSCRIPT",
     "LegacySighash",
     "SegwitSighash",
     "SighashScheme",
+    "TAPROOT_SCRIPT_PATH_PREFIXES",
     "TaprootSighash",
     "require_sighash_flag",
     "sighash_legacy",
@@ -135,7 +143,13 @@ class SegwitSighash(SighashScheme):
 
 
 class TaprootSighash(SighashScheme):
-    """BIP-341 Taproot sighash scheme."""
+    """BIP-341 Taproot sighash scheme.
+
+    For script-path spending the ``tapleaf_hash`` (BIP-341) is derived
+    from *script_code* and the Tapscript leaf version
+    (:data:`LEAF_VERSION_TAPSCRIPT`), so callers only need to supply
+    the tapleaf script.
+    """
 
     def compute(
         self,
@@ -145,4 +159,12 @@ class TaprootSighash(SighashScheme):
         value: int,
         sighash_flag: int,
     ) -> bytes:
-        return sighash_taproot(tx, input_index, script_code, sighash_flag)
+        tapleaf_hash = tagged_hash(
+            "TapLeaf",
+            bytes([LEAF_VERSION_TAPSCRIPT])
+            + encode_varint(len(script_code))
+            + script_code,
+        )
+        return sighash_taproot(
+            tx, input_index, script_code, sighash_flag, tapleaf_hash=tapleaf_hash
+        )
