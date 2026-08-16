@@ -21,27 +21,10 @@ support new script types without modifying this library.
 
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, Protocol, runtime_checkable
+from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
     from btx.signature.extraction.engine import BaseExtractor
-
-
-@runtime_checkable
-class ExtractorPlugin(Protocol):
-    """Structural interface for extractor plugins.
-
-    Implemented structurally by :class:`~btx.signature.extraction.engine.BaseExtractor`
-    and any third-party plugin registered via :func:`register_plugin`.
-    """
-
-    name: str
-
-    def can_handle(self, script_type: str, is_segwit: bool) -> bool: ...
-
-    def extract(
-        self, tx: object, vin: int, txin: object, script_pubkey: bytes, value: int
-    ): ...
 
 
 registry: dict[str, BaseExtractor] = {}
@@ -95,7 +78,6 @@ def list_plugins() -> list[str]:
 
 
 __all__ = [
-    "ExtractorPlugin",
     "get_plugin",
     "list_plugins",
     "register_plugin",
