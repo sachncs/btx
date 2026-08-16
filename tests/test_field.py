@@ -4,7 +4,6 @@
 
 import pytest
 
-from btx.exceptions import NotInvertible
 from btx.field import inverse, pow_mod, sqrt, validate_non_negative
 
 
@@ -19,11 +18,11 @@ class TestInverse:
         assert (2 * inv) % p == 1
 
     def test_zero_not_invertible(self) -> None:
-        with pytest.raises(NotInvertible):
+        with pytest.raises(ValueError, match="no modular inverse"):
             inverse(0, 7)
 
     def test_not_coprime(self) -> None:
-        with pytest.raises(NotInvertible):
+        with pytest.raises(ValueError, match="not invertible"):
             inverse(6, 9)
 
     def test_modulus_one(self) -> None:
