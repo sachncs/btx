@@ -310,7 +310,7 @@ btx/
 ├── settings.py          # Settings singleton
 ├── sighash/             # Legacy, SegWit v0, Taproot sighash
 ├── signature/           # Extraction, linearisation, verification, signing
-│   ├── extraction/      # ExtractorPlugin registry + engine
+│   ├── extraction/      # Extractor plugin registry + engine
 │   └── linearization/   # (α, β) coefficient derivation
 └── transaction/         # Tx parse, build, serialize, fee, RBF
 tests/                   # Test suite (868 passing)
