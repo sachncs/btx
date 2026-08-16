@@ -20,7 +20,7 @@ Submodules:
   the ``lift_x`` helper.
 - :mod:`btx.signature.signer` – RFC-6979 deterministic ECDSA
   signing and the high-level :func:`sign_tx_input` helper.
-- :mod:`btx.signature.extraction` – :class:`ExtractorPlugin`
+- :mod:`btx.signature.extraction` – the extractor-plugin
   registry and the polymorphic ``extract_signatures`` dispatcher
   that handles every standard script type.
 - :mod:`btx.signature.linearization` – derivation of the
