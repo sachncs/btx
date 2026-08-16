@@ -4,106 +4,20 @@
 Remove symbols that are defined but never used, and parameters that are accepted but documented as no-ops.
 
 ## Context
-Depends on Phase 05 (BitcoinError → BtxError already done; this phase deletes other unused exception classes that inherit from it). After this phase, every named export is reachable.
+The three exception classes (`NotInvertible`, `PointError`, `ParsingError`) and the `ExtractorPlugin` Protocol have been deleted; raise sites now use `ValueError`. The `Record.vin`/`Record.sig` aliases were audited (commit b08f3ff) and are intentionally kept as canonical names — no deletion.
 
-## Tasks
+## Resolved by Decision
+### Task 07.7 — `Record.vin` and `Record.sig` alias properties — KEPT (no change)
+The audit (commit b08f3ff) determined the `vin`/`sig` aliases are the canonical names for the fields; they are kept as convenience properties pointing at `input_index`/`signature`.
 
-### Task 07.1 — Delete `NotInvertible` exception
-**Acceptance Criteria:**
-- `grep -rn 'NotInvertible' btx/ tests/ --include='*.py'` returns no matches
-- `btx/exceptions.py:__all__` no longer contains `"NotInvertible"`
-
-**Steps:**
-1. Read `btx/exceptions.py:38`
-2. Delete the class definition
-3. Remove `"NotInvertible"` from `__all__`
-
-### Task 07.2 — Delete `PointError` exception
-**Acceptance Criteria:**
-- `grep -rn 'PointError' btx/ tests/ --include='*.py'` returns no matches
-- `btx/exceptions.py:__all__` no longer contains `"PointError"`
-
-**Steps:**
-1. Read `btx/exceptions.py:42`
-2. Delete the class definition
-3. Remove `"PointError"` from `__all__`
-
-### Task 07.3 — Delete `ParsingError` exception
-**Acceptance Criteria:**
-- `grep -rn 'ParsingError' btx/ tests/ --include='*.py'` returns no matches
-- `btx/exceptions.py:__all__` no longer contains `"ParsingError"`
-
-**Steps:**
-1. Read `btx/exceptions.py:46`
-2. Delete the class definition
-3. Remove `"ParsingError"` from `__all__`
-
-### Task 07.4 — Final shape of `btx/exceptions.py`
-**Acceptance Criteria:**
-- `btx/exceptions.py:__all__` reads `["BtxError", "UnsupportedScriptPathError"]`
-- Only two classes remain in the file: `BtxError` and `UnsupportedScriptPathError`
-
-**Steps:**
-1. Read the file
-2. Confirm only two classes remain
-3. Verify `__all__` is correct
-
-### Task 07.5 — Delete `NoNonceReuseError` exception
-**Acceptance Criteria:**
-- `grep -rn 'NoNonceReuseError' btx/ tests/ --include='*.py'` returns no matches
-- `btx/signature/attack.py` no longer defines `NoNonceReuseError`
-
-**Steps:**
-1. Read `btx/signature/attack.py:70`
-2. Delete the class
-
-### Task 07.6 — Drop unused parameters from `collect_info`
-**Acceptance Criteria:**
-- `btx/descriptor/analyzer.py:97` (the `collect_info` function) accepts only `(node, keys)` — no `has_timelock` or `has_hash_lock`
-- The single caller in `analyze_descriptor` (line 85) calls `collect_info(node, keys)` without the dropped parameters
-- All descriptor tests pass
-
-**Steps:**
-1. Read `btx/descriptor/analyzer.py` to identify the `collect_info` function and its caller
-2. Remove the two parameters from the signature
-3. Remove the two arguments from the call site
-4. Update the docstring to remove the "Accepted for API symmetry; not modified" prose
-
-### Task 07.7 — Delete `Record.vin` and `Record.sig` alias properties
-**Acceptance Criteria:**
-- `btx/signature/record.py:58-67` no longer defines `vin` or `sig` properties
-- `Record.input_index` and `Record.signature` remain as the canonical attributes
-- No tests reference `record.vin` or `record.sig`
-
-**Steps:**
-1. Read `btx/signature/record.py` lines 58-67
-2. Delete both `@property` definitions
-3. Search for `.vin` and `.sig` usages on `Record` instances and update them to use the canonical names
-
-### Task 07.8 — Delete dead `BlockchainProvider(Protocol)`
-**Acceptance Criteria:**
-- `grep -rn 'BlockchainProvider' btx/ --include='*.py'` returns no matches
-- `btx/services/blockchain.py` no longer defines the Protocol
-
-**Steps:**
-1. Read `btx/services/blockchain.py:68`
-2. Delete the class definition and its `@runtime_checkable` decorator
-
-### Task 07.9 — Delete dead `ExtractorPlugin(Protocol)`
-**Acceptance Criteria:**
-- `grep -rn 'ExtractorPlugin' btx/ --include='*.py'` returns no matches
-- `btx/signature/extraction/plugins.py:31` no longer defines the Protocol
-
-**Steps:**
-1. Read the file
-2. Delete the class definition and its `@runtime_checkable` decorator
+**State:**
+- `btx/signature/record.py:58-66` defines both `@property` aliases and documents them in the module docstring — this is the intended end-state
+- Tests reference them intentionally: `tests/test_extraction_coverage.py:450` (`records[0].sig`), `tests/test_signature_new.py:24,88` (`rec.vin`), `tests/test_mainnet_vectors.py`, `tests/test_stateful.py:62-63`, `tests/test_psbt_parser.py:366,423`
+- `CHANGELOG.md` notes them as "kept as canonical names"
 
 ## End-of-Phase Verification
-- `grep -rn 'NotInvertible\|PointError\|ParsingError\|NoNonceReuseError\|BlockchainProvider\|ExtractorPlugin' btx/ tests/ --include='*.py'` returns no matches
-- `collect_info` has only `(node, keys)` parameters
-- `Record` has no `vin` or `sig` alias properties
-- All tests pass
+- All dead code deletions from Phase 07 are complete; the `Record` aliases remain by design.
 
 ## Notes
-- The two Protocols were never subclassed; deleting them removes documentation-only dead weight.
-- The three deleted exceptions (`NotInvertible`, `PointError`, `ParsingError`) were defined but `raise`'d nowhere — pure no-ops. Callers that need them can re-introduce with a real call site.
+- The two Protocols were never subclassed; deleting them removes documentation-only dead weight. `ExtractorPlugin` is deleted.
+- The three deleted exceptions (`NotInvertible`, `PointError`, `ParsingError`) are gone from `btx/exceptions.py` (classes + `__all__`); their former raise sites in `btx/field/modular.py`, `btx/field/sqrt.py`, and `btx/transaction/parser.py` now raise plain `ValueError`, which is still caught by `except BtxError` since `BtxError` subclasses `ValueError`.
