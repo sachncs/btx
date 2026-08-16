@@ -3,6 +3,8 @@
 ## Goal
 Stage and commit all changes if the user requests it.
 
+**Status**: ⬜ NOT DONE — opt-in. Execute only if the user explicitly asks to commit.
+
 ## Context
 Depends on all prior phases being verified. This phase is opt-in — only execute if the user explicitly asks to commit.
 
