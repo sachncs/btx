@@ -10,14 +10,11 @@ Why not just call ``pow(value, -1, modulus)``?  Two reasons:
 
 1. Older Python versions (pre-3.8) did not support negative exponents
    in :func:`pow`, so this module guarantees a consistent baseline.
-2. :func:`inverse` raises the project-specific
-   :exc:`~btx.exceptions.NotInvertible` exception for non-coprime
-   inputs (including zero), letting callers handle that case
-   explicitly without distinguishing ``ValueError`` from the underlying
+2. :func:`inverse` raises :exc:`ValueError` for non-coprime inputs
+   (including zero), letting callers handle that case explicitly
+   without distinguishing ``ValueError`` from the underlying
    ``ZeroDivisionError``.
 """
-
-from btx.exceptions import NotInvertible
 
 
 def inverse(value: int, modulus: int) -> int:
@@ -34,9 +31,9 @@ def inverse(value: int, modulus: int) -> int:
 
     Raises:
         TypeError: If either argument is not an ``int``.
-        ValueError: If *modulus* is ≤ 1 or *value* is negative.
-        NotInvertible: If *value* and *modulus* are not coprime
-            (including when *value* is zero).
+        ValueError: If *modulus* is ≤ 1, *value* is negative, or
+            *value* and *modulus* are not coprime (including when
+            *value* is zero).
     """
     if not isinstance(value, int):
         raise TypeError(f"Value must be int, got {type(value).__name__}.")
@@ -47,7 +44,7 @@ def inverse(value: int, modulus: int) -> int:
     if value < 0:
         raise ValueError(f"Value must be non-negative, got {value}.")
     if value == 0:
-        raise NotInvertible("Zero has no modular inverse.")
+        raise ValueError("Zero has no modular inverse.")
 
     old_r, r = modulus, value
     old_t, t = 0, 1
@@ -57,7 +54,7 @@ def inverse(value: int, modulus: int) -> int:
         old_t, t = t, old_t - quotient * t
 
     if old_r != 1:
-        raise NotInvertible(f"Value {value} is not invertible modulo {modulus}.")
+        raise ValueError(f"Value {value} is not invertible modulo {modulus}.")
     return old_t % modulus
 
 
