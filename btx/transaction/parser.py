@@ -24,7 +24,6 @@ transaction) and can be tuned per-deployment if needed.
 from __future__ import annotations
 
 from btx.encoding.varint import decode_varint
-from btx.exceptions import ParsingError
 from btx.transaction.models import OutPoint, Tx, TxIn, TxOut, Witness
 
 MAX_TX_SIZE = 4_000_000
@@ -49,12 +48,10 @@ def parse_tx(data: bytes, offset: int = 0) -> tuple[Tx, int]:
         immediately after the parsed transaction.
 
     Raises:
-        ParsingError: If *data* exceeds ``MAX_TX_SIZE``.
+        ValueError: If *data* exceeds ``MAX_TX_SIZE``.
     """
     if len(data) > MAX_TX_SIZE:
-        raise ParsingError(
-            f"Transaction size {len(data)} exceeds maximum {MAX_TX_SIZE}"
-        )
+        raise ValueError(f"Transaction size {len(data)} exceeds maximum {MAX_TX_SIZE}")
     version = int.from_bytes(data[offset : offset + 4], "little")
     offset += 4
 
@@ -101,7 +98,7 @@ def parse_inputs(data: bytes, offset: int) -> tuple[list[TxIn], int]:
     """
     n, offset = decode_varint(data, offset)
     if n > MAX_INPUTS:
-        raise ParsingError(f"Input count {n} exceeds maximum {MAX_INPUTS}")
+        raise ValueError(f"Input count {n} exceeds maximum {MAX_INPUTS}")
     inputs: list[TxIn] = []
     for _ in range(n):
         txid = data[offset : offset + 32]
@@ -139,7 +136,7 @@ def parse_outputs(data: bytes, offset: int) -> tuple[list[TxOut], int]:
     """
     n, offset = decode_varint(data, offset)
     if n > MAX_OUTPUTS:
-        raise ParsingError(f"Output count {n} exceeds maximum {MAX_OUTPUTS}")
+        raise ValueError(f"Output count {n} exceeds maximum {MAX_OUTPUTS}")
     outputs: list[TxOut] = []
     for _ in range(n):
         value = int.from_bytes(data[offset : offset + 8], "little")
@@ -166,14 +163,12 @@ def parse_witness(data: bytes, offset: int) -> tuple[Witness, int]:
     """
     n, offset = decode_varint(data, offset)
     if n > MAX_WITNESS_ITEMS:
-        raise ParsingError(
-            f"Witness item count {n} exceeds maximum {MAX_WITNESS_ITEMS}"
-        )
+        raise ValueError(f"Witness item count {n} exceeds maximum {MAX_WITNESS_ITEMS}")
     items: list[bytes] = []
     for _ in range(n):
         item_len, offset = decode_varint(data, offset)
         if item_len > MAX_WITNESS_ITEM_SIZE:
-            raise ParsingError(
+            raise ValueError(
                 f"Witness item size {item_len} exceeds maximum {MAX_WITNESS_ITEM_SIZE}"
             )
         item = data[offset : offset + item_len]
