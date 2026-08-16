@@ -18,7 +18,7 @@ from btx import (
     ScriptChunk,
     Settings,
     Record,
-    BitcoinError,
+    BtxError,
 
     # Functions
     extract_signatures,
@@ -141,7 +141,7 @@ Sort records by `(txid, vin)` ascending (lexicographic txid, numeric vin). Prepa
 def parse_tx(raw: bytes, /) -> tuple[Tx, int]:
 ```
 
-Parse a raw Bitcoin transaction. Returns `(Tx, bytes_consumed)`. Supports both legacy and SegWit v0/v1 (taproot) transactions. Raises `ParsingError` on malformed data.
+Parse a raw Bitcoin transaction. Returns `(Tx, bytes_consumed)`. Supports both legacy and SegWit v0/v1 (taproot) transactions. Raises `ValueError` on malformed data.
 
 ### `btx.make_tx`
 
@@ -509,7 +509,7 @@ Fetches transaction data from mempool.space API.
 ### `btx.services.enrich_transaction`
 
 ```python
-def enrich_transaction(tx: Tx, provider: BlockchainProvider | None = None) -> Tx:
+def enrich_transaction(tx: Tx, provider: BaseBlockchainProvider | None = None) -> Tx:
 ```
 
 Fetch UTXO details for each input and return an enriched transaction with metadata. Falls back to a default provider if none given.
