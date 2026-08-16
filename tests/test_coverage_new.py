@@ -4,7 +4,7 @@
 
 from __future__ import annotations
 
-from typing import cast
+from typing import ClassVar, cast
 from unittest.mock import MagicMock, patch
 
 import pytest
@@ -64,6 +64,7 @@ from btx.signature import (
     verify_sig,
 )
 from btx.signature.batch_verify import batch_verify
+from btx.signature.extraction.engine import BaseExtractor
 from btx.signature.extraction.plugins import (
     get_plugin,
     list_plugins,
@@ -113,8 +114,8 @@ def make_test_tx() -> Tx:
 # ===================================================================
 
 
-class DummyPlugin:
-    name = "dummy"
+class DummyPlugin(BaseExtractor):
+    name: ClassVar[str] = "dummy"
 
     def can_handle(self, script_type: str, is_segwit: bool) -> bool:
         return script_type == "dummy"
