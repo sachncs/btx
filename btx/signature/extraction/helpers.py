@@ -5,11 +5,12 @@
 A grab bag of small functions used by the script-type extractors.
 The non-trivial ones are:
 
-- :func:`compute_sighash` – dispatches between the legacy and SegWit
-  sighash algorithms based on whether the *script* argument is a
-  witness program (``OP_0 <20|32 bytes>``).  This is the right
-  discriminator even for P2SH-wrapped SegWit inputs, where the
-  transaction itself may not carry witness data.
+- :func:`compute_sighash` – dispatches between the legacy, SegWit v0,
+  and Taproot sighash algorithms based on the *script* prefix (see
+  :data:`SCHEME_BY_PREFIX` and
+  :data:`~btx.sighash.taproot.TAPROOT_SCRIPT_PATH_PREFIXES`).  This is
+  the right discriminator even for P2SH-wrapped SegWit inputs, where
+  the transaction itself may not carry witness data.
 - :func:`recover_or_parse_pubkey` – tries all four ECDSA recovery
   IDs first (the cheap, accurate path when the message hash and
   script code are known) and falls back to parsing the
@@ -28,12 +29,21 @@ from typing import TYPE_CHECKING
 
 from btx.curve import is_on_curve, parse_public_key
 from btx.curve.point import Point
+from btx.sighash import LegacySighash, SegwitSighash, SighashScheme, TaprootSighash
+from btx.sighash.taproot import TAPROOT_SCRIPT_PATH_PREFIXES
 from btx.signature.check import recover_public_key
 
 if TYPE_CHECKING:
     from btx.transaction.models import Tx
 
 logger = logging.getLogger(__name__)
+
+# Dispatch table for script-code prefixes → sighash scheme.  Taproot
+# script-path detection is handled separately via the BIP-342 leaf
+# version bytes in ``TAPROOT_SCRIPT_PATH_PREFIXES``.
+SCHEME_BY_PREFIX: dict[int, SighashScheme] = {
+    0x00: SegwitSighash(),  # P2WPKH (0x00 0x14) and P2WSH (0x00 0x20)
+}
 
 
 def extract_pubkey_from_script_sig(script_sig: Sequence[object]) -> bytes | None:
@@ -113,8 +123,9 @@ def compute_sighash(tx: Tx, vin: int, script: bytes, flag: int, value: int) -> b
     based on the *script* prefix:
 
     - ``OP_0 0x14 <20 bytes>`` or ``OP_0 0x20 <32 bytes>`` → SegWit v0
-      (:class:`SegwitSighash`).
-    - ``OP_1 0x20 <32 bytes>`` (BIP-342 leaf-version 0xC0) → Taproot
+      (:class:`SegwitSighash`), looked up in :data:`SCHEME_BY_PREFIX`.
+    - first byte a BIP-342 leaf version
+      (:data:`TAPROOT_SCRIPT_PATH_PREFIXES`) → Taproot
       (:class:`TaprootSighash`).
     - otherwise → legacy (:class:`LegacySighash`).
 
@@ -132,20 +143,10 @@ def compute_sighash(tx: Tx, vin: int, script: bytes, flag: int, value: int) -> b
         ValueError: If ``SIGHASH_SINGLE`` is used with out-of-bounds
             input index, or for other invalid flag combinations.
     """
-    from btx.sighash import (
-        LegacySighash,
-        SegwitSighash,
-        SighashScheme,
-        TaprootSighash,
-    )
-
-    if len(script) >= 2 and script[0] == 0x00 and script[1] in (0x14, 0x20):
-        scheme: SighashScheme = SegwitSighash()
-    elif (
-        len(script) >= 2
-        and script[0] == 0x51  # OP_1 leaf version for taproot script path
-        and script[1] == 0x20
-    ):
+    prefix = script[0] if script else -1
+    if prefix == 0x00 and len(script) >= 2 and script[1] in (0x14, 0x20):
+        scheme = SCHEME_BY_PREFIX[0x00]
+    elif prefix in TAPROOT_SCRIPT_PATH_PREFIXES:
         scheme = TaprootSighash()
     else:
         scheme = LegacySighash()
@@ -210,6 +211,7 @@ def default_script_code() -> bytes:
 
 
 __all__ = [
+    "SCHEME_BY_PREFIX",
     "build_p2pkh_script_code",
     "compute_sighash",
     "default_script_code",
