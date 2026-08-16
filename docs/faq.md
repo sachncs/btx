@@ -162,7 +162,7 @@ from btx import set_backend
 set_backend("native")
 ```
 
-### "ParsingError: Invalid transaction format"
+### "ValueError: Invalid transaction format"
 
 Ensure your hex string is valid:
 - No whitespace
