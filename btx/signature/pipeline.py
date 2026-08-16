@@ -131,27 +131,37 @@ def generate_request_id() -> str:
 
 
 @dataclass(frozen=True, slots=True)
-class BatchResult:
-    """Result of processing multiple transactions.
+class BatchResult[T]:
+    """Result of processing multiple items.
 
-    Unified batch-result type used by both signature and PSBT
+    Generic batch-result type used by both the signature and PSBT
     pipelines.  ``items`` carries the per-pipeline payload (records
     for signatures, PSBTs for PSBTs).
 
     Attributes:
-        items: Successfully processed items (records or PSBTs).
+        items: Successfully processed items.
         errors: Pairs of ``(txid_or_path, error_message)`` for each
             failed item.
-        total: Total number of items submitted.
-        successful: Number of items processed without error.
-        failed: Number of items that raised an exception.
+
+    The read-only ``total`` (``len(items) + len(errors)``),
+    ``successful`` (``len(items)``) and ``failed`` (``len(errors)``)
+    properties give the batch counts without requiring storage.
     """
 
-    items: tuple = ()
+    items: tuple[T, ...] = ()
     errors: tuple[tuple[str, str], ...] = ()
-    total: int = 0
-    successful: int = 0
-    failed: int = 0
+
+    @property
+    def total(self) -> int:
+        return len(self.items) + len(self.errors)
+
+    @property
+    def successful(self) -> int:
+        return len(self.items)
+
+    @property
+    def failed(self) -> int:
+        return len(self.errors)
 
 
 def process_single(
@@ -198,7 +208,7 @@ def batch_extract(
     max_workers: int = 1,
     use_process_pool: bool = False,
     request_id: str | None = None,
-) -> BatchResult:
+) -> BatchResult[Record]:
     """Extract signatures from multiple transactions.
 
     Processes transactions sequentially when *max_workers* is ``1``,
@@ -251,7 +261,6 @@ def batch_extract(
 
     all_records: list[Record] = []
     errors: list[tuple[str, str]] = []
-    successful = 0
     lock = Lock()
 
     def process_one_with_shutdown(
@@ -281,7 +290,6 @@ def batch_extract(
         check_shutdown: bool,
     ) -> None:
         """Submit work to *executor* and harvest results into the shared lists."""
-        nonlocal successful
         future_map: dict[Future, str] = {}
         for tx_input, tx_scripts, tx_values in zip(
             transactions, scripts, values, strict=True
@@ -316,7 +324,6 @@ def batch_extract(
             else:
                 with lock:
                     all_records.extend(fut_result)
-                    successful += 1
 
     if max_workers <= 1:
         for tx_input, tx_scripts, tx_values in zip(
@@ -330,7 +337,6 @@ def batch_extract(
                 errors.append(outcome)
             else:
                 all_records.extend(outcome)
-                successful += 1
     elif use_process_pool:
         with ProcessPoolExecutor(max_workers=max_workers) as process_executor:
             run_pool(process_executor, process_single_worker, check_shutdown=False)
@@ -338,12 +344,9 @@ def batch_extract(
         with ThreadPoolExecutor(max_workers=max_workers) as thread_executor:
             run_pool(thread_executor, process_one_with_shutdown, check_shutdown=True)
 
-    batch_result = BatchResult(
+    batch_result = BatchResult[Record](
         items=tuple(all_records),
         errors=tuple(errors),
-        total=n,
-        successful=successful,
-        failed=n - successful,
     )
     logger.info(
         "[%s] Batch complete: %d / %d successful, %d errors.",
@@ -361,7 +364,7 @@ def batch_extract_from_file(
     delimiter: str = "\n",
     max_workers: int = 1,
     request_id: str | None = None,
-) -> BatchResult:
+) -> BatchResult[Record]:
     """Read hex-encoded transactions from a file and extract signatures.
 
     Each transaction is separated by *delimiter* (default: newline).
@@ -397,7 +400,7 @@ def batch_extract_from_file(
     return batch_extract(transactions, max_workers=max_workers, request_id=rid)
 
 
-def merge_records(results: Sequence[BatchResult]) -> list[Record]:
+def merge_records(results: Sequence[BatchResult[Record]]) -> list[Record]:
     """Merge records from multiple batch results into a single sorted list.
 
     Records are deduplicated by ``(txid, vin)`` — only the first
