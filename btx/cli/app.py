@@ -409,10 +409,7 @@ def broadcast(
     """Broadcast a raw transaction to the Bitcoin network."""
     configure_logging()
     if provider_name not in _PROVIDERS:
-        fail(
-            f"Unknown provider: {provider_name}. "
-            f"Choose from: {', '.join(_PROVIDERS)}"
-        )
+        fail(f"Unknown provider: {provider_name}. Choose from: {', '.join(_PROVIDERS)}")
     provider = _PROVIDERS[provider_name]()
     txid = broadcast_transaction(read_tx_hex(tx_hex, input_file), provider=provider)
     typer.echo(txid)
@@ -461,7 +458,7 @@ def health() -> None:
         raise typer.Exit(EXIT_ERROR)
 
 
-@app.command()
+@app.command(name="parse-script")
 def parse_script_cmd(
     script_hex: str = typer.Argument(..., help="Script bytes as hex"),
 ) -> None:
