@@ -13,7 +13,6 @@
 | `sqrt` | Function | Tonelli-Shanks sqrt (p ≡ 3 mod 4 specialization) |
 | `pow_mod` | Function | Modular exponentiation |
 | `validate_non_negative` | Function | Assert value is non-negative int |
-| `NotInvertible` | Exception | Raised when value has no modular inverse |
 
 **Consumers**: `btx.curve`, `btx.signature`
 
@@ -210,8 +209,7 @@ From `btx.signature.attack`:
 |--------|------|-------------|
 | `serialize_tx` | Function | `Tx` → segwit-aware raw bytes |
 | `serialize_legacy_tx` | Function | `Tx` → legacy format bytes |
-| `BlockchainProvider` | Protocol | Pluggable blockchain data provider |
-| `BlockstreamProvider` | Class | Blockstream.info API provider |
+| `BaseBlockchainProvider` | Class | Pluggable blockchain data provider |
 | `BlockchainInfoProvider` | Class | Blockchain.info API provider |
 | `enrich_transaction` | Function | Fetch UTXO scripts/values for a transaction |
 
@@ -226,11 +224,19 @@ From `btx.signature.attack`:
 **Commands**:
 | Command | Description |
 |---------|-------------|
+| `decode` | Parse tx hex and print the decoded transaction |
 | `extract` | Parse tx hex, extract signatures (supports `--json`, `--csv`, `--format`, `--input-file`, `--utxo-script`, `--utxo-value`) |
 | `linearize` | Extract + sort by txid/vin |
+| `parse-script` | Parse and decompile a Bitcoin script |
+| `sign` | Sign a 32-byte message hash with a private key |
+| `verify` | Verify an ECDSA signature against a public key for a message hash |
+| `recover` | Recover the public key from a message hash + signature |
+| `broadcast` | Broadcast a transaction to the network |
+| `health` | Run health checks and print a JSON status report |
+| `schema` | Print the JSON schema |
 | `version` | Print version |
 
-**Entry point**: `btx` (console_scripts) or `python -m btx.cli`
+**Entry point**: `btx` (console_scripts)
 
 ---
 
@@ -240,16 +246,12 @@ From `btx.signature.attack`:
 
 | Exception | Parent | Raised When |
 |-----------|--------|-------------|
-| `BitcoinError` | `ValueError` | Base for all package errors |
-| `NotInvertible` | `BitcoinError` | Value has no modular inverse |
-| `PointError` | `BitcoinError` | Invalid curve point |
-| `InvalidSignature` | `BitcoinError` | Signature validation fails |
-| `InvalidDerSignature` | `BitcoinError` | DER format violation |
-| `ParsingError` | `BitcoinError` | Transaction/script parse failure |
-| `UnsupportedScriptPathError` | `BitcoinError` | Unsupported script feature (e.g. OP_CODESEPARATOR) |
-| `NotInvertibleError` | `BitcoinError` | Non-invertible linear coefficient (deprecated) |
-| `InvalidLinearCoefficientError` | `BitcoinError` | Invalid linear coefficient |
-| `NonInvertibleLinearCoefficientError` | `BitcoinError` | Non-invertible coefficient |
+| `BtxError` | `ValueError` | Base for all package errors |
+| `UnsupportedScriptPathError` | `BtxError` | Unsupported script feature (e.g. OP_CODESEPARATOR) |
+
+Field/parse failures (`inverse`, `sqrt`, `parse_tx`) raise plain
+`ValueError`, which `BtxError` subclasses so a single
+`except BtxError` still catches them.
 
 ---
 
