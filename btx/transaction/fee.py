@@ -19,7 +19,7 @@ Reference: BIP-141 "Segregated Witness".
 
 from __future__ import annotations
 
-from btx.transaction.models import Tx, TxOut
+from btx.transaction.models import Tx
 
 WITNESS_SCALE_FACTOR = 4
 BASE_VBYTE_SIZE = 10  # version (4) + flags (2) + lock_time (4)
@@ -106,22 +106,9 @@ def estimate_optimal_fee(tx: Tx, target_blocks: int = 2) -> int:
     return vsize * sat_per_vbyte
 
 
-def total_output_value(outputs: tuple[TxOut, ...]) -> int:
-    """Return the sum of all output values in satoshis.
-
-    Args:
-        outputs: The transaction outputs.
-
-    Returns:
-        Total output value in satoshis.
-    """
-    return sum(out.value for out in outputs)
-
-
 __all__ = [
     "estimate_minimum_fee",
     "estimate_optimal_fee",
     "estimate_vsize",
-    "total_output_value",
     "varint_size",
 ]
