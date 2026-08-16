@@ -16,8 +16,7 @@ This subpackage owns every aspect of the Bitcoin transaction model:
   :func:`build_transaction` convenience builder.
 - :mod:`btx.transaction.builder` – :class:`TransactionBuilder`
   fluent API and :func:`tx_from_dict` validating factory.
-- :mod:`btx.transaction.fee` – vsize, fee estimation, and
-  output-value summation.
+- :mod:`btx.transaction.fee` – vsize and fee estimation.
 - :mod:`btx.transaction.rbf` – opt-in RBF (BIP-125) detection
   and relative-sequence-lock (BIP-68) inspection.
 
@@ -35,7 +34,6 @@ from btx.transaction.fee import (
     estimate_minimum_fee,
     estimate_optimal_fee,
     estimate_vsize,
-    total_output_value,
 )
 from btx.transaction.models import EMPTY_WITNESS, OutPoint, Tx, TxIn, TxOut, Witness
 from btx.transaction.parser import parse_tx
@@ -57,6 +55,5 @@ __all__ = [
     "is_opt_in_rbf",
     "make_tx",
     "parse_tx",
-    "total_output_value",
     "tx_from_dict",
 ]
