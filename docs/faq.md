@@ -175,6 +175,13 @@ raw_hex = raw_hex.replace("0x", "")  # Remove prefix
 tx, _ = parse_tx(bytes.fromhex(raw_hex))
 ```
 
+Truncated or malformed wire data also raises `ValueError`:
+
+```python
+parse_tx(bytes.fromhex("0100000000000000"))        # too short -> ValueError
+parse_tx(bytes.fromhex("010000000000000000000000"))  # 10-byte minimal tx, OK
+```
+
 ### "UnsupportedScriptPathError"
 
 The transaction uses a script feature not yet supported (e.g., OP_CODESEPARATOR). Check the exception message for details.
