@@ -303,25 +303,27 @@ class Tx:
         script: bytes | None,
         sighash_flag: int,
         *,
-        extension: bytes = b"",
+        amounts: tuple[int, ...],
+        scriptpubkeys: tuple[bytes, ...],
         tapleaf_hash: bytes | None = None,
         key_version: int = 0,
         codeseparator_position: int = 0xFFFFFFFF,
         annex: bytes | None = None,
-        amounts: tuple[int, ...] | None = None,
     ) -> bytes:
         """Compute the BIP-341 Taproot sighash for *input_index*.
 
         Args:
             input_index: Index of the input being signed.
-            script: Script for script-path spending, or ``None`` for key-path.
-            sighash_flag: SIGHASH flag byte.
-            extension: Extension bytes for the sighash.
+            script: Versioned tapleaf script for script-path spending,
+                or ``None`` for key-path.
+            sighash_flag: BIP-341 SIGHASH hash_type byte.
+            amounts: UTXO value of every input, one entry per input.
+            scriptpubkeys: ``scriptPubKey`` of every spent output, one
+                entry per input.
             tapleaf_hash: Hash of the tapleaf for script-path spending.
-            key_version: Key version (0 or 1).
+            key_version: Key version byte (0 or 1).
             codeseparator_position: Position of the last OP_CODESEPARATOR.
-            annex: Optional annex data.
-            amounts: Tuple of per-input amounts.
+            annex: Optional annex data, including the ``0x50`` prefix.
 
         Returns:
             32-byte Taproot sighash digest.
@@ -333,10 +335,10 @@ class Tx:
             input_index,
             script,
             sighash_flag,
-            extension=extension,
             tapleaf_hash=tapleaf_hash,
             key_version=key_version,
             codeseparator_position=codeseparator_position,
             annex=annex,
             amounts=amounts,
+            scriptpubkeys=scriptpubkeys,
         )

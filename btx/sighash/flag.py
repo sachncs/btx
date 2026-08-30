@@ -10,6 +10,8 @@ restricts commitment to a single input.
 Constants
 ---------
 
+- :data:`SIGHASH_DEFAULT` (0x00) – Taproot default (equivalent to
+  ``SIGHASH_ALL``, BIP-341), used for key-path spends.
 - :data:`SIGHASH_ALL` (0x01), :data:`SIGHASH_NONE` (0x02),
   :data:`SIGHASH_SINGLE` (0x03) – base flags.
 - :data:`SIGHASH_ANYONECANPAY` (0x80) – input modifier.
@@ -29,6 +31,7 @@ Functions
 
 from __future__ import annotations
 
+SIGHASH_DEFAULT = 0x00
 SIGHASH_ALL = 0x01
 SIGHASH_NONE = 0x02
 SIGHASH_SINGLE = 0x03
@@ -39,6 +42,7 @@ SIGHASH_NONE_ANYONECANPAY = SIGHASH_NONE | SIGHASH_ANYONECANPAY
 SIGHASH_SINGLE_ANYONECANPAY = SIGHASH_SINGLE | SIGHASH_ANYONECANPAY
 
 SIGHASH_NAMES: dict[int, str] = {
+    SIGHASH_DEFAULT: "SIGHASH_DEFAULT",
     SIGHASH_ALL: "SIGHASH_ALL",
     SIGHASH_NONE: "SIGHASH_NONE",
     SIGHASH_SINGLE: "SIGHASH_SINGLE",
