@@ -63,7 +63,6 @@ from btx.signature.extraction.helpers import (
     p2wpkh_script_code,
     recover_or_parse_pubkey,
 )
-from btx.signature.extraction.plugins import register_plugin
 from btx.signature.record import Record
 
 logger = logging.getLogger(__name__)
@@ -291,37 +290,15 @@ class TaprootExtractor(BaseExtractor):
 
 # ── Built-in extractor registry ──────────────────────────────────────
 
-BUILTIN_EXTRACTOR_INSTANCES: list[BaseExtractor] = [
-    LegacyExtractor(),
+# Order encodes priority: the LegacyExtractor matches every non-SegWit
+# input as a catch-all, so it must run last.
+BUILTIN_EXTRACTORS: tuple[BaseExtractor, ...] = (
     P2WPKHExtractor(),
     P2WSHExtractor(),
     P2SHSegWitExtractor(),
     TaprootExtractor(),
-]
-
-BUILTINS_REGISTERED: bool = False
-"""Whether :func:`register_builtin_extractors` has already run.
-
-Public so callers can introspect registration state.  Mutated only
-through :func:`register_builtin_extractors`.
-"""
-
-
-def register_builtin_extractors() -> None:
-    """Register all built-in script-path extractor plugins.
-
-    Idempotent — subsequent calls are no-ops once registered.
-
-    Side effects:
-        Sets the module-level :data:`BUILTINS_REGISTERED` flag on
-        success.
-    """
-    global BUILTINS_REGISTERED
-    if BUILTINS_REGISTERED:
-        return
-    for extractor in BUILTIN_EXTRACTOR_INSTANCES:
-        register_plugin(extractor)
-    BUILTINS_REGISTERED = True
+    LegacyExtractor(),
+)
 
 
 # ── Public dispatch ─────────────────────────────────────────────────
@@ -353,15 +330,12 @@ def extract_signatures(
         AttributeError: If *tx* is malformed.
         ValueError: If sighash computation fails (e.g. invalid flag).
     """
-    register_builtin_extractors()
     records: list[Record] = []
     script_type_counts: dict[str, int] = {}
     failed_inputs = 0
 
     if not tx.inputs:
         return records
-
-    from btx.signature.extraction.plugins import get_plugin, list_plugins
 
     for vin, txin in enumerate(tx.inputs):
         parsed_sig: Sequence[object] = (
@@ -375,10 +349,9 @@ def extract_signatures(
         is_segwit = bool(txin.witness.items)
 
         dispatched = False
-        for plugin_name in list_plugins():
-            plugin = get_plugin(plugin_name)
-            if plugin is not None and plugin.can_handle(script_type, is_segwit):
-                records.extend(plugin.extract(tx, vin, txin, script_pubkey, value))
+        for extractor in BUILTIN_EXTRACTORS:
+            if extractor.can_handle(script_type, is_segwit):
+                records.extend(extractor.extract(tx, vin, txin, script_pubkey, value))
                 dispatched = True
                 break
 

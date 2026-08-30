@@ -4,7 +4,7 @@
 
 from __future__ import annotations
 
-from typing import ClassVar, cast
+from typing import cast
 from unittest.mock import MagicMock, patch
 
 import pytest
@@ -64,13 +64,6 @@ from btx.signature import (
     verify_sig,
 )
 from btx.signature.batch_verify import batch_verify
-from btx.signature.extraction.engine import BaseExtractor
-from btx.signature.extraction.plugins import (
-    get_plugin,
-    list_plugins,
-    register_plugin,
-    unregister_plugin,
-)
 from btx.signature.pipeline import BatchResult
 from btx.transaction import (
     OutPoint,
@@ -107,49 +100,6 @@ def make_test_tx() -> Tx:
         outputs=(TxOut(value=10000, script_pubkey=build_p2pkh(TEST_PUB_HASH)),),
         lock_time=0,
     )
-
-
-# ===================================================================
-# plugins.py (0 % coverage)
-# ===================================================================
-
-
-class DummyPlugin(BaseExtractor):
-    name: ClassVar[str] = "dummy"
-
-    def can_handle(self, script_type: str, is_segwit: bool) -> bool:
-        return script_type == "dummy"
-
-    def extract(
-        self,
-        tx: Tx,
-        vin: int,
-        txin: TxIn,
-        script_pubkey: bytes,
-        value: int,
-    ) -> list[Record]:
-        return []
-
-
-class TestPluginRegistry:
-    def test_register_and_list(self) -> None:
-        register_plugin(DummyPlugin())
-        assert "dummy" in list_plugins()
-        unregister_plugin("dummy")
-        assert "dummy" not in list_plugins()
-
-    def test_get_plugin(self) -> None:
-        register_plugin(DummyPlugin())
-        p = get_plugin("dummy")
-        assert p is not None
-        assert p.name == "dummy"
-        unregister_plugin("dummy")
-
-    def test_unregister_nonexistent(self) -> None:
-        unregister_plugin("nonexistent")
-
-    def test_get_nonexistent(self) -> None:
-        assert get_plugin("nonexistent") is None
 
 
 # ===================================================================
