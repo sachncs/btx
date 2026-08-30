@@ -10,17 +10,14 @@ via unknown-key preservation).  The subpackage contains:
   methods.
 - :mod:`btx.psbt.parser` – BIP-174 binary reader and writer,
   including the key-type constants, witness-stack parsing, the
-  BIP-32 keypath parser, and the in-memory
-  :func:`parse_psbt_impl` helper shared with the file entry point.
+  BIP-32 keypath parser.
 - :mod:`btx.psbt.editor` – :class:`PsbtEditor` fluent API for
   programmatically constructing or signing a PSBT.
 - :mod:`btx.psbt.extraction` – :func:`psbt_extract_signatures` and
   the helper that finds the public key in a parsed script.
 - :mod:`btx.psbt.pipeline` – :func:`process_psbt_batch` /
   :func:`process_psbt_batch_with` for parallel PSBT file processing
-  with structured logging and graceful error capture.  The
-  :func:`parse_psbt_worker` callable is also re-exported for
-  callers that want to drive the process pool directly.
+  with structured logging and graceful error capture.
 
 Defensive limits
 ----------------
@@ -47,11 +44,9 @@ from btx.psbt.parser import (
     parse_psbt,
     parse_psbt_from_file,
     parse_psbt_hex,
-    parse_psbt_impl,
     serialize_psbt,
 )
 from btx.psbt.pipeline import (
-    parse_psbt_worker,
     process_psbt_batch,
     process_psbt_batch_with,
 )
@@ -65,8 +60,6 @@ __all__ = [
     "parse_psbt",
     "parse_psbt_from_file",
     "parse_psbt_hex",
-    "parse_psbt_impl",
-    "parse_psbt_worker",
     "process_psbt_batch",
     "process_psbt_batch_with",
     "psbt_extract_signatures",

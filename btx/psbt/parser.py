@@ -78,7 +78,7 @@ def parse_psbt(data: bytes | memoryview) -> Psbt:
     """
     if isinstance(data, memoryview):
         data = bytes(data)
-    return parse_psbt_impl(data)
+    return _parse_psbt_impl(data)
 
 
 def parse_psbt_from_file(path: str, *, mmap_threshold: int = 100_000_000) -> Psbt:
@@ -110,13 +110,13 @@ def parse_psbt_from_file(path: str, *, mmap_threshold: int = 100_000_000) -> Psb
             with mmap.mmap(f.fileno(), 0, access=mmap.ACCESS_READ) as m:
                 # mmap supports the buffer protocol and is indexable
                 # like bytes; cast to bytes for the parser.
-                return parse_psbt_impl(bytes(m))
+                return _parse_psbt_impl(bytes(m))
     else:
         with open(path, "rb") as f:
-            return parse_psbt_impl(f.read())
+            return _parse_psbt_impl(f.read())
 
 
-def parse_psbt_impl(data: bytes) -> Psbt:
+def _parse_psbt_impl(data: bytes) -> Psbt:
     """Low-level PSBT parser used by the public entry points.
 
     Parses a complete BIP-174 PSBT starting at the magic header and
