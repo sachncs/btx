@@ -92,7 +92,8 @@ def parse_control_block(control_block: bytes) -> TaprootControlBlock | None:
 
     Returns:
         A ``TaprootControlBlock`` or ``None`` if the control block
-        is too small.
+        is too small or has trailing bytes that are not part of a
+        32-byte merkle-path step.
     """
     if len(control_block) < CONTROL_BLOCK_MIN_SIZE:
         return None
@@ -109,6 +110,9 @@ def parse_control_block(control_block: bytes) -> TaprootControlBlock | None:
     while offset + 32 <= len(control_block):
         merkle_path.append(control_block[offset : offset + 32])
         offset += 32
+
+    if offset != len(control_block):
+        return None
 
     return TaprootControlBlock(
         parity=parity,

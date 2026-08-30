@@ -71,15 +71,22 @@ def recover_public_key(
     r, s = decode_der(der_signature)
     rec_id = (recovery_flag - PUBKEY_RECOVERY_OFFSET) & 0x03
 
-    # Recover R point from r (x-coordinate)
-    r_y_sq = (pow(r, 3, FIELD_PRIME) + 7) % FIELD_PRIME
+    # Recover R point from r.  Recovery IDs 2 and 3 (j==1) encode the
+    # case where the x-coordinate wrapped modulo the curve order:
+    # ``R.x == r + n``, and this is only valid while that stays below
+    # the field prime.
+    j = rec_id >> 1
+    x = r + j * CURVE_ORDER
+    if x >= FIELD_PRIME:
+        raise ValueError("Recovered R point x-coordinate out of range.")
+    r_y_sq = (pow(x, 3, FIELD_PRIME) + 7) % FIELD_PRIME
     r_y = pow(r_y_sq, (FIELD_PRIME + 1) // 4, FIELD_PRIME)
     if (r_y & 1) != (rec_id & 1):
         r_y = FIELD_PRIME - r_y
 
     from btx.curve.point import Point
 
-    r_point = Point(x=r, y=r_y)
+    r_point = Point(x=x, y=r_y)
 
     if not is_on_curve(r_point):
         raise ValueError("Recovered R point is not on the curve.")
@@ -136,9 +143,6 @@ def verify_signature(
         return False
 
     e = int.from_bytes(message_hash, "big") % CURVE_ORDER
-    if e == 0:
-        logger.debug("verify_signature: message hash is zero")
-        return False
 
     from btx.field import inverse
 

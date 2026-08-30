@@ -55,8 +55,8 @@ from btx.script.classifier import (
     P2WSH,
     classify_script_pubkey,
 )
-from btx.script.parser import parse_script
-from btx.sighash.flag import SIGHASH_ALL
+from btx.script.parser import parse_script, parse_script_chunks
+from btx.sighash.flag import SIGHASH_DEFAULT
 from btx.signature.extraction.helpers import (
     default_script_code,
     extract_pubkey_from_script_sig,
@@ -706,9 +706,13 @@ def extract_taproot(
     """Extract Schnorr signatures from a P2TR (Taproot) input.
 
     Handles both key-path spends (single 64/65-byte witness item) and
-    script-path spends (multiple witness items where the last is the
-    control block).  The public key is recovered from the P2TR
-    ``scriptPubKey`` (x-only pubkey with even y-coordinate per BIP-340).
+    script-path spends (multiple witness items where the last two are the
+    leaf script and control block).  A bare 64-byte Schnorr signature
+    carries the default hash type (``SIGHASH_DEFAULT`` / ``0x00``); a
+    65-byte signature ends with the ``hash_type`` byte.  For key-path
+    spends the tweaked output key is recovered from the P2TR
+    ``scriptPubKey``; for script-path spends the signer is lifted from
+    the first 32-byte push found in the tapscript leaf.
 
     Args:
         tx: The parent transaction.
@@ -735,9 +739,11 @@ def extract_taproot(
         if len(sig_bytes) < 1:
             return records
         try:
-            # Taproot signature: 64-byte Schnorr + optional sighash byte
+            # Taproot signature: 64-byte Schnorr + optional sighash byte.
+            # A bare 64-byte Schnorr signature uses the default hash type
+            # (SIGHASH_DEFAULT / 0x00) per BIP-341.
             if len(sig_bytes) == 64:
-                flag = SIGHASH_ALL
+                flag = SIGHASH_DEFAULT
             elif len(sig_bytes) == 65:
                 flag = sig_bytes[-1]
             else:
@@ -757,24 +763,27 @@ def extract_taproot(
             logger.debug("Taproot key-path spend extraction failed for input %d", vin)
         return records
 
-    # Script-path spend: stack is [sig, ..., script, control_block]
+    # Script-path spend: stack is [sig, ..., leaf_script, control_block].
+    # The last two items (leaf script and control block) are metadata, not
+    # signatures; only the items before them are scanned.
     last_idx = len(witness_items) - 1
     if last_idx < 1:
         return records
-    for i in range(last_idx):
+    signer = pubkey_from_taproot_leaf(witness_items[last_idx - 1])
+    for i in range(last_idx - 1):
         item = witness_items[i]
         if len(item) < 1:
             continue
         try:
             if len(item) == 64 or len(item) == 65:
                 sig_bytes = item[:64]
-                flag = item[64] if len(item) == 65 else SIGHASH_ALL
+                flag = item[64] if len(item) == 65 else SIGHASH_DEFAULT
                 records.append(
                     Record(
                         txid=tx.txid(),
                         input_index=vin,
                         signature=sig_bytes,
-                        public_key=pubkey,
+                        public_key=signer,
                         script_type=P2TR,
                         sighash_flag=flag,
                         amount=value,
@@ -783,6 +792,34 @@ def extract_taproot(
         except ValueError:
             logger.debug("Taproot script-path item skipped for input %d", vin)
     return records
+
+
+def pubkey_from_taproot_leaf(leaf_script: bytes) -> Point:
+    """Lift the first x-only public key push out of a tapscript leaf.
+
+    Scans the leaf script for a 32-byte data push and lifts it to an
+    even-y point per BIP-340 (the signer for a script-path spend).
+
+    Args:
+        leaf_script: The raw tapscript bytes (without the leaf version).
+
+    Returns:
+        The signer ``Point``, or ``INFINITY_POINT`` if none can be found.
+    """
+    from btx.signature.schnorr import lift_x
+
+    try:
+        chunks = parse_script_chunks(leaf_script)
+    except ValueError:
+        logger.debug("Failed to parse taproot leaf script")
+        return INFINITY_POINT
+    for chunk in chunks:
+        data = chunk.data
+        if chunk.is_push and data is not None and len(data) == 32:
+            lifted = lift_x(int.from_bytes(data, "big"))
+            if lifted is not None:
+                return Point(x=lifted[0], y=lifted[1])
+    return INFINITY_POINT
 
 
 def pubkey_from_p2tr_script(script_pubkey: bytes) -> Point:

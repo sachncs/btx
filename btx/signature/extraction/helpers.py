@@ -75,9 +75,12 @@ def recover_or_parse_pubkey(
 ) -> Point | None:
     """Recover a public key from a signature, falling back to SEC parsing.
 
-    Computes the sighash and tries all four recovery IDs.  If recovery
-    fails and *pubkey_bytes* is provided, attempts to parse it as an
-    SEC-encoded public key instead.
+    Computes the sighash and tries all four recovery IDs.  When
+    *pubkey_bytes* is provided and parses to a valid point it is
+    authoritative for attribution: the recovered candidate (if any) is
+    only accepted when it matches the known public key, otherwise the
+    parsed key is returned.  If no *pubkey_bytes* is available the first
+    recoverable candidate is returned.
 
     Args:
         tx: The parent transaction.
@@ -99,6 +102,25 @@ def recover_or_parse_pubkey(
     except ValueError:
         logger.debug("Sighash computation failed for input %d", vin)
         return None
+
+    if pubkey_bytes:
+        try:
+            known = parse_public_key(pubkey_bytes)
+        except (ValueError, TypeError):
+            known = None
+        if known is not None and not known.infinity and is_on_curve(known):
+            for rec_id in range(4):
+                recovery_flag = 27 + rec_id + 4
+                try:
+                    recovered = recover_public_key(message, sig, recovery_flag)
+                except ValueError:
+                    continue
+                if recovered == known:
+                    return recovered
+            # No recovered candidate equals the known public key; the
+            # scriptSig pubkey is authoritative for attribution.
+            return known
+
     for rec_id in range(4):
         recovery_flag = 27 + rec_id + 4
         try:
@@ -106,17 +128,19 @@ def recover_or_parse_pubkey(
         except ValueError:
             continue
     logger.debug("Public key recovery failed for input %d", vin)
-    if pubkey_bytes:
-        try:
-            point = parse_public_key(pubkey_bytes)
-            if point is not None and not point.infinity and is_on_curve(point):
-                return point
-        except (ValueError, TypeError):
-            logger.debug("Failed to parse fallback public key for input %d", vin)
     return None
 
 
-def compute_sighash(tx: Tx, vin: int, script: bytes, flag: int, value: int) -> bytes:
+def compute_sighash(
+    tx: Tx,
+    vin: int,
+    script: bytes,
+    flag: int,
+    value: int,
+    *,
+    amounts: Sequence[int] | None = None,
+    scriptpubkeys: Sequence[bytes] | None = None,
+) -> bytes:
     """Compute the transaction sighash for a given input.
 
     Dispatches to the appropriate :class:`~btx.sighash.SighashScheme`
@@ -135,13 +159,19 @@ def compute_sighash(tx: Tx, vin: int, script: bytes, flag: int, value: int) -> b
         script: Script code.
         flag: Sighash flag byte.
         value: UTXO value in satoshis (required for SegWit/Taproot).
+        amounts: UTXO value of every input (required by the Taproot
+            scheme, ignored by the others).
+        scriptpubkeys: ``scriptPubKey`` of every spent output (required
+            by the Taproot scheme, ignored by the others).
 
     Returns:
         The 32-byte sighash digest.
 
     Raises:
         ValueError: If ``SIGHASH_SINGLE`` is used with out-of-bounds
-            input index, or for other invalid flag combinations.
+            input index, for other invalid flag combinations, or if the
+            Taproot scheme is selected without *amounts* and
+            *scriptpubkeys*.
     """
     prefix = script[0] if script else -1
     if prefix == 0x00 and len(script) >= 2 and script[1] in (0x14, 0x20):
@@ -150,7 +180,9 @@ def compute_sighash(tx: Tx, vin: int, script: bytes, flag: int, value: int) -> b
         scheme = TaprootSighash()
     else:
         scheme = LegacySighash()
-    return scheme.compute(tx, vin, script, value, flag)
+    return scheme.compute(
+        tx, vin, script, value, flag, amounts=amounts, scriptpubkeys=scriptpubkeys
+    )
 
 
 def p2wpkh_script_code(script_pubkey: bytes) -> bytes:
