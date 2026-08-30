@@ -78,29 +78,51 @@ sighash = hash256(
 ## BIP-341 Taproot Sighash (`sighash/taproot.py`)
 
 ```
-key_version = 0x00
+epoch = 0x00
 hash_type = sighash_flag (1 byte)
+base_type = hash_type & 0x1f        # 0x00 is treated as SIGHASH_ALL
+anyonecanpay = hash_type & 0x80
+ext_flag = 1 if script-path spend else 0
 
-sha_prevouts = sha256(prevout_n for each input)
-sha_amounts = sha256(amount_n for each input)
-sha_scriptpubkeys = sha256(scriptPubKey_n for each input)
-sha_sequences = sha256(sequence_n for each input)
-sha_outputs = sha256(txout_n for each output)
+if not anyonecanpay:                # computed over ALL inputs
+    sha_prevouts      = sha256(outpoint_n for each input)    # 32
+    sha_amounts       = sha256(amount_n for each input)      # 32
+    sha_scriptpubkeys = sha256(scriptPubKey_n for each input) # 32
+    sha_sequences     = sha256(sequence_n for each input)    # 32 (unconditional)
 
-sha_single_output = sha256(txout[input_index])  # if SIGHASH_SINGLE
+if base_type == SIGHASH_ALL:
+    sha_outputs = sha256(txout_n for each output)            # 32
+
+spend_type = (ext_flag << 1) | annex_present                 # 1 byte
+
+if anyonecanpay:
+    outpoint (36) || amount (8) || scriptPubKey || nSequence # this input only
+else:
+    input_index (4)
+
+if annex present:
+    sha_annex = sha256(compact_size(len(annex)) || annex)    # 32 (annex incl. 0x50)
+
+if base_type == SIGHASH_SINGLE:
+    sha_single_output = sha256(txout[input_index])           # 32
+
+if ext_flag:                        # tapscript extension
+    tapleaf_hash (32) + key_version (1) + codeseparator_position (4)
 
 sighash = tagged_hash("TapSighash",
-    hash_type (1) +
-    version (4) + lock_time (4) +
-    sha_prevouts (32) + sha_amounts (32) +
-    sha_scriptpubkeys (32) + sha_sequences (32) +
-    0x00 32 (if no spend data) / sha256(leaf_version + script) (32) +
-    codeseparator_position (4) +
-    sha_outputs (32) + spend_type (1) +
-    input_index (4) +
-    ...
+    0x00 (epoch) + hash_type (1) + version (4) + lock_time (4) +
+    sha_prevouts || sha_amounts || sha_scriptpubkeys || sha_sequences +
+    sha_outputs + spend_type (1) +
+    outpoint || amount || scriptPubKey || sequence | input_index (4) +
+    sha_annex + sha_single_output + tapleaf_hash + key_version + code_sep_pos
 )
 ```
+
+`sha_prevouts`/`sha_amounts`/`sha_scriptpubkeys`/`sha_sequences` commit to
+**every** input (even under SIGHASH_NONE/SIGHASH_SINGLE). The valid
+`hash_type` set is `{0x00, 0x01, 0x02, 0x03, 0x81, 0x82, 0x83}`.
+`tapleaf_hash = tagged_hash("TapLeaf", version(1) || compact_size(len(script)) || script)`.
+SIGHASH_SINGLE with no matching output is a validation failure (ValueError).
 
 Uses BIP-340 tagged hash: `tagged_hash(tag, data) = sha256(sha256(tag) || sha256(tag) || data)`.
 

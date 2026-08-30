@@ -9,6 +9,7 @@ from btx import (
     P2PK, P2PKH, P2SH, P2WPKH, P2WSH, P2TR,
     MULTISIG, TIMELOCK, OP_RETURN,
     SIGHASH_ALL, SIGHASH_NONE, SIGHASH_SINGLE, SIGHASH_ANYONECANPAY,
+    SIGHASH_DEFAULT,
     EMPTY_WITNESS,
     NULL,
 
@@ -195,10 +196,26 @@ SegWit v0 (BIP-143) sighash. Requires `amount` (prevout value).
 ### `btx.sighash_taproot`
 
 ```python
-def sighash_taproot(tx: Tx, input_index: int, prevouts: list[bytes], amounts: list[int], script_path: bool = False, script: bytes | None = None, sighash_flag: int = SIGHASH_DEFAULT) -> bytes:
+def sighash_taproot(
+    tx: Tx,
+    input_index: int,
+    script: bytes | None,
+    sighash_flag: int,
+    *,
+    tapleaf_hash: bytes | None = None,
+    key_version: int = 0,
+    codeseparator_position: int = NO_CODESEPARATOR,
+    annex: bytes | None = None,
+    amounts: Sequence[int],
+    scriptpubkeys: Sequence[bytes],
+) -> bytes:
 ```
 
-Taproot (BIP-341) sighash. Supports key-path and script-path spending.
+Taproot (BIP-341) sighash. Requires `amounts` and `scriptpubkeys` for
+every input. Pass `script` (with the `0xc0` leaf-version prefix) for
+script-path spending, or `None` for key-path; `tapleaf_hash` is derived
+from the script when not supplied. Accepts the seven BIP-341 hash_type
+values `{0x00, 0x01, 0x02, 0x03, 0x81, 0x82, 0x83}`.
 
 ---
 
