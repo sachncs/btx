@@ -33,6 +33,30 @@ MAX_WITNESS_ITEMS = 10000
 MAX_WITNESS_ITEM_SIZE = 10_000_000
 
 
+def _take(data: bytes, offset: int, length: int, what: str) -> tuple[bytes, int]:
+    """Read exactly *length* bytes, rejecting truncated input.
+
+    Args:
+        data: Raw transaction bytes.
+        offset: Current position within *data*.
+        length: Number of bytes to consume.
+        what: Field name used in the error message.
+
+    Returns:
+        A tuple ``(field_bytes, new_offset)``.
+
+    Raises:
+        ValueError: If fewer than *length* bytes remain at *offset*.
+    """
+    end = offset + length
+    if end > len(data):
+        raise ValueError(
+            f"Truncated transaction data: field {what!r} needs {length} "
+            f"bytes at offset {offset}, only {len(data) - offset} remain."
+        )
+    return data[offset:end], end
+
+
 def parse_tx(data: bytes, offset: int = 0) -> tuple[Tx, int]:
     """Parse a transaction from raw bytes, detecting SegWit.
 
@@ -52,10 +76,14 @@ def parse_tx(data: bytes, offset: int = 0) -> tuple[Tx, int]:
     """
     if len(data) > MAX_TX_SIZE:
         raise ValueError(f"Transaction size {len(data)} exceeds maximum {MAX_TX_SIZE}")
-    version = int.from_bytes(data[offset : offset + 4], "little")
-    offset += 4
+    raw_version, offset = _take(data, offset, 4, "version")
+    version = int.from_bytes(raw_version, "little")
 
-    is_segwit = data[offset : offset + 2] == b"\x00\x01"
+    # BIP-144: immediately after the version, a 0x00 0x01 pair marks a
+    # SegWit transaction.  Peek without consuming — a legacy transaction
+    # starts with its input-count varint here and parse_inputs decodes it.
+    raw_header, _ = _take(data, offset, 2, "input count / segwit marker+flag")
+    is_segwit = raw_header == b"\x00\x01"
     if is_segwit:
         offset += 2
 
@@ -71,8 +99,8 @@ def parse_tx(data: bytes, offset: int = 0) -> tuple[Tx, int]:
                 witness=witness,
             )
 
-    lock_time = int.from_bytes(data[offset : offset + 4], "little")
-    offset += 4
+    raw_lock_time, offset = _take(data, offset, 4, "lock_time")
+    lock_time = int.from_bytes(raw_lock_time, "little")
 
     return Tx(
         version=version,
@@ -101,15 +129,13 @@ def parse_inputs(data: bytes, offset: int) -> tuple[list[TxIn], int]:
         raise ValueError(f"Input count {n} exceeds maximum {MAX_INPUTS}")
     inputs: list[TxIn] = []
     for _ in range(n):
-        txid = data[offset : offset + 32]
-        offset += 32
-        vout = int.from_bytes(data[offset : offset + 4], "little")
-        offset += 4
+        txid, offset = _take(data, offset, 32, "outpoint txid")
+        raw_vout, offset = _take(data, offset, 4, "outpoint vout")
+        vout = int.from_bytes(raw_vout, "little")
         script_len, offset = decode_varint(data, offset)
-        script_sig = data[offset : offset + script_len]
-        offset += script_len
-        sequence = int.from_bytes(data[offset : offset + 4], "little")
-        offset += 4
+        script_sig, offset = _take(data, offset, script_len, "script_sig")
+        raw_sequence, offset = _take(data, offset, 4, "sequence")
+        sequence = int.from_bytes(raw_sequence, "little")
         inputs.append(
             TxIn(
                 previous_output=OutPoint(txid=txid, vout=vout),
@@ -139,11 +165,10 @@ def parse_outputs(data: bytes, offset: int) -> tuple[list[TxOut], int]:
         raise ValueError(f"Output count {n} exceeds maximum {MAX_OUTPUTS}")
     outputs: list[TxOut] = []
     for _ in range(n):
-        value = int.from_bytes(data[offset : offset + 8], "little")
-        offset += 8
+        raw_value, offset = _take(data, offset, 8, "output value")
+        value = int.from_bytes(raw_value, "little")
         script_len, offset = decode_varint(data, offset)
-        script_pubkey = data[offset : offset + script_len]
-        offset += script_len
+        script_pubkey, offset = _take(data, offset, script_len, "script_pubkey")
         outputs.append(TxOut(value=value, script_pubkey=script_pubkey))
     return outputs, offset
 
@@ -171,7 +196,6 @@ def parse_witness(data: bytes, offset: int) -> tuple[Witness, int]:
             raise ValueError(
                 f"Witness item size {item_len} exceeds maximum {MAX_WITNESS_ITEM_SIZE}"
             )
-        item = data[offset : offset + item_len]
-        offset += item_len
+        item, offset = _take(data, offset, item_len, "witness item")
         items.append(item)
     return Witness(tuple(items)), offset
