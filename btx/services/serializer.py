@@ -156,11 +156,13 @@ def serialize_legacy_tx_for_sighash(
         flag: The SIGHASH flag.
 
     Returns:
-        Serialised sighash pre-image bytes.
-
-    Raises:
-        ValueError: If ``SIGHASH_SINGLE`` is used and *input_index* is
-            out of bounds for the outputs.
+        Serialised sighash pre-image bytes.  For ``SIGHASH_SINGLE``,
+        every output slot other than the signed one (including slots
+        beyond the output range) is serialised as a null ``CTxOut``,
+        mirroring Bitcoin Core.  Callers that need consensus-exact
+        digests should not rely on out-of-range ``SIGHASH_SINGLE``
+        pre-images — :func:`btx.sighash.legacy.sighash_legacy`
+        short-circuits such inputs to ``uint256::ONE`` instead.
     """
     from btx.sighash.flag import (
         SIGHASH_ANYONECANPAY,
@@ -200,16 +202,17 @@ def serialize_legacy_tx_for_sighash(
     if base_flag == SIGHASH_NONE:
         data.append(0x00)  # varint 0 — zero outputs
     elif base_flag == SIGHASH_SINGLE:
-        if input_index >= len(tx.outputs):
-            raise ValueError("Input index out of bounds for SIGHASH_SINGLE.")
         data.extend(encode_varint(input_index + 1))
         for i in range(input_index + 1):
-            if i < len(tx.outputs):
+            if i == input_index and i < len(tx.outputs):
                 out = tx.outputs[i]
                 data.extend(out.value.to_bytes(8, "little"))
                 data.extend(encode_varint(len(out.script_pubkey)))
                 data.extend(out.script_pubkey)
             else:
+                # Null CTxOut (value -1, empty script) for every slot other
+                # than the signed output, mirroring Bitcoin Core's
+                # SerializeOutput (nOutput != nIn).
                 data.extend((0xFFFFFFFFFFFFFFFF).to_bytes(8, "little"))
                 data.append(0x00)
     else:

@@ -20,6 +20,7 @@ import functools
 from typing import TYPE_CHECKING
 
 from btx.encoding.hasher import hash256
+from btx.sighash.flag import SIGHASH_MASK, SIGHASH_SINGLE
 
 if TYPE_CHECKING:
     from btx.transaction.models import Tx
@@ -34,6 +35,12 @@ def sighash_legacy(
     The serialisation depends on the SIGHASH flags: inputs/outputs may be
     omitted or zeroed according to the flag semantics.
 
+    In line with Bitcoin Core's ``SignatureHash``, a ``SIGHASH_SINGLE``
+    digest with *input_index* beyond the transaction's output range
+    short-circuits to the 32-byte value ``0x01 || 0x00 * 31``
+    (``uint256::ONE``) rather than being hashed — such a signature is
+    invalid under consensus rules.
+
     Args:
         transaction: The transaction to sign.
         input_index: Index of the input being signed.
@@ -46,10 +53,15 @@ def sighash_legacy(
         The 32-byte sighash digest.
 
     Raises:
-        ValueError: If ``SIGHASH_SINGLE`` is used and *input_index* is out of
-            range for the transaction outputs.
+        IndexError: If *input_index* is out of range for the transaction
+            inputs.
+        ValueError: If *sighash_flag* is not a recognised SIGHASH flag.
     """
     from btx.services.serializer import serialize_legacy_tx_for_sighash
+
+    base_flag = sighash_flag & SIGHASH_MASK
+    if base_flag == SIGHASH_SINGLE and input_index >= len(transaction.outputs):
+        return b"\x01" + b"\x00" * 31
 
     preimage = serialize_legacy_tx_for_sighash(
         transaction, input_index, script, sighash_flag
