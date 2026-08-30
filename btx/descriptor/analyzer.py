@@ -205,19 +205,14 @@ def extract_keys(expr: str) -> list[str]:
 def collect_keys(node: DescriptorNode, keys: list[str]) -> None:
     """Recursively collect keys from a descriptor AST.
 
-    Appends every public-key string found in the subtree rooted at
-    *node* to *keys*.  Duplicates are not removed; call
-    :func:`sorted_unique` afterwards if deduplication is required.
+    Backward-compatible alias for :func:`collect_info` so callers
+    that imported ``collect_keys`` continue to work.
 
     Args:
         node: The descriptor AST node to walk.
         keys: Output list, mutated in place with discovered keys.
     """
-    for arg in node.args:
-        if isinstance(arg, str) and PUBKEY_PATTERN.match(arg):
-            keys.append(arg)
-        elif isinstance(arg, DescriptorNode):
-            collect_keys(arg, keys)
+    collect_info(node, keys)
 
 
 __all__ = [

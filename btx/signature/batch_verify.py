@@ -2,12 +2,11 @@
 # SPDX-License-Identifier: MIT
 """Sequential ECDSA signature verification for multiple signatures.
 
-Provides :func:`verify_all` (also re-exported as :func:`batch_verify`)
-for verifying multiple signatures in one call.  Each signature is
-verified individually via :func:`btx.signature.check.verify_sig`,
-which means verification is sequential and a single invalid
-signature short-circuits the batch via Python's short-circuiting
-``all``.
+Provides :func:`verify_all` for verifying multiple signatures in one
+call.  Each signature is verified individually via
+:func:`btx.signature.check.verify_signature`, which means verification
+is sequential and a single invalid signature short-circuits the batch
+via Python's short-circuiting ``all``.
 
 This is *not* a Bellare–Neven multi-signature verification scheme
 and does **not** achieve the throughput gains of true batch
@@ -21,7 +20,7 @@ individual forgery.
 from __future__ import annotations
 
 from btx.curve.point import Point
-from btx.signature.check import verify_sig
+from btx.signature.check import verify_signature
 
 
 def verify_all(
@@ -53,12 +52,10 @@ def verify_all(
         )
 
     zipped = zip(message_hashes, der_signatures, public_keys, strict=True)
-    return all(verify_sig(m, s, pk) for m, s, pk in zipped)
+    return all(verify_signature(m, s, pk) for m, s, pk in zipped)
 
 
+# Backward-compatible alias for the misnomer that has stuck.
 batch_verify = verify_all
 
-__all__ = [
-    "verify_all",
-    "batch_verify",
-]
+__all__ = ["verify_all", "batch_verify"]

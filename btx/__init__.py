@@ -228,7 +228,9 @@ from btx.signature import (
     sign_tx_input,
     verify_all,
     verify_schnorr_sig,
+    verify_schnorr_signature,
     verify_sig,
+    verify_signature,
 )
 from btx.transaction import (
     EMPTY_WITNESS,
@@ -430,5 +432,7 @@ __all__ = [
     "validate_non_negative",
     "verify_all",
     "verify_schnorr_sig",
+    "verify_schnorr_signature",
     "verify_sig",
+    "verify_signature",
 ]

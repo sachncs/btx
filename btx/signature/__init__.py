@@ -39,7 +39,7 @@ attack code work on either form without depending on parsing logic.
 
 from btx.signature.attack import NonceReuseGroup
 from btx.signature.batch_verify import batch_verify, verify_all
-from btx.signature.check import recover_public_key, verify_sig
+from btx.signature.check import recover_public_key, verify_sig, verify_signature
 from btx.signature.collection import SignatureCollection
 from btx.signature.extraction import extract_signatures
 from btx.signature.linearization import linearize_signatures
@@ -51,7 +51,7 @@ from btx.signature.pipeline import (
     merge_records,
 )
 from btx.signature.record import Record
-from btx.signature.schnorr import lift_x, verify_schnorr_sig
+from btx.signature.schnorr import lift_x, verify_schnorr_sig, verify_schnorr_signature
 from btx.signature.signer import sign, sign_tx_input
 
 __all__ = [
@@ -71,6 +71,8 @@ __all__ = [
     "sign",
     "sign_tx_input",
     "verify_all",
-    "verify_sig",
     "verify_schnorr_sig",
+    "verify_schnorr_signature",
+    "verify_sig",
+    "verify_signature",
 ]
