@@ -437,17 +437,6 @@ def schema(
 
 
 @app.command()
-def install_completion() -> None:
-    """Install shell tab-completion for bash, zsh, fish, or PowerShell."""
-    configure_logging()
-    typer.echo("Run the following command to enable tab-completion:")
-    typer.echo("")
-    typer.echo('  eval "$(btx --install-completion)"')
-    typer.echo("")
-    typer.echo("Or see: btx --help  (completion is auto-enabled via shell)")
-
-
-@app.command()
 def health() -> None:
     """Run health checks and print a JSON status report."""
     configure_logging()

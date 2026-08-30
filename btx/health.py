@@ -64,6 +64,7 @@ def check_imports() -> dict[str, bool]:
         "btx.signature",
         "btx.transaction",
         "btx.psbt",
+        "btx.descriptor",
         "btx.services",
         "btx.cli",
     ]
