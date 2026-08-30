@@ -40,6 +40,7 @@ logger = logging.getLogger(__name__)
 
 backend_lock = threading.Lock()
 backend: CurveBackend | None = None
+resolved_default: CurveBackend | None = None
 
 # Pre-computation table for fixed-base multiplication with the generator.
 # G_TABLE[i] == GENERATOR_POINT * i  for i in 0..15, using 4-bit windows.
@@ -160,19 +161,32 @@ def set_backend(value: CurveBackend) -> None:
 
 
 def resolve_backend() -> CurveBackend:
-    """Return the active backend or the default native backend."""
-    global backend
+    """Return the active backend or the default native backend.
+
+    The resolved default is cached so that auto-resolution happens once
+    per process rather than constructing a fresh backend on every call.
+    An explicitly installed backend (via :func:`set_backend`) always
+    takes precedence.
+    """
+    global backend, resolved_default
     with backend_lock:
         if backend is not None:
             return backend
+        if resolved_default is not None:
+            return resolved_default
     from btx.settings import settings
 
     backend_name = settings.default_backend
     if backend_name == "libsecp":
         libsecp_backend = try_load_libsecp()
         if libsecp_backend is not None:
+            with backend_lock:
+                resolved_default = libsecp_backend
             return libsecp_backend
-    return NativeBackend()
+    resolved = NativeBackend()
+    with backend_lock:
+        resolved_default = resolved
+    return resolved
 
 
 def try_load_libsecp() -> CurveBackend | None:
@@ -312,36 +326,6 @@ def serialize_public_key(point: Point, compressed: bool = True) -> bytes:
     return resolve_backend().serialize_sec(point, compressed)
 
 
-def normalize(value: int) -> int:
-    """Return *value* reduced to the range ``[0, FIELD_PRIME)``."""
-    from btx.curve.params import FIELD_PRIME
-
-    return value % FIELD_PRIME
-
-
-def normalize_non_negative(value: int, label: str = "value") -> int:
-    """Validate that *value* is a non-negative integer and return it.
-
-    Convenience re-export of :func:`btx.field.validate_non_negative`
-    so callers working with curve operations can validate inputs without
-    importing from ``btx.field`` directly.
-
-    Args:
-        value: Integer to validate.
-        label: Name used in error messages (default ``"value"``).
-
-    Returns:
-        *value* unchanged on success.
-
-    Raises:
-        TypeError: If *value* is not an ``int``.
-        ValueError: If *value* is negative.
-    """
-    from btx.field import validate_non_negative
-
-    return validate_non_negative(value, label)
-
-
 __all__ = [
     "add",
     "double",
@@ -349,8 +333,6 @@ __all__ = [
     "is_on_curve",
     "multiply",
     "negate",
-    "normalize",
-    "normalize_non_negative",
     "parse_public_key",
     "resolve_backend",
     "serialize_public_key",

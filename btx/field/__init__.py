@@ -5,7 +5,7 @@
 Provides modular arithmetic primitives needed by the curve layer:
 
 - :mod:`btx.field.modular` – modular inverse via the extended
-  Euclidean algorithm and non-negative integer validation.
+  Euclidean algorithm.
 - :mod:`btx.field.sqrt` – modular square root via Tonelli-Shanks,
   specialised to the case ``p ≡ 3 (mod 4)`` (which secp256k1's
   field prime satisfies, giving the closed-form solution
@@ -19,12 +19,10 @@ modulus they pass (the dispatch layer uses
 :data:`btx.curve.params.FIELD_PRIME` which is a well-known prime).
 """
 
-from btx.field.modular import inverse, validate_non_negative
-from btx.field.sqrt import pow_mod, sqrt
+from btx.field.modular import inverse
+from btx.field.sqrt import sqrt
 
 __all__ = [
     "inverse",
-    "pow_mod",
     "sqrt",
-    "validate_non_negative",
 ]

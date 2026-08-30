@@ -18,23 +18,6 @@ first (e.g. by checking that the result squares back to the input).
 """
 
 
-def pow_mod(value: int, exponent: int, modulus: int) -> int:
-    """Return ``pow(value, exponent, modulus)``.
-
-    Exists as a named wrapper so callers can mock or trace modular
-    exponentiation independently of the builtin.
-
-    Args:
-        value: Base integer.
-        exponent: Exponent integer.
-        modulus: Modulus integer.
-
-    Returns:
-        ``(value ** exponent) % modulus``.
-    """
-    return pow(value, exponent, modulus)
-
-
 def sqrt(value: int, field_prime: int) -> int:
     """Return a square root of *value* in the field GF(*field_prime*).
 
@@ -52,7 +35,7 @@ def sqrt(value: int, field_prime: int) -> int:
         ValueError: If *value* is not a quadratic residue modulo
             *field_prime*.
     """
-    root = pow_mod(value, (field_prime + 1) // 4, field_prime)
+    root = pow(value, (field_prime + 1) // 4, field_prime)
     if (root * root) % field_prime != value % field_prime:
         raise ValueError(f"No square root for value modulo {field_prime}.")
     return root

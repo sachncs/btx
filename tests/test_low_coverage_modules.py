@@ -16,7 +16,6 @@ from btx.curve import (
     multiply,
 )
 from btx.curve.backend.libsec import LibsecpBackend
-from btx.encoding.binary import bytes_to_int, int_to_bytes, iter_bytes, read_exactly
 from btx.exceptions import UnsupportedScriptPathError
 from btx.script.parser import (
     ScriptChunk,
@@ -92,42 +91,6 @@ class TestLibsecBackend:
         pt2 = self.backend.parse_sec(data)
         data2 = self.backend.serialize_sec(pt2)
         assert data == data2
-
-
-# ── binary.py ────────────────────────────────────────────────────────
-
-
-class TestBinary:
-    def test_bytes_to_int(self) -> None:
-        assert bytes_to_int(b"\x01\x00", "big") == 256
-        assert bytes_to_int(b"\x01\x00", "little") == 1
-
-    def test_int_to_bytes(self) -> None:
-        assert int_to_bytes(256, 2) == b"\x01\x00"
-        assert int_to_bytes(1, 2, "little") == b"\x01\x00"
-
-    def test_read_exactly_normal(self) -> None:
-        chunk, pos = read_exactly(b"abcdef", 3)
-        assert chunk == b"abc"
-        assert pos == 3
-
-    def test_read_exactly_truncated(self) -> None:
-        with pytest.raises(ValueError, match="Requested"):
-            read_exactly(b"abc", 5)
-
-    def test_read_exactly_with_offset(self) -> None:
-        chunk, pos = read_exactly(b"abcdef", 2, offset=4)
-        assert chunk == b"ef"
-        assert pos == 6
-
-    def test_iter_bytes_empty(self) -> None:
-        assert list(iter_bytes(b"", 2)) == []
-
-    def test_iter_bytes_exact(self) -> None:
-        assert list(iter_bytes(b"abcd", 2)) == [b"ab", b"cd"]
-
-    def test_iter_bytes_partial_last(self) -> None:
-        assert list(iter_bytes(b"abcde", 2)) == [b"ab", b"cd", b"e"]
 
 
 # ── script/parser.py ─────────────────────────────────────────────────
@@ -525,26 +488,6 @@ class TestDispatchCoverage:
 
         assert not is_generator(INFINITY_POINT)
 
-    def test_normalize(self) -> None:
-        from btx.curve.dispatch import normalize
-
-        assert normalize(FIELD_PRIME + 5) == 5
-        assert normalize(-1) == FIELD_PRIME - 1
-
-    def test_normalize_non_negative(self) -> None:
-        from btx.curve.dispatch import normalize_non_negative
-
-        val = normalize_non_negative(42, "test")
-        assert val == 42
-
-    def test_normalize_non_negative_negative(self) -> None:
-        import re
-
-        from btx.curve.dispatch import normalize_non_negative
-
-        with pytest.raises(ValueError, match=re.escape("test must be non-negative")):
-            normalize_non_negative(-1, "test")
-
     def test_sqrt_field(self) -> None:
         from btx.curve.dispatch import sqrt_field
         from btx.curve.params import FIELD_PRIME
@@ -588,27 +531,3 @@ class TestVarintCoverage:
             encoded = encode_varint(val)
             decoded, consumed = decode_varint(encoded)
             assert decoded == val
-
-
-# ── encoding/binary.py coverage ────────────────────────────────────────
-
-
-class TestBinaryCoverage:
-    def test_read_exactly_short(self) -> None:
-        from btx.encoding.binary import read_exactly
-
-        with pytest.raises(ValueError, match="only has"):
-            read_exactly(b"\x00\x01", 5)
-
-    def test_iter_bytes_empty(self) -> None:
-        from btx.encoding.binary import iter_bytes
-
-        assert list(iter_bytes(b"", 32)) == []
-
-    def test_iter_bytes_partial(self) -> None:
-        from btx.encoding.binary import iter_bytes
-
-        chunks = list(iter_bytes(b"\x01\x02\x03", 2))
-        assert len(chunks) == 2
-        assert chunks[0] == b"\x01\x02"
-        assert chunks[1] == b"\x03"

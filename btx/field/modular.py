@@ -1,10 +1,9 @@
 # Copyright (c) 2026 secp contributors
 # SPDX-License-Identifier: MIT
-"""Modular arithmetic over finite fields: inversion and validation.
+"""Modular arithmetic over finite fields: inversion.
 
 Provides :func:`inverse` (the modular multiplicative inverse, computed
-via the extended Euclidean algorithm) and :func:`validate_non_negative`
-(input validation helper).
+via the extended Euclidean algorithm).
 
 Why not just call ``pow(value, -1, modulus)``?  Two reasons:
 
@@ -56,24 +55,3 @@ def inverse(value: int, modulus: int) -> int:
     if old_r != 1:
         raise ValueError(f"Value {value} is not invertible modulo {modulus}.")
     return old_t % modulus
-
-
-def validate_non_negative(value: int, label: str = "value") -> int:
-    """Validate that *value* is a non-negative integer and return it.
-
-    Args:
-        value: Integer to validate.
-        label: Name used in error messages (default ``"value"``).
-
-    Returns:
-        *value* unchanged on success.
-
-    Raises:
-        TypeError: If *value* is not an ``int``.
-        ValueError: If *value* is negative.
-    """
-    if not isinstance(value, int):
-        raise TypeError(f"{label} must be an int, got {type(value).__name__}.")
-    if value < 0:
-        raise ValueError(f"{label} must be non-negative, got {value}.")
-    return value

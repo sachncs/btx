@@ -5,8 +5,6 @@
 A small, dependency-free toolkit covering every binary encoding needed
 to read and write Bitcoin wire-format structures:
 
-- :mod:`btx.encoding.binary` – ``bytes_to_int``/``int_to_bytes``
-  plus :func:`read_exactly` and :func:`iter_bytes`.
 - :mod:`btx.encoding.hex` – :func:`encode_hex` / :func:`decode_hex`.
 - :mod:`btx.encoding.varint` – Bitcoin variable-length integer
   (``compact size``) codec.
@@ -19,7 +17,6 @@ None of these helpers perform any I/O or hold any state; they are
 suitable for use in hot paths.
 """
 
-from btx.encoding.binary import bytes_to_int, int_to_bytes, iter_bytes, read_exactly
 from btx.encoding.der import decode_der, encode_der
 from btx.encoding.hasher import hash160, hash256, sha256, tagged_hash
 from btx.encoding.hex import decode_hex, encode_hex
@@ -27,7 +24,6 @@ from btx.encoding.sec import parse_sec, serialize_sec
 from btx.encoding.varint import decode_varint, encode_varint
 
 __all__ = [
-    "bytes_to_int",
     "decode_der",
     "decode_hex",
     "decode_varint",
@@ -36,10 +32,7 @@ __all__ = [
     "encode_varint",
     "hash160",
     "hash256",
-    "int_to_bytes",
-    "iter_bytes",
     "parse_sec",
-    "read_exactly",
     "serialize_sec",
     "sha256",
     "tagged_hash",

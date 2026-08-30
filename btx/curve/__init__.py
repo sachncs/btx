@@ -28,8 +28,6 @@ Layers
   ``parse_public_key``/``serialize_public_key``/``sqrt_field``/
   ``normalize`` entry points.  Also caches a 4-bit-window table for
   the generator point.
-- :mod:`btx.curve.batch` – Straus-style multi-exponentiation and
-  bulk on-curve validation/normalisation.
 
 Backend selection
 -----------------
@@ -43,11 +41,6 @@ from btx.curve import libsecp256k1
 from btx.curve.backend.base import CurveBackend
 from btx.curve.backend.libsec import LibsecpBackend
 from btx.curve.backend.native import NativeBackend
-from btx.curve.batch import (
-    batch_normalize,
-    batch_validate,
-    multi_multiply,
-)
 from btx.curve.dispatch import (
     add,
     double,
@@ -55,8 +48,6 @@ from btx.curve.dispatch import (
     is_on_curve,
     multiply,
     negate,
-    normalize,
-    normalize_non_negative,
     parse_public_key,
     serialize_public_key,
     set_backend,
@@ -90,17 +81,12 @@ __all__ = [
     "NativeBackend",
     "Point",
     "add",
-    "batch_normalize",
-    "batch_validate",
     "double",
     "libsecp256k1",
     "get_backend",
     "is_on_curve",
-    "multi_multiply",
     "multiply",
     "negate",
-    "normalize",
-    "normalize_non_negative",
     "parse_public_key",
     "serialize_public_key",
     "set_backend",

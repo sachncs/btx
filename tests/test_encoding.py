@@ -6,7 +6,6 @@ import pytest
 
 from btx.curve import GENERATOR_POINT, INFINITY_POINT
 from btx.encoding import (
-    bytes_to_int,
     decode_der,
     decode_hex,
     decode_varint,
@@ -15,9 +14,7 @@ from btx.encoding import (
     encode_varint,
     hash160,
     hash256,
-    int_to_bytes,
     parse_sec,
-    read_exactly,
     serialize_sec,
     sha256,
     tagged_hash,
@@ -151,17 +148,3 @@ class TestHasher:
     def test_sha256_deterministic(self) -> None:
         assert sha256(b"test") == sha256(b"test")
         assert sha256(b"test") != sha256(b"Test")
-
-
-class TestBinary:
-    def test_int_roundtrip(self) -> None:
-        assert bytes_to_int(int_to_bytes(42, 4)) == 42
-
-    def test_read_exactly(self) -> None:
-        chunk, pos = read_exactly(b"abcdef", 3)
-        assert chunk == b"abc"
-        assert pos == 3
-
-    def test_read_exactly_truncated(self) -> None:
-        with pytest.raises(ValueError, match="Requested"):
-            read_exactly(b"abc", 5)

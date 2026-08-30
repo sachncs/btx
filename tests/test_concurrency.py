@@ -57,11 +57,13 @@ class TestBackendDispatchRaceCondition:
         import btx.curve.dispatch as d
 
         d.backend = None
+        d.resolved_default = None
 
     def teardown_method(self) -> None:
         import btx.curve.dispatch as d
 
         d.backend = None
+        d.resolved_default = None
 
     def test_set_and_get_concurrent(self) -> None:
         errors: list[Exception] = []
@@ -135,11 +137,13 @@ class TestMultiplyScalarNormalization:
         import btx.curve.dispatch as d
 
         d.backend = None
+        d.resolved_default = None
 
     def teardown_method(self) -> None:
         import btx.curve.dispatch as d
 
         d.backend = None
+        d.resolved_default = None
 
     def test_negative_scalar_raises(self) -> None:
         with pytest.raises(ValueError, match="non-negative"):

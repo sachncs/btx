@@ -202,6 +202,7 @@ class TestBackendDispatch:
         import btx.curve.dispatch as d
 
         d.backend = None
+        d.resolved_default = None
         assert get_backend() is None
 
     def test_invalid_backend(self) -> None:

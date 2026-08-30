@@ -4,7 +4,7 @@
 
 import pytest
 
-from btx.field import inverse, pow_mod, sqrt, validate_non_negative
+from btx.field import inverse, sqrt
 
 
 class TestInverse:
@@ -58,24 +58,6 @@ class TestSqrt:
         p = 0xFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFEFFFFFC2F
         with pytest.raises(Exception):
             sqrt(3, p)
-
-    def test_pow_mod(self) -> None:
-        assert pow_mod(2, 10, 1000) == 24
-        assert pow_mod(5, 0, 7) == 1
-
-
-class TestValidateNonNegative:
-    def test_valid(self) -> None:
-        assert validate_non_negative(0) == 0
-        assert validate_non_negative(42) == 42
-
-    def test_negative(self) -> None:
-        with pytest.raises(ValueError, match="must be non-negative"):
-            validate_non_negative(-1)
-
-    def test_type_error(self) -> None:
-        with pytest.raises(TypeError):
-            validate_non_negative("42")  # type: ignore[arg-type]
 
 
 class TestRoundtrip:
