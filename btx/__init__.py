@@ -218,7 +218,6 @@ from btx.signature import (
     SignatureCollection,
     batch_extract,
     batch_extract_from_file,
-    batch_verify,
     correlate_across_transactions,
     extract_signatures,
     linearize_signatures,
@@ -227,9 +226,7 @@ from btx.signature import (
     sign,
     sign_tx_input,
     verify_all,
-    verify_schnorr_sig,
     verify_schnorr_signature,
-    verify_sig,
     verify_signature,
 )
 from btx.transaction import (
@@ -334,7 +331,6 @@ __all__ = [
     "batch_extract",
     "batch_extract_from_file",
     "batch_fetch_transactions",
-    "batch_verify",
     "blockstream_provider",
     "broadcast_transaction",
     "build_p2pk",
@@ -431,8 +427,6 @@ __all__ = [
     "tx_to_json",
     "validate_non_negative",
     "verify_all",
-    "verify_schnorr_sig",
     "verify_schnorr_signature",
-    "verify_sig",
     "verify_signature",
 ]

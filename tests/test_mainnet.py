@@ -9,7 +9,7 @@ from btx.encoding.sec import parse_sec, serialize_sec
 from btx.services.serializer import serialize_tx
 from btx.sighash.flag import SIGHASH_ALL
 from btx.sighash.legacy import sighash_legacy
-from btx.signature.check import verify_sig
+from btx.signature.check import verify_signature
 from btx.transaction.parser import parse_tx
 
 EXPECTED_TXID = "a1075db55d416d3ca199f55b6084e2115b9345e16c5cf302fc80e9d5fbf5d48d"
@@ -54,7 +54,7 @@ class TestPizzaTransaction:
         assert len(z) == 32
 
         pubkey_point = parse_sec(pubkey_bytes)
-        assert verify_sig(z, der_sig, pubkey_point)
+        assert verify_signature(z, der_sig, pubkey_point)
 
     def test_serialize_sec(self) -> None:
         raw = load_pizza_tx()

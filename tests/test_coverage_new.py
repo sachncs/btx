@@ -61,9 +61,9 @@ from btx.signature import (
     merge_records,
     sign,
     sign_tx_input,
-    verify_sig,
+    verify_signature,
 )
-from btx.signature.batch_verify import batch_verify
+from btx.signature.batch_verify import verify_all
 from btx.signature.pipeline import BatchResult
 from btx.transaction import (
     OutPoint,
@@ -388,7 +388,7 @@ class TestSigner:
         msg = sha256(b"hello")
         sig = sign(msg, priv)
         pub = multiply(priv, GENERATOR_POINT)
-        assert verify_sig(msg, sig, pub)
+        assert verify_signature(msg, sig, pub)
 
     def test_sign_bad_hash_length(self) -> None:
         with pytest.raises(ValueError, match="Message hash must be 32 bytes"):
@@ -1374,7 +1374,7 @@ class TestClassifierRemaining:
 
 
 # ===================================================================
-# batch_verify.py (new)
+# verify_all.py (new)
 # ===================================================================
 
 
@@ -1384,7 +1384,7 @@ class TestBatchVerify:
         pub = multiply(priv, GENERATOR_POINT)
         msg = sha256(b"test message")
         sig = sign(msg, priv)
-        assert batch_verify([msg], [sig], [pub])
+        assert verify_all([msg], [sig], [pub])
 
     def test_multiple_sigs(self) -> None:
         msgs = []
@@ -1396,27 +1396,27 @@ class TestBatchVerify:
             msg = sha256(f"msg{i}".encode())
             msgs.append(msg)
             sigs.append(sign(msg, priv))
-        assert batch_verify(msgs, sigs, pubs)
+        assert verify_all(msgs, sigs, pubs)
 
     def test_empty_batch(self) -> None:
-        assert batch_verify([], [], [])
+        assert verify_all([], [], [])
 
     def test_length_mismatch(self) -> None:
         with pytest.raises(ValueError, match="Length mismatch"):
-            batch_verify([b"\x00" * 32], [], [])
+            verify_all([b"\x00" * 32], [], [])
 
     def test_invalid_sig(self) -> None:
         priv = 7
         pub = multiply(priv, GENERATOR_POINT)
         msg = sha256(b"real")
         bad_sig = encode_der(1, 1)
-        assert not batch_verify([msg], [bad_sig], [pub])
+        assert not verify_all([msg], [bad_sig], [pub])
 
     def test_bad_der(self) -> None:
         priv = 7
         pub = multiply(priv, GENERATOR_POINT)
         msg = sha256(b"real")
-        assert not batch_verify([msg], [b"\x00"], [pub])
+        assert not verify_all([msg], [b"\x00"], [pub])
 
 
 # ===================================================================
@@ -1513,19 +1513,19 @@ class TestSchnorrAdditional:
                 return
 
     def test_verify_schnorr_bad_lengths(self) -> None:
-        from btx.signature.schnorr import verify_schnorr_sig as vss
+        from btx.signature.schnorr import verify_schnorr_signature as vss
 
         assert not vss(b"\x00" * 31, b"\x00" * 64, b"\x00" * 32)
         assert not vss(b"\x00" * 32, b"\x00" * 63, b"\x00" * 32)
         assert not vss(b"\x00" * 32, b"\x00" * 64, b"\x00" * 31)
 
     def test_verify_schnorr_bad_pubkey(self) -> None:
-        from btx.signature.schnorr import verify_schnorr_sig as vss
+        from btx.signature.schnorr import verify_schnorr_signature as vss
 
         assert not vss(b"\xff" * 32, b"\x00" * 64, b"\x00" * 32)
 
     def test_verify_schnorr_bad_r(self) -> None:
-        from btx.signature.schnorr import verify_schnorr_sig as vss
+        from btx.signature.schnorr import verify_schnorr_signature as vss
 
         assert not vss(
             b"\x00" * 32,

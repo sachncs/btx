@@ -9,8 +9,7 @@ key-path spends.  Two primitives:
   an affine ``(x, y)`` pair with **even** ``y``, per the BIP-340
   convention.  Returns ``None`` if the x-coordinate does not
   correspond to a valid curve point.
-- :func:`verify_schnorr_signature` (re-exported as
-  :func:`verify_schnorr_sig`) – full BIP-340 verification:
+- :func:`verify_schnorr_signature` – full BIP-340 verification:
 
       R = s·G − e·P
       check R.y even and R.x == r
@@ -99,10 +98,7 @@ def verify_schnorr_signature(
     return R.x == r
 
 
-verify_schnorr_sig = verify_schnorr_signature
-
 __all__ = [
     "lift_x",
     "verify_schnorr_signature",
-    "verify_schnorr_sig",
 ]

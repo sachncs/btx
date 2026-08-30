@@ -7,7 +7,7 @@ import pytest
 from btx.curve import GENERATOR_POINT, multiply
 from btx.encoding.hasher import hash256
 from btx.signature import Record, linearize_signatures
-from btx.signature.check import verify_sig
+from btx.signature.check import verify_signature
 
 
 class TestRecord:
@@ -96,14 +96,14 @@ class TestVerifySig:
         private_key = 1
         sig = sign(msg, private_key)
         public_key = multiply(private_key, GENERATOR_POINT)
-        assert verify_sig(msg, sig, public_key)
+        assert verify_signature(msg, sig, public_key)
 
     def test_verify_invalid_sig_format(self) -> None:
-        result = verify_sig(b"\x00" * 32, b"\x00\x01\x02", GENERATOR_POINT)
+        result = verify_signature(b"\x00" * 32, b"\x00\x01\x02", GENERATOR_POINT)
         assert not result
 
     def test_verify_bad_r_s_range(self) -> None:
-        result = verify_sig(
+        result = verify_signature(
             b"\x00" * 32, b"\x30\x06\x02\x01\x00\x02\x01\x01", GENERATOR_POINT
         )
         assert not result

@@ -55,7 +55,4 @@ def verify_all(
     return all(verify_signature(m, s, pk) for m, s, pk in zipped)
 
 
-# Backward-compatible alias for the misnomer that has stuck.
-batch_verify = verify_all
-
-__all__ = ["verify_all", "batch_verify"]
+__all__ = ["verify_all"]

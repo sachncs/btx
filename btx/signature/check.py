@@ -10,7 +10,7 @@ Three primitives used throughout the rest of the signature pipeline:
   ``Q = r⁻¹ · (s · R − e · G)``.  Returns a :class:`Point`; raises
   :exc:`ValueError` if the recovered point is not on the curve or is
   the point at infinity.
-- :func:`verify_signature` (re-exported as :func:`verify_sig`) –
+- :func:`verify_signature` –
   verify a signature against a public key using the standard ECDSA
   verification equation, with constant-time byte comparison via
   :func:`hmac.compare_digest`.
@@ -165,7 +165,3 @@ def verify_signature(
     r_bytes = r.to_bytes(HASH_BYTE_LENGTH, "big")
     px_bytes = (px % CURVE_ORDER).to_bytes(HASH_BYTE_LENGTH, "big")
     return constant_time_eq(px_bytes, r_bytes)
-
-
-# Backward-compatible alias — verify_signature is the canonical name.
-verify_sig = verify_signature

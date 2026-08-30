@@ -32,7 +32,7 @@ from btx.script.classifier import (
     is_p2sh,
     parse_p2pkh_script_sig,
 )
-from btx.signature.check import recover_public_key, verify_sig
+from btx.signature.check import recover_public_key, verify_signature
 from btx.signature.extraction.engine import extract_signatures
 from btx.transaction.models import EMPTY_WITNESS, OutPoint, Tx, TxIn, TxOut, Witness
 
@@ -261,7 +261,7 @@ class TestBuilder:
 class TestVerifySig:
     VALID_PRIV = 123456
     VALID_PUB: Point = multiply(VALID_PRIV, GENERATOR_POINT)
-    VALID_MSG = hash256(b"coverage test message for verify_sig")
+    VALID_MSG = hash256(b"coverage test message for verify_signature")
     VALID_E = int.from_bytes(VALID_MSG, "big") % CURVE_ORDER
     VALID_K = 98765
     VALID_R_PT: Point = multiply(VALID_K, GENERATOR_POINT)
@@ -273,36 +273,36 @@ class TestVerifySig:
     VALID_SIG = encode_der(VALID_R, VALID_S)
 
     def test_valid(self) -> None:
-        assert verify_sig(self.VALID_MSG, self.VALID_SIG, self.VALID_PUB) is True
+        assert verify_signature(self.VALID_MSG, self.VALID_SIG, self.VALID_PUB) is True
 
     def test_invalid_der(self) -> None:
-        assert verify_sig(self.VALID_MSG, b"\x00", self.VALID_PUB) is False
+        assert verify_signature(self.VALID_MSG, b"\x00", self.VALID_PUB) is False
 
     def test_invalid_r_zero(self) -> None:
         # Manually construct DER with r=0: 30 06 02 01 00 02 01 01
         bad_sig = bytes([0x30, 6, 2, 1, 0, 2, 1, 1])
-        assert verify_sig(self.VALID_MSG, bad_sig, self.VALID_PUB) is False
+        assert verify_signature(self.VALID_MSG, bad_sig, self.VALID_PUB) is False
 
     def test_invalid_r_ge_order(self) -> None:
         bad_sig = encode_der(CURVE_ORDER, 1)
-        assert verify_sig(self.VALID_MSG, bad_sig, self.VALID_PUB) is False
+        assert verify_signature(self.VALID_MSG, bad_sig, self.VALID_PUB) is False
 
     def test_invalid_s_zero(self) -> None:
         # Manually construct DER with s=0: 30 06 02 01 01 02 01 00
         bad_sig = bytes([0x30, 6, 2, 1, 1, 2, 1, 0])
-        assert verify_sig(self.VALID_MSG, bad_sig, self.VALID_PUB) is False
+        assert verify_signature(self.VALID_MSG, bad_sig, self.VALID_PUB) is False
 
     def test_invalid_s_ge_order(self) -> None:
         bad_sig = encode_der(1, CURVE_ORDER, s_high_ok=True)
-        assert verify_sig(self.VALID_MSG, bad_sig, self.VALID_PUB) is False
+        assert verify_signature(self.VALID_MSG, bad_sig, self.VALID_PUB) is False
 
     def test_point_not_on_curve(self) -> None:
         off_curve = Point(x=1, y=1)
         assert not is_on_curve(off_curve)
-        assert verify_sig(self.VALID_MSG, self.VALID_SIG, off_curve) is False
+        assert verify_signature(self.VALID_MSG, self.VALID_SIG, off_curve) is False
 
     def test_infinity_key(self) -> None:
-        assert verify_sig(self.VALID_MSG, self.VALID_SIG, INFINITY_POINT) is False
+        assert verify_signature(self.VALID_MSG, self.VALID_SIG, INFINITY_POINT) is False
 
 
 class TestRecoverPublicKey:

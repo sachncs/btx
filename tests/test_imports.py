@@ -32,7 +32,7 @@ def test_function_imports() -> None:
     assert callable(btx.sighash_legacy)
     assert callable(btx.extract_signatures)
     assert callable(btx.linearize_signatures)
-    assert callable(btx.verify_sig)
+    assert callable(btx.verify_signature)
 
 
 def test_class_imports() -> None:
