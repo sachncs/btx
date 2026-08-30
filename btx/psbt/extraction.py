@@ -61,10 +61,11 @@ def psbt_extract_signatures(
     from btx.encoding.der import decode_der
     from btx.signature.collection import SignatureCollection
     from btx.signature.record import Record
+    from btx.transaction.ops import txid as compute_txid
     from btx.transaction.parser import parse_tx
 
     tx, _ = parse_tx(psbt.tx)
-    txid = tx.txid()
+    txid_bytes = compute_txid(tx)
     records: list[Record] = []
 
     for vin, inp in enumerate(psbt.inputs):
@@ -85,7 +86,7 @@ def psbt_extract_signatures(
                 continue
             records.append(
                 Record(
-                    txid=txid,
+                    txid=txid_bytes,
                     input_index=vin,
                     signature=sig_der,
                     public_key=public_key,
@@ -110,7 +111,7 @@ def psbt_extract_signatures(
                             continue
                         records.append(
                             Record(
-                                txid=txid,
+                                txid=txid_bytes,
                                 input_index=vin,
                                 signature=sig_candidate,
                                 public_key=pubkey,

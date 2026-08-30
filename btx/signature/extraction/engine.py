@@ -64,6 +64,7 @@ from btx.signature.extraction.helpers import (
     recover_or_parse_pubkey,
 )
 from btx.signature.record import Record
+from btx.transaction.ops import txid as _txid
 
 logger = logging.getLogger(__name__)
 
@@ -410,7 +411,7 @@ def extract_legacy(
         A list of ``Record`` instances.
 
     Raises:
-        AttributeError: If *tx* is malformed (e.g. ``tx.txid()`` fails).
+        AttributeError: If *tx* is malformed (e.g. ``_txid(tx)`` fails).
     """
     records: list[Record] = []
     guessed = guess_p2pkh_script(script_sig)
@@ -438,7 +439,7 @@ def extract_legacy(
                 continue
             records.append(
                 Record(
-                    txid=tx.txid(),
+                    txid=_txid(tx),
                     input_index=vin,
                     signature=der,
                     public_key=pubkey,
@@ -515,7 +516,7 @@ def extract_p2wpkh(
                 continue
             records.append(
                 Record(
-                    txid=tx.txid(),
+                    txid=_txid(tx),
                     input_index=vin,
                     signature=der,
                     public_key=pubkey,
@@ -577,7 +578,7 @@ def extract_p2wsh(
                 continue
             records.append(
                 Record(
-                    txid=tx.txid(),
+                    txid=_txid(tx),
                     input_index=vin,
                     signature=der,
                     public_key=pubkey,
@@ -653,7 +654,7 @@ def extract_p2sh_segwit(
                 continue
             records.append(
                 Record(
-                    txid=tx.txid(),
+                    txid=_txid(tx),
                     input_index=vin,
                     signature=der,
                     public_key=pubkey,
@@ -723,7 +724,7 @@ def extract_taproot(
                 return records
             records.append(
                 Record(
-                    txid=tx.txid(),
+                    txid=_txid(tx),
                     input_index=vin,
                     signature=sig_bytes,
                     public_key=pubkey,
@@ -753,7 +754,7 @@ def extract_taproot(
                 flag = item[64] if len(item) == 65 else SIGHASH_DEFAULT
                 records.append(
                     Record(
-                        txid=tx.txid(),
+                        txid=_txid(tx),
                         input_index=vin,
                         signature=sig_bytes,
                         public_key=signer,

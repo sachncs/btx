@@ -8,7 +8,8 @@ import json
 
 from btx import OutPoint, Tx, TxIn, TxOut, Witness, parse_tx
 from btx.encoding import encode_varint
-from btx.services.serializer import serialize_legacy_tx, serialize_tx, tx_to_json
+from btx.services.serializer import serialize_legacy_tx, serialize_tx
+from btx.transaction import tx_to_json, txid
 
 
 class TestSerializeTx:
@@ -70,10 +71,10 @@ class TestSerializeTx:
     def test_serialize_txid_consistency(self) -> None:
         """txid remains the same after serialize-then-parse (legacy serialization)."""
         tx = Tx(version=1, inputs=(), outputs=(), lock_time=0)
-        orig_id = tx.txid()
+        orig_id = txid(tx)
         raw = serialize_tx(tx)
         parsed, _ = parse_tx(raw)
-        assert parsed.txid() == orig_id
+        assert txid(parsed) == orig_id
 
     def test_serialize_tx_txid_segwit(self) -> None:
         """txid for segwit tx uses legacy-hash (no witness)."""
@@ -87,7 +88,7 @@ class TestSerializeTx:
         segwit_raw = serialize_tx(tx)
         legacy_raw = serialize_legacy_tx(tx)
         assert segwit_raw != legacy_raw
-        assert tx.txid() == parse_tx(legacy_raw)[0].txid()
+        assert txid(tx) == txid(parse_tx(legacy_raw)[0])
 
     def test_tx_to_json_empty(self) -> None:
         """tx_to_json produces valid JSON for empty tx."""

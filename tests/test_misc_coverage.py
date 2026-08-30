@@ -14,6 +14,7 @@ from btx.signature.linearization.coefficients import (
     LinearCoefficientCollection,
     derive_linear_coefficients,
 )
+from btx.transaction import txid, wtxid
 from btx.transaction.models import (
     OutPoint,
     Tx,
@@ -185,7 +186,7 @@ class TestWtxidCoverage:
             witness=Witness((b"\x30\x06\x02\x01\x01\x02\x01\x01",)),
         )
         tx = Tx(version=2, inputs=(txin,), outputs=(), lock_time=0)
-        result = tx.wtxid()
+        result = wtxid(tx)
         assert len(result) == 32
 
     def test_wtxid_non_segwit(self) -> None:
@@ -196,7 +197,7 @@ class TestWtxidCoverage:
             witness=Witness(()),
         )
         tx = Tx(version=2, inputs=(txin,), outputs=(), lock_time=0)
-        assert tx.wtxid() == tx.txid()
+        assert wtxid(tx) == txid(tx)
 
     def test_txid(self) -> None:
         txin = TxIn(
@@ -206,4 +207,4 @@ class TestWtxidCoverage:
             witness=Witness(()),
         )
         tx = Tx(version=2, inputs=(txin,), outputs=(), lock_time=0)
-        assert len(tx.txid()) == 32
+        assert len(txid(tx)) == 32

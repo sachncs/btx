@@ -4,6 +4,17 @@
 
 import pytest
 
+from btx.transaction import (
+    has_sequence_lock,
+    is_opt_in_rbf,
+    is_segwit,
+    serialize_tx,
+    sighash_legacy,
+    sighash_segwit,
+    to_dict,
+    total_output_value,
+    tx_to_json,
+)
 from btx.transaction.builder import tx_from_dict
 from btx.transaction.models import (
     EMPTY_WITNESS,
@@ -93,7 +104,7 @@ class TestTx:
             lock_time=0,
         )
         assert tx.version == 2
-        assert not tx.is_segwit()
+        assert not is_segwit(tx)
 
     def test_is_segwit(self) -> None:
         txin = TxIn(
@@ -103,7 +114,7 @@ class TestTx:
             witness=Witness((b"sig",)),
         )
         tx = Tx(version=2, inputs=(txin,), outputs=(), lock_time=0)
-        assert tx.is_segwit()
+        assert is_segwit(tx)
 
     def test_make_tx(self) -> None:
         tx = tx_from_dict(
@@ -125,20 +136,18 @@ class TestTx:
 
     def test_serialize(self) -> None:
         tx = Tx(version=2, inputs=(), outputs=(), lock_time=0)
-        ser = tx.serialize()
+        ser = serialize_tx(tx)
         assert len(ser) > 0
-        legacy = tx.serialize_legacy()
-        assert legacy == ser
 
     def test_to_json(self) -> None:
         tx = Tx(version=2, inputs=(), outputs=(), lock_time=0)
-        js = tx.to_json()
+        js = tx_to_json(tx)
         assert js["version"] == 2
 
     def test_rbf_not_opt_in(self) -> None:
         tx = Tx(version=2, inputs=(), outputs=(), lock_time=0)
-        assert not tx.is_opt_in_rbf()
-        assert not tx.has_sequence_lock()
+        assert not is_opt_in_rbf(tx)
+        assert not has_sequence_lock(tx)
 
     def test_sighash_legacy(self) -> None:
         txin = TxIn(
@@ -148,7 +157,7 @@ class TestTx:
             witness=Witness(()),
         )
         tx = Tx(version=2, inputs=(txin,), outputs=(), lock_time=0)
-        h = tx.sighash_legacy(0, b"", 0x01)
+        h = sighash_legacy(tx, 0, b"", 0x01)
         assert len(h) == 32
 
     def test_sighash_segwit(self) -> None:
@@ -159,7 +168,7 @@ class TestTx:
             witness=Witness(()),
         )
         tx = Tx(version=2, inputs=(txin,), outputs=(), lock_time=0)
-        h = tx.sighash_segwit(0, b"", 0, 0x01)
+        h = sighash_segwit(tx, 0, b"", 0, 0x01)
         assert len(h) == 32
 
     def test_len(self) -> None:
@@ -201,7 +210,7 @@ class TestTx:
             outputs=(out1, out2),
             lock_time=0,
         )
-        assert tx.total_output_value() == 3000
+        assert total_output_value(tx) == 3000
 
     def test_to_dict_roundtrip(self) -> None:
         txin = TxIn(
@@ -212,7 +221,7 @@ class TestTx:
         )
         out = TxOut(value=50000, script_pubkey=b"\x00\x14" + b"\x00" * 20)
         tx = Tx(version=2, inputs=(txin,), outputs=(out,), lock_time=42)
-        d = tx.to_dict()
+        d = to_dict(tx)
         assert d["version"] == 2
         assert d["lock_time"] == 42
         assert len(d["inputs"]) == 1

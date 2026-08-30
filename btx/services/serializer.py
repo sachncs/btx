@@ -26,6 +26,7 @@ from typing import TYPE_CHECKING, Any
 
 from btx.encoding.hex import encode_hex
 from btx.encoding.varint import encode_varint
+from btx.transaction.ops import is_segwit, txid
 
 if TYPE_CHECKING:
     from btx.transaction.models import Tx
@@ -47,7 +48,7 @@ def serialize_tx(tx: Tx) -> bytes:
     data = bytearray()
     data.extend(tx.version.to_bytes(4, "little"))
 
-    if tx.is_segwit():
+    if is_segwit(tx):
         data.extend(b"\x00\x01")  # SegWit marker + flag
 
     data.extend(encode_varint(len(tx.inputs)))
@@ -64,7 +65,7 @@ def serialize_tx(tx: Tx) -> bytes:
         data.extend(encode_varint(len(txout.script_pubkey)))
         data.extend(txout.script_pubkey)
 
-    if tx.is_segwit():
+    if is_segwit(tx):
         for txin in tx.inputs:
             data.extend(encode_varint(len(txin.witness)))
             for item in txin.witness.items:
@@ -85,7 +86,7 @@ def tx_to_json(tx: Tx) -> dict[str, Any]:
         A dict representing the full transaction structure.
     """
     return {
-        "txid": encode_hex(tx.txid()),
+        "txid": encode_hex(txid(tx)),
         "version": tx.version,
         "lock_time": tx.lock_time,
         "inputs": [

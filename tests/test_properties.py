@@ -28,7 +28,7 @@ from btx.encoding.der import decode_der, encode_der
 from btx.encoding.sec import parse_sec, serialize_sec
 from btx.field import inverse
 from btx.services.serializer import serialize_legacy_tx, serialize_tx
-from btx.transaction import OutPoint, Tx, TxIn, TxOut, Witness
+from btx.transaction import OutPoint, Tx, TxIn, TxOut, Witness, is_segwit, txid
 from btx.transaction.models import EMPTY_WITNESS
 from btx.transaction.parser import parse_tx
 
@@ -190,7 +190,7 @@ def test_sec_uncompressed_roundtrip(k: int) -> None:
 def test_parse_serialize_roundtrip(tx: Tx) -> None:
     """serialize ∘ parse leaves wire format unchanged (legacy)."""
     all_empty = all(w.items == () for w in (i.witness for i in tx.inputs))
-    assume(not tx.is_segwit() and all_empty)
+    assume(not is_segwit(tx) and all_empty)
     raw = serialize_tx(tx)
     parsed, _ = parse_tx(raw)
     assert parsed == tx
@@ -200,7 +200,7 @@ def test_parse_serialize_roundtrip(tx: Tx) -> None:
 def test_serialize_parse_roundtrip(tx: Tx) -> None:
     """parse ∘ serialize leaves Tx object unchanged."""
     all_empty = all(w.items == () for w in (i.witness for i in tx.inputs))
-    assume(not tx.is_segwit() and all_empty)
+    assume(not is_segwit(tx) and all_empty)
     raw = serialize_tx(tx)
     parsed, _ = parse_tx(raw)
     assert parsed.version == tx.version
@@ -213,7 +213,7 @@ def test_serialize_parse_roundtrip(tx: Tx) -> None:
 def test_legacy_serialize_roundtrip(tx: Tx) -> None:
     """Legacy serialization round-trips correctly (no witness)."""
     all_empty = all(w.items == () for w in (i.witness for i in tx.inputs))
-    assume(not tx.is_segwit() and all_empty)
+    assume(not is_segwit(tx) and all_empty)
     raw = serialize_legacy_tx(tx)
     parsed, _ = parse_tx(raw)
     assert parsed == tx
@@ -223,11 +223,11 @@ def test_legacy_serialize_roundtrip(tx: Tx) -> None:
 def test_legacy_txid_unchanged(tx: Tx) -> None:
     """Legacy txid stays the same after serialize_then_parse."""
     all_empty = all(w.items == () for w in (i.witness for i in tx.inputs))
-    assume(not tx.is_segwit() and all_empty)
-    orig_id = tx.txid()
+    assume(not is_segwit(tx) and all_empty)
+    orig_id = txid(tx)
     raw = serialize_tx(tx)
     parsed, _ = parse_tx(raw)
-    assert parsed.txid() == orig_id
+    assert txid(parsed) == orig_id
 
 
 # ── Additional ECC properties ────────────────────────────────────────

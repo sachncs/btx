@@ -5,8 +5,7 @@
 Defines the core :class:`Tx`, :class:`TxIn`, :class:`TxOut`,
 :class:`OutPoint`, and :class:`Witness` dataclasses.  Domain
 operations (serialisation, RBF detection, sighash, etc.) live in
-:mod:`btx.transaction.ops` and are also re-exposed as thin
-convenience methods on :class:`Tx` for ergonomics.
+:mod:`btx.transaction.ops` as module-level functions.
 
 All dataclasses are ``frozen=True, slots=True``:
 
@@ -27,10 +26,7 @@ validation.
 from __future__ import annotations
 
 from dataclasses import dataclass
-from typing import TYPE_CHECKING, Any
-
-if TYPE_CHECKING:
-    pass
+from typing import Any
 
 
 @dataclass(frozen=True, slots=True)
@@ -154,117 +150,3 @@ class Tx:
             Each :class:`TxIn` in ``self.inputs`` in order.
         """
         return iter(self.inputs)
-
-    # ── Convenience methods delegating to btx.transaction.ops ──
-    # These are thin wrappers that exist for ergonomics; the real
-    # implementations live in ops.py so callers that prefer module-
-    # level functions can use them directly.
-
-    def is_segwit(self) -> bool:
-        """Check whether this transaction uses SegWit.
-
-        Returns:
-            ``True`` if at least one input has a non-empty witness stack.
-        """
-        from btx.transaction.ops import is_segwit
-
-        return is_segwit(self)
-
-    def total_output_value(self) -> int:
-        """Return the sum of all output values in satoshis."""
-        from btx.transaction.ops import total_output_value
-
-        return total_output_value(self)
-
-    def serialize(self) -> bytes:
-        """Serialize this transaction to wire format (SegWit-aware)."""
-        from btx.transaction.ops import serialize_tx
-
-        return serialize_tx(self)
-
-    def serialize_legacy(self) -> bytes:
-        """Serialize this transaction in legacy (non-SegWit) format."""
-        from btx.transaction.ops import serialize_legacy_tx
-
-        return serialize_legacy_tx(self)
-
-    def to_json(self) -> dict[str, Any]:
-        """Convert this transaction to a JSON-serializable dict."""
-        from btx.transaction.ops import tx_to_json
-
-        return tx_to_json(self)
-
-    def to_dict(self) -> dict[str, Any]:
-        """Return a plain-dict representation of this transaction."""
-        from btx.transaction.ops import to_dict as _to_dict
-
-        return _to_dict(self)
-
-    def txid(self) -> bytes:
-        """Compute the transaction ID (hash of legacy serialisation)."""
-        from btx.transaction.ops import txid as _txid
-
-        return _txid(self)
-
-    def wtxid(self) -> bytes:
-        """Compute the witness transaction ID (hash of full serialisation)."""
-        from btx.transaction.ops import wtxid as _wtxid
-
-        return _wtxid(self)
-
-    def is_opt_in_rbf(self) -> bool:
-        """Return True if at least one input signals opt-in RBF (BIP-125)."""
-        from btx.transaction.rbf import is_opt_in_rbf
-
-        return is_opt_in_rbf(self)
-
-    def has_sequence_lock(self) -> bool:
-        """Return True if any input uses a relative sequence lock (BIP-68)."""
-        from btx.transaction.rbf import has_sequence_lock
-
-        return has_sequence_lock(self)
-
-    def sighash_legacy(
-        self, input_index: int, script: bytes, sighash_flag: int
-    ) -> bytes:
-        """Compute the legacy (pre-SegWit) sighash for *input_index*."""
-        from btx.transaction.ops import sighash_legacy as _sighash_legacy
-
-        return _sighash_legacy(self, input_index, script, sighash_flag)
-
-    def sighash_segwit(
-        self, input_index: int, script: bytes, value: int, sighash_flag: int
-    ) -> bytes:
-        """Compute the BIP-143 SegWit v0 sighash for *input_index*."""
-        from btx.transaction.ops import sighash_segwit as _sighash_segwit
-
-        return _sighash_segwit(self, input_index, script, value, sighash_flag)
-
-    def sighash_taproot(
-        self,
-        input_index: int,
-        script: bytes | None,
-        sighash_flag: int,
-        *,
-        amounts: tuple[int, ...],
-        scriptpubkeys: tuple[bytes, ...],
-        tapleaf_hash: bytes | None = None,
-        key_version: int = 0,
-        codeseparator_position: int = 0xFFFFFFFF,
-        annex: bytes | None = None,
-    ) -> bytes:
-        """Compute the BIP-341 Taproot sighash for *input_index*."""
-        from btx.transaction.ops import sighash_taproot as _sighash_taproot
-
-        return _sighash_taproot(
-            self,
-            input_index,
-            script,
-            sighash_flag,
-            amounts=amounts,
-            scriptpubkeys=scriptpubkeys,
-            tapleaf_hash=tapleaf_hash,
-            key_version=key_version,
-            codeseparator_position=codeseparator_position,
-            annex=annex,
-        )

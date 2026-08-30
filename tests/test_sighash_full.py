@@ -25,6 +25,7 @@ from btx.sighash.flag import (
 from btx.sighash.legacy import sighash_legacy
 from btx.sighash.segwit import sighash_segwit
 from btx.sighash.taproot import sighash_taproot
+from btx.transaction import is_segwit
 from btx.transaction.models import OutPoint, Tx, TxIn, TxOut, Witness
 
 # ---------------------------------------------------------------------------
@@ -583,7 +584,7 @@ class TestSerializer:
         wit = Witness((b"\x30\x45", b"\x02\x03"))
         txin = make_txin(witness=wit)
         tx = make_tx(inputs=(txin,))
-        assert tx.is_segwit()
+        assert is_segwit(tx)
         raw = serialize_tx(tx)
         assert raw[4:6] == b"\x00\x01"
 

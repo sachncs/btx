@@ -10,6 +10,7 @@ from btx.services.serializer import serialize_tx
 from btx.sighash.flag import SIGHASH_ALL
 from btx.sighash.legacy import sighash_legacy
 from btx.signature.check import verify_signature
+from btx.transaction import txid
 from btx.transaction.parser import parse_tx
 
 EXPECTED_TXID = "a1075db55d416d3ca199f55b6084e2115b9345e16c5cf302fc80e9d5fbf5d48d"
@@ -26,7 +27,7 @@ class TestPizzaTransaction:
     def test_parse_and_txid(self) -> None:
         raw = load_pizza_tx()
         tx, _ = parse_tx(raw)
-        assert tx.txid()[::-1].hex() == EXPECTED_TXID
+        assert txid(tx)[::-1].hex() == EXPECTED_TXID
 
     def test_serialize_roundtrip(self) -> None:
         raw = load_pizza_tx()

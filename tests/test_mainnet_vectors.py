@@ -15,6 +15,7 @@ from btx.script.opcodes import OP_CHECKSIG
 from btx.script.parser import serialize_script
 from btx.services.serializer import serialize_tx
 from btx.signature import extract_signatures
+from btx.transaction import is_segwit
 from btx.transaction.models import OutPoint, Tx, TxIn, TxOut, Witness
 from btx.transaction.parser import parse_tx
 
@@ -148,7 +149,7 @@ class TestBip143P2WPKH:
         assert tx.version == 1
         assert len(tx.inputs) == 2
         assert len(tx.outputs) == 2
-        assert tx.is_segwit()
+        assert is_segwit(tx)
 
     def test_extract_signatures(self) -> None:
         tx = tx_from_hex(BIP143_P2WPKH_SIGNED)
@@ -184,7 +185,7 @@ class TestBip143P2SHP2WPKH:
         tx = tx_from_hex(BIP143_P2SH_P2WPKH_SIGNED)
         assert tx.version == 1
         assert len(tx.inputs) == 1
-        assert tx.is_segwit()
+        assert is_segwit(tx)
 
     def test_extract_signatures(self) -> None:
         tx = tx_from_hex(BIP143_P2SH_P2WPKH_SIGNED)
@@ -221,7 +222,7 @@ class TestTaprootKeyPathSpend:
         raw = serialize_tx(tx)
         tx2, _ = parse_tx(raw)
         assert len(tx2.inputs) == 1
-        assert tx2.is_segwit()
+        assert is_segwit(tx2)
         assert tx2.inputs[0].witness.items
 
 
@@ -233,7 +234,7 @@ class TestTaprootScriptPathSpend:
         raw = serialize_tx(tx)
         tx2, _ = parse_tx(raw)
         assert len(tx2.inputs) == 1
-        assert tx2.is_segwit()
+        assert is_segwit(tx2)
         items = tx2.inputs[0].witness.items
         assert len(items) >= 3  # sig, script, control_block
 

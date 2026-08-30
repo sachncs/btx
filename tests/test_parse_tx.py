@@ -8,6 +8,7 @@ import pytest
 
 from btx import OutPoint, Tx, TxIn, TxOut, Witness, parse_tx
 from btx.services.serializer import serialize_legacy_tx, serialize_tx
+from btx.transaction import is_segwit
 from btx.transaction.builder import tx_from_dict
 
 
@@ -21,7 +22,7 @@ class TestParseTx:
         assert len(parsed.inputs) == 0
         assert len(parsed.outputs) == 0
         assert parsed.lock_time == 0
-        assert not parsed.is_segwit()
+        assert not is_segwit(parsed)
         assert consumed == len(raw)
 
     def test_parse_legacy_one_output(self) -> None:
@@ -40,7 +41,7 @@ class TestParseTx:
         assert len(parsed.inputs) == 1
         assert len(parsed.outputs) == 1
         assert parsed.outputs[0].value == 1000
-        assert not parsed.is_segwit()
+        assert not is_segwit(parsed)
         assert consumed == len(raw)
 
     def test_parse_roundtrip_legacy(self) -> None:
@@ -63,7 +64,7 @@ class TestParseTx:
         assert len(parsed.inputs) == len(original.inputs)
         assert len(parsed.outputs) == len(original.outputs)
         assert parsed.outputs[0].value == original.outputs[0].value
-        assert not parsed.is_segwit()
+        assert not is_segwit(parsed)
 
     def test_parse_roundtrip_segwit(self) -> None:
         """Parsing a serialized segwit tx gives the same result."""
@@ -78,7 +79,7 @@ class TestParseTx:
         raw = serialize_tx(original)
         parsed, consumed = parse_tx(raw)
         assert consumed == len(raw)
-        assert parsed.is_segwit()
+        assert is_segwit(parsed)
         assert len(parsed.inputs[0].witness) == 2
 
     def test_parse_roundtrip_multiple_inputs(self) -> None:
@@ -102,9 +103,11 @@ class TestParseTx:
 
     def test_parse_txid(self) -> None:
         """txid() returns double-SHA256 of legacy serialization."""
+        from btx.transaction import txid as compute_txid
+
         tx = Tx(version=1, inputs=(), outputs=(), lock_time=0)
-        txid = tx.txid()
-        assert len(txid) == 32
+        result = compute_txid(tx)
+        assert len(result) == 32
 
     def test_parse_make_tx(self) -> None:
         """tx_from_dict builder works."""
