@@ -6,8 +6,9 @@ from __future__ import annotations
 
 import pytest
 
-from btx import OutPoint, Tx, TxIn, TxOut, Witness, make_tx, parse_tx
+from btx import OutPoint, Tx, TxIn, TxOut, Witness, parse_tx
 from btx.services.serializer import serialize_legacy_tx, serialize_tx
+from btx.transaction.builder import tx_from_dict
 
 
 class TestParseTx:
@@ -101,16 +102,19 @@ class TestParseTx:
 
     def test_parse_txid(self) -> None:
         """txid() returns double-SHA256 of legacy serialization."""
-        tx = make_tx(version=1, inputs=[], outputs=[])
+        tx = Tx(version=1, inputs=(), outputs=(), lock_time=0)
         txid = tx.txid()
         assert len(txid) == 32
 
     def test_parse_make_tx(self) -> None:
-        """make_tx convenience builder works."""
-        tx = make_tx(
-            version=2,
-            inputs=[{"txid": b"\x01" * 32, "vout": 0}],
-            outputs=[{"value": 1, "script_pubkey": b"\x6a"}],
+        """tx_from_dict builder works."""
+        tx = tx_from_dict(
+            {
+                "version": 2,
+                "inputs": [{"txid": b"\x01" * 32, "vout": 0}],
+                "outputs": [{"value": 1, "script_pubkey": b"\x6a"}],
+                "lock_time": 0,
+            }
         )
         assert tx.version == 2
         assert len(tx.inputs) == 1
@@ -118,12 +122,12 @@ class TestParseTx:
 
     def test_parse_negative_version(self) -> None:
         """Version can be negative (BIP-68)."""
-        tx = make_tx(version=-1, inputs=[], outputs=[])
+        tx = Tx(version=-1, inputs=(), outputs=(), lock_time=0)
         assert tx.version == -1
 
     def test_parse_high_locktime(self) -> None:
         """Locktime can be high."""
-        tx = make_tx(version=2, inputs=[], outputs=[], lock_time=500000000)
+        tx = Tx(version=2, inputs=(), outputs=(), lock_time=500000000)
         raw = serialize_tx(tx)
         parsed, _ = parse_tx(raw)
         assert parsed.lock_time == 500000000
@@ -134,8 +138,8 @@ class TestParseTx:
             parse_tx(b"\x01\x00\x00\x00")
 
     def test_make_tx_empty_fields(self) -> None:
-        """make_tx with no inputs or outputs."""
-        tx = make_tx(version=1, inputs=[], outputs=[])
+        """Empty Tx construction."""
+        tx = Tx(version=1, inputs=(), outputs=(), lock_time=0)
         assert len(tx.inputs) == 0
         assert len(tx.outputs) == 0
 

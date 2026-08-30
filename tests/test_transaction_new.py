@@ -4,7 +4,7 @@
 
 import pytest
 
-from btx.transaction import make_tx
+from btx.transaction.builder import tx_from_dict
 from btx.transaction.models import (
     EMPTY_WITNESS,
     OutPoint,
@@ -106,10 +106,13 @@ class TestTx:
         assert tx.is_segwit()
 
     def test_make_tx(self) -> None:
-        tx = make_tx(
-            version=2,
-            inputs=[{"txid": b"\x00" * 32, "vout": 0}],
-            outputs=[{"value": 1000, "script_pubkey": b"\x6a"}],
+        tx = tx_from_dict(
+            {
+                "version": 2,
+                "inputs": [{"txid": b"\x00" * 32, "vout": 0}],
+                "outputs": [{"value": 1000, "script_pubkey": b"\x6a"}],
+                "lock_time": 0,
+            }
         )
         assert len(tx.inputs) == 1
         assert len(tx.outputs) == 1
@@ -217,8 +220,6 @@ class TestTx:
         assert d["inputs"][0]["sequence"] == 0xFFFFFFFE
         assert d["inputs"][0]["witness"] == (b"\x03\x04",)
         assert d["outputs"][0]["value"] == 50000
-
-        from btx.transaction.builder import tx_from_dict
 
         roundtrip = tx_from_dict(d)
         assert roundtrip == tx

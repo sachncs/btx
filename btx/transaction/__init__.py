@@ -6,14 +6,13 @@ This subpackage owns every aspect of the Bitcoin transaction model:
 
 - :mod:`btx.transaction.models` – immutable ``frozen=True,
   slots=True`` dataclasses: :class:`OutPoint`, :class:`TxIn`,
-  :class:`TxOut`, :class:`Witness`, :class:`Tx`.  Domain operations
-  (serialisation, RBF detection, sighash computation, etc.) are
-  exposed as direct methods on :class:`Tx`.
+  :class:`TxOut`, :class:`Witness`, :class:`Tx`.
+- :mod:`btx.transaction.ops` – domain operations on a
+  :class:`Tx`: serialisation, hashing, sighash, RBF checks,
+  total-output-value, dict round-trip.
 - :mod:`btx.transaction.parser` – wire-format deserialisation
   (legacy + SegWit) with explicit limits (max tx size, input/output
   counts, witness item count and size).
-- :mod:`btx.transaction.tx` – :func:`make_tx` /
-  :func:`build_transaction` convenience builder.
 - :mod:`btx.transaction.builder` – :class:`TransactionBuilder`
   fluent API and :func:`tx_from_dict` validating factory.
 - :mod:`btx.transaction.fee` – vsize and fee estimation.
@@ -36,9 +35,21 @@ from btx.transaction.fee import (
     estimate_vsize,
 )
 from btx.transaction.models import EMPTY_WITNESS, OutPoint, Tx, TxIn, TxOut, Witness
+from btx.transaction.ops import (
+    is_segwit,
+    serialize_legacy_tx,
+    serialize_tx,
+    sighash_legacy,
+    sighash_segwit,
+    sighash_taproot,
+    to_dict,
+    total_output_value,
+    tx_to_json,
+    txid,
+    wtxid,
+)
 from btx.transaction.parser import parse_tx
 from btx.transaction.rbf import has_sequence_lock, is_opt_in_rbf
-from btx.transaction.tx import make_tx
 
 __all__ = [
     "EMPTY_WITNESS",
@@ -53,7 +64,17 @@ __all__ = [
     "estimate_vsize",
     "has_sequence_lock",
     "is_opt_in_rbf",
-    "make_tx",
+    "is_segwit",
     "parse_tx",
+    "serialize_legacy_tx",
+    "serialize_tx",
+    "sighash_legacy",
+    "sighash_segwit",
+    "sighash_taproot",
+    "to_dict",
+    "total_output_value",
     "tx_from_dict",
+    "tx_to_json",
+    "txid",
+    "wtxid",
 ]

@@ -74,7 +74,6 @@ from btx.transaction import (
     Witness,
     has_sequence_lock,
     is_opt_in_rbf,
-    make_tx,
     tx_from_dict,
 )
 from btx.transaction.models import EMPTY_WITNESS
@@ -1583,69 +1582,3 @@ class TestPsbtExtractSignatures:
 # ===================================================================
 # tx.py remaining branches (79 %)
 # ===================================================================
-
-
-class TestMakeTx:
-    def test_make_tx(self) -> None:
-        tx = make_tx(
-            version=2,
-            inputs=[{"txid": b"\x01" * 32, "vout": 0}],
-            outputs=[{"value": 1000, "script_pubkey": b"\x00"}],
-        )
-        assert tx.version == 2
-
-    def test_make_tx_bad_witness_type(self) -> None:
-        with pytest.raises(TypeError, match="witness must be a tuple"):
-            make_tx(
-                version=2,
-                inputs=[{"txid": b"\x01" * 32, "vout": 0, "witness": [b"x"]}],
-                outputs=[{"value": 1000, "script_pubkey": b"\x00"}],
-            )
-
-    def test_make_tx_bad_txid(self) -> None:
-        with pytest.raises(TypeError, match="txid must be bytes"):
-            make_tx(
-                version=2,
-                inputs=[{"txid": 123, "vout": 0}],
-                outputs=[{"value": 1000, "script_pubkey": b"\x00"}],
-            )
-
-    def test_make_tx_bad_vout(self) -> None:
-        with pytest.raises(TypeError, match="vout must be int"):
-            make_tx(
-                version=2,
-                inputs=[{"txid": b"\x01" * 32, "vout": "zero"}],
-                outputs=[{"value": 1000, "script_pubkey": b"\x00"}],
-            )
-
-    def test_make_tx_bad_script_sig(self) -> None:
-        with pytest.raises(TypeError, match="script_sig must be bytes"):
-            make_tx(
-                version=2,
-                inputs=[{"txid": b"\x01" * 32, "vout": 0, "script_sig": 123}],
-                outputs=[{"value": 1000, "script_pubkey": b"\x00"}],
-            )
-
-    def test_make_tx_bad_sequence(self) -> None:
-        with pytest.raises(TypeError, match="sequence must be int"):
-            make_tx(
-                version=2,
-                inputs=[{"txid": b"\x01" * 32, "vout": 0, "sequence": "max"}],
-                outputs=[{"value": 1000, "script_pubkey": b"\x00"}],
-            )
-
-    def test_make_tx_bad_value(self) -> None:
-        with pytest.raises(TypeError, match="value must be int"):
-            make_tx(
-                version=2,
-                inputs=[{"txid": b"\x01" * 32, "vout": 0}],
-                outputs=[{"value": "lots", "script_pubkey": b"\x00"}],
-            )
-
-    def test_make_tx_bad_script_pubkey(self) -> None:
-        with pytest.raises(TypeError, match="script_pubkey must be bytes"):
-            make_tx(
-                version=2,
-                inputs=[{"txid": b"\x01" * 32, "vout": 0}],
-                outputs=[{"value": 1000, "script_pubkey": 123}],
-            )

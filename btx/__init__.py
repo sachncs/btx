@@ -242,7 +242,6 @@ from btx.transaction import (
     estimate_vsize,
     has_sequence_lock,
     is_opt_in_rbf,
-    make_tx,
     parse_tx,
     tx_from_dict,
 )
@@ -382,7 +381,6 @@ __all__ = [
     "is_valid_leaf_version",
     "linearize_signatures",
     "make_p2pkh_script",
-    "make_tx",
     "mempool_space_provider",
     "merge_records",
     "multiply",
