@@ -13,7 +13,7 @@ double-underscore (``__collect_info`` etc.) — a Python idiom for
 "strongly private" symbols.  They are part of the library's public
 surface (callable from outside the descriptor package), so they have
 been promoted to plain public names (``collect_info``,
-``contains_op``, ``estimate_satisfaction``, ``collect_keys``,
+``contains_op``, ``estimate_satisfaction``,
 ``sorted_unique``, and the supporting ``ESTIMATED_SATISFACTION`` table).
 """
 
@@ -198,21 +198,8 @@ def extract_keys(expr: str) -> list[str]:
     """
     ast = parse_descriptor(expr)
     keys: list[str] = []
-    collect_keys(ast, keys)
+    collect_info(ast, keys)
     return sorted_unique(keys)
-
-
-def collect_keys(node: DescriptorNode, keys: list[str]) -> None:
-    """Recursively collect keys from a descriptor AST.
-
-    Backward-compatible alias for :func:`collect_info` so callers
-    that imported ``collect_keys`` continue to work.
-
-    Args:
-        node: The descriptor AST node to walk.
-        keys: Output list, mutated in place with discovered keys.
-    """
-    collect_info(node, keys)
 
 
 __all__ = [
@@ -220,7 +207,6 @@ __all__ = [
     "ESTIMATED_SATISFACTION",
     "analyze_descriptor",
     "collect_info",
-    "collect_keys",
     "contains_op",
     "estimate_satisfaction",
     "extract_keys",

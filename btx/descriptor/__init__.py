@@ -15,7 +15,7 @@ conditions and converting them to:
   :mod:`btx.descriptor.analyzer` extracts the script type, public
   keys, timelock / hash-lock flags, and an estimate of the minimum
   satisfaction size.  The internal helpers :func:`collect_info`,
-  :func:`collect_keys`, :func:`contains_op`, :func:`estimate_satisfaction`,
+  :func:`contains_op`, :func:`estimate_satisfaction`,
   and :func:`sorted_unique` are re-exported for callers analysing
   descriptor ASTs directly.
 
@@ -35,7 +35,6 @@ from btx.descriptor.analyzer import (
     DescriptorInfo,
     analyze_descriptor,
     collect_info,
-    collect_keys,
     contains_op,
     estimate_satisfaction,
     extract_keys,
@@ -57,7 +56,6 @@ __all__ = [
     "ESTIMATED_SATISFACTION",
     "analyze_descriptor",
     "collect_info",
-    "collect_keys",
     "compile_descriptor",
     "contains_op",
     "emit_script",
