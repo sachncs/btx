@@ -204,8 +204,7 @@ def sighash_taproot(
         raise ValueError(f"key_version must fit in one byte, got {key_version}.")
     if not (0 <= codeseparator_position <= 0xFFFFFFFF):
         raise ValueError(
-            f"codeseparator_position must fit in 32 bits, "
-            f"got {codeseparator_position}."
+            f"codeseparator_position must fit in 32 bits, got {codeseparator_position}."
         )
 
     base_flag = sighash_flag & SIGHASH_MASK
@@ -214,19 +213,12 @@ def sighash_taproot(
 
     if script is not None:
         if tapleaf_hash is None:
+            from btx.sighash.scheme import tapleaf_hash as _tapleaf_hash
+
             if script and script[0] in TAPROOT_SCRIPT_PATH_PREFIXES:
-                leaf_version = script[0]
-                leaf_script = script[1:]
-                tapleaf_hash = tagged_hash(
-                    "TapLeaf",
-                    bytes([leaf_version])
-                    + encode_varint(len(leaf_script))
-                    + leaf_script,
-                )
+                tapleaf_hash = _tapleaf_hash(script[0], script[1:])
             else:
-                raise ValueError(
-                    "tapleaf_hash required for script-path signing."
-                )
+                raise ValueError("tapleaf_hash required for script-path signing.")
         ext_flag = 1
     else:
         ext_flag = 0

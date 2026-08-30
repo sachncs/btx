@@ -128,6 +128,10 @@ def compute_tapleaf_hash(script: bytes, leaf_version: int = 0xC0) -> bytes:
 
     The tapleaf hash is ``tagged_hash("TapLeaf", version || len || script)``.
 
+    Thin convenience wrapper over :func:`btx.sighash.scheme.tapleaf_hash`
+    so callers that don't import the sighash layer can still compute
+    leaf hashes.
+
     Args:
         script: The leaf script.
         leaf_version: The leaf version byte (default 0xC0).
@@ -135,16 +139,9 @@ def compute_tapleaf_hash(script: bytes, leaf_version: int = 0xC0) -> bytes:
     Returns:
         The 32-byte tapleaf hash.
     """
-    script_len = len(script)
-    if script_len < 0xFD:
-        compact_len = bytes([script_len])
-    elif script_len <= 0xFFFF:
-        compact_len = bytes([0xFD]) + script_len.to_bytes(2, "little")
-    else:
-        compact_len = bytes([0xFE]) + script_len.to_bytes(4, "little")
+    from btx.sighash.scheme import tapleaf_hash
 
-    leaf_data = bytes([leaf_version]) + compact_len + script
-    return tagged_hash("TapLeaf", leaf_data)
+    return tapleaf_hash(leaf_version, script)
 
 
 def compute_tweak(internal_key: bytes, merkle_root: bytes) -> bytes:
