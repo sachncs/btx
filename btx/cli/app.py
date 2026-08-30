@@ -41,7 +41,7 @@ from btx import __version__
 from btx.curve import parse_public_key
 from btx.encoding.hex import decode_hex, encode_hex
 from btx.health import health as run_health
-from btx.script import classify_script_pubkey, parse_script
+from btx.script import classify_script_pubkey, parse_script_chunks
 from btx.services.blockchain import (
     BlockchainInfoProvider,
     blockstream_provider,
@@ -465,7 +465,7 @@ def parse_script_cmd(
     """Parse and decompile a Bitcoin script."""
     configure_logging()
     script = decode_hex(script_hex)
-    chunks = parse_script(script)
+    chunks = parse_script_chunks(script)
     st = classify_script_pubkey(script)
     typer.echo(f"Script type: {st}")
     typer.echo(f"Chunks ({len(chunks)}):")

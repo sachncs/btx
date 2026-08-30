@@ -146,49 +146,22 @@ def parse_script(script_bytes: bytes) -> list[ScriptElement]:
     Zero-length pushes are represented as ``b""``, and small integers
     (OP_1–OP_16) are kept as their opcode value.
 
+    This is the canonical flat-element parser.  Built on top of
+    :func:`parse_script_chunks` so both APIs share one parsing loop.
+
     Args:
         script_bytes: The raw script byte string.
 
     Returns:
         List of ``ScriptElement`` instances (``bytes`` or ``int``).
     """
-    elements: list[ScriptElement] = []
-    i = 0
-    while i < len(script_bytes):
-        op = script_bytes[i]
-        i += 1
-        if op == OP_0:
-            elements.append(b"")
-        elif op == OP_1NEGATE:
-            elements.append(OP_1NEGATE)
-        elif 0x01 <= op <= OP_PUSHDATA1 - 1:
-            push_len = op
-            chunk = script_bytes[i : i + push_len]
-            i += push_len
-            elements.append(chunk)
-        elif op == OP_PUSHDATA1:
-            push_len = script_bytes[i]
-            i += 1
-            chunk = script_bytes[i : i + push_len]
-            i += push_len
-            elements.append(chunk)
-        elif op == OP_PUSHDATA2:
-            push_len = int.from_bytes(script_bytes[i : i + 2], "little")
-            i += 2
-            chunk = script_bytes[i : i + push_len]
-            i += push_len
-            elements.append(chunk)
-        elif op == OP_PUSHDATA4:
-            push_len = int.from_bytes(script_bytes[i : i + 4], "little")
-            i += 4
-            chunk = script_bytes[i : i + push_len]
-            i += push_len
-            elements.append(chunk)
-        elif OP_1 <= op <= OP_16:
-            elements.append(op)
+    result: list[ScriptElement] = []
+    for c in parse_script_chunks(script_bytes):
+        if c.data is not None:
+            result.append(c.data)
         else:
-            elements.append(op)
-    return elements
+            result.append(c.opcode)
+    return result
 
 
 def serialize_script(elements: list[ScriptElement]) -> bytes:

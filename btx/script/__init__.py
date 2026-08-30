@@ -81,11 +81,12 @@ from btx.script.parser import (
     ScriptChunk,
     ScriptElement,
     parse_multisig_redeem_script,
+    parse_script,
+    parse_script_chunks,
     reject_code_separators,
     script_to_string,
     serialize_script,
 )
-from btx.script.parser import parse_script_chunks as parse_script
 from btx.script.taproot import (
     TaprootControlBlock,
     TaprootScriptPath,
@@ -156,6 +157,7 @@ __all__ = [
     "make_p2pkh_script",
     "parse_multisig_redeem_script",
     "parse_script",
+    "parse_script_chunks",
     "reject_code_separators",
     "script_to_string",
     "serialize_script",
