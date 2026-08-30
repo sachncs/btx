@@ -1034,13 +1034,13 @@ class TestExtractScriptType:
     def test_unknown_type(self) -> None:
         from btx.signature.extraction.engine import determine_script_type
 
-        assert determine_script_type(b"", []) == "unknown"
+        assert determine_script_type(b"") == "unknown"
 
     def test_known_type(self) -> None:
         from btx.signature.extraction.engine import determine_script_type
 
         sc = p2pkh_script(b"\x00" * 20)
-        assert determine_script_type(sc, []) == P2PKH
+        assert determine_script_type(sc) == P2PKH
 
 
 class TestExtractComputeSighash:

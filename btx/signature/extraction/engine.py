@@ -339,11 +339,8 @@ def extract_signatures(
         return records
 
     for vin, txin in enumerate(tx.inputs):
-        parsed_sig: Sequence[object] = (
-            list(parse_script(txin.script_sig)) if txin.script_sig else []
-        )
         script_pubkey = utxo_script_pubkeys[vin] if utxo_script_pubkeys else b""
-        script_type = determine_script_type(script_pubkey, parsed_sig)
+        script_type = determine_script_type(script_pubkey)
         script_type_counts[script_type] = script_type_counts.get(script_type, 0) + 1
         logger.debug("Processing input %d, script_type=%s", vin, script_type)
         value = utxo_values[vin] if utxo_values else 0
@@ -370,13 +367,11 @@ def extract_signatures(
     return records
 
 
-def determine_script_type(script_pubkey: bytes, script_sig: Sequence[object]) -> str:
+def determine_script_type(script_pubkey: bytes) -> str:
     """Classify the script type from the ``scriptPubKey``.
 
     Args:
         script_pubkey: The output script as raw bytes.
-        script_sig: The input ``scriptSig`` (unused, kept for signature
-            compatibility).
 
     Returns:
         A script-type string (e.g. ``"p2pkh"``, ``"p2wpkh"``) or
@@ -443,7 +438,7 @@ def extract_legacy(
                     input_index=vin,
                     signature=der,
                     public_key=pubkey,
-                    script_type=determine_script_type(script_pubkey, script_sig),
+                    script_type=determine_script_type(script_pubkey),
                     sighash_flag=flag,
                     amount=0,
                 )
