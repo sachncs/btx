@@ -2,6 +2,107 @@
 
 All notable changes to this project will be documented in this file.
 
+## 0.5.0 — Architecture cleanup: drop all backward-compat shims, thin wrappers, and dead code
+
+### Breaking changes
+
+This release removes every backward-compatibility shim, alias, and
+thin wrapper identified by the architectural review.  The public API
+is now the curated canonical surface; call sites that used the
+removed names must update.
+
+**Removed signature helpers (alias shims)**:
+- `verify_sig` → use `verify_signature`
+- `verify_schnorr_sig` → use `verify_schnorr_signature`
+- `batch_verify` → use `verify_all` (the misnomer has been retired)
+
+**Removed transaction module shims**:
+- `make_tx` / `build_transaction` (entire module
+  `btx/transaction/tx.py` deleted) → use `tx_from_dict` (dict-based)
+  or `TransactionBuilder` (fluent).
+- `Tx.is_segwit`, `Tx.total_output_value`, `Tx.serialize`,
+  `Tx.serialize_legacy`, `Tx.to_json`, `Tx.to_dict`, `Tx.txid`,
+  `Tx.wtxid`, `Tx.is_opt_in_rbf`, `Tx.has_sequence_lock`,
+  `Tx.sighash_legacy`, `Tx.sighash_segwit`, `Tx.sighash_taproot`
+  (all method-forwarders removed; `Tx` is now a pure data carrier)
+  → use the module-level functions in `btx.transaction`:
+  `is_segwit`, `total_output_value`, `serialize_tx`,
+  `serialize_legacy_tx`, `tx_to_json`, `to_dict`, `txid`, `wtxid`,
+  `is_opt_in_rbf`, `has_sequence_lock`, `sighash_*`.
+
+**Removed PSBT surface**:
+- `parse_psbt_impl` (now `_parse_psbt_impl`, private) → use
+  `parse_psbt`.
+- `parse_psbt_worker` (no longer exported) → use `process_psbt_batch`
+  which manages the executor internally.
+
+**Removed descriptor shim**:
+- `collect_keys` (alias of `collect_info`) → use `collect_info`.
+
+**Removed dispatch / internal helpers**:
+- `determine_script_type`'s unused `script_sig` parameter.
+- The 1-entry `SCHEME_BY_PREFIX` dispatch table; `compute_sighash`
+  now uses an explicit if/elif.
+
+**Removed top-level re-exports** (`btx/__init__.py` was shrunk
+from ~190 symbols to ~88): all `OP_*` opcode constants, the
+`MULTISIG`/`NON_STANDARD`/`TIMELOCK` script-type strings,
+`OPCODES_BY_NAME`/`OPCODES_BY_VALUE` lookup dicts, the
+`TaprootControlBlock`/`TaprootScriptPath` dataclasses, every
+script helper except the canonical `build_p2*`, `parse_script`,
+`classify_script_pubkey`, all the `make_*_p2pkh_script` and
+`is_*_script` helpers, the `SIGHASH_*_ANYONECANPAY` flag
+combinations except `SIGHASH_ANYONECANPAY` itself,
+`require_sighash_flag`, `sighash_name`, `SIGHASH_MASK`,
+`SIGHASH_NAMES`, the `ESTIMATED_SATISFACTION` table and
+descriptor-tree `emit_script`/`sorted_unique`/`split_args`
+helpers, the `*_BASE_URL` constants and most `services.*`
+async/batch fetchers, `merge_records`, the `set_backend`
+setter, the `GENERATOR_X`/`GENERATOR_Y`/`CURVE_A`/`CURVE_B`
+internal constants.  All remain importable from their respective
+submodules.
+
+### Architecture changes
+
+- **Tx is now a pure data model.** Only `__len__` and `__iter__`
+  dunders remain. Every algorithm that used to live as a method
+  forwarder now lives as a module-level function in
+  `btx/transaction/ops.py`.
+- **Curve field helpers.** `field.pow_mod` (wrapper around `pow`)
+  and `field.validate_non_negative` deleted (no production
+  callers).
+- **Encoding dead code.** `btx/encoding/binary.py` deleted
+  entirely (`bytes_to_int`/`int_to_bytes` were builtin renames;
+  `iter_bytes`/`read_exactly` were unused and `read_exactly`
+  duplicated `transaction/parser._take`).
+- **Curve batch helpers.** `btx/curve/batch.py` deleted
+  (`multi_multiply`, `batch_validate`, `batch_normalize` had zero
+  callers).
+- **Backend caching.** `dispatch.resolve_backend()` no longer
+  constructs a fresh `NativeBackend()` per call; the resolved
+  default is cached.
+- **Backend selection.** `BTX_DEFAULT_BACKEND` environment variable
+  is now wired through `btx/settings.py`; the canonical route to
+  select libsecp is the env var, not the previously-non-functional
+  `settings.default_backend = "libsecp"` assignment.
+- **Sighash scheme module.** `SighashScheme` ABC and its three
+  concrete strategies were moved out of `btx/sighash/__init__.py`
+  into a dedicated `btx/sighash/scheme.py` so the package
+  `__init__` is a clean facade.
+- **Tapleaf hash.** The BIP-341 `TapLeaf` tagged-hash computation
+  has a single canonical implementation
+  (`btx/sighash/scheme.tapleaf_hash`);
+  `btx/script/taproot.compute_tapleaf_hash` is a thin wrapper.
+- **Plugin registry deleted.** `btx/signature/extraction/plugins.py`
+  (`registry`, `register_plugin`, `unregister_plugin`,
+  `get_plugin`, `list_plugins`) removed; replaced with an explicit
+  `BUILTIN_EXTRACTORS` tuple whose order encodes priority
+  (Legacy last as fallback).
+
+### Notes
+- Bumped to 0.5.0. No backward-compat aliases are retained; this
+  release hardens the API surface.
+
 ## 0.5.0 — Package renamed to `btx`
 
 ### Breaking changes

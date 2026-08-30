@@ -21,7 +21,7 @@ class TestHealth:
     def test_health_version(self) -> None:
         result = health()
         assert isinstance(result["version"], str)
-        assert result["version"] == "0.4.0"
+        assert result["version"] == "0.5.0"
 
     def test_health_curve_operation_ok(self) -> None:
         result = health()
