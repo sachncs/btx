@@ -22,7 +22,7 @@ def test_version() -> None:
 
 def test_extract_no_signatures() -> None:
     # Minimal valid tx with 0 inputs, 0 outputs
-    result = runner.invoke(app, ["extract", "010000000000000000"])
+    result = runner.invoke(app, ["extract", "010000000000000000000000"])
     assert result.exit_code == 0
     assert "No signatures found" in result.stdout
 
@@ -51,7 +51,7 @@ def test_extract_p2pkh() -> None:
 
 
 def test_linearize_empty() -> None:
-    result = runner.invoke(app, ["linearize", "010000000000000000"])
+    result = runner.invoke(app, ["linearize", "010000000000000000000000"])
     assert result.exit_code == 0
 
 
@@ -65,7 +65,7 @@ def test_parse_input_values() -> None:
 
 
 def test_decode_empty() -> None:
-    result = runner.invoke(app, ["decode", "010000000000000000"])
+    result = runner.invoke(app, ["decode", "010000000000000000000000"])
     assert result.exit_code == 0
     data = json.loads(result.stdout)
     assert data["version"] == 1
@@ -100,20 +100,20 @@ def test_decode_with_tx() -> None:
 
 
 def test_extract_with_progress() -> None:
-    result = runner.invoke(app, ["extract", "--progress", "010000000000000000"])
+    result = runner.invoke(app, ["extract", "--progress", "010000000000000000000000"])
     assert result.exit_code == 0
     assert "inputs" in result.stdout or "No signatures" in result.stdout
 
 
 def test_linearize_with_progress() -> None:
-    result = runner.invoke(app, ["linearize", "--progress", "010000000000000000"])
+    result = runner.invoke(app, ["linearize", "--progress", "010000000000000000000000"])
     assert result.exit_code == 0
     assert "inputs" in result.stdout or "No signatures" in result.stdout
 
 
 def test_decode_input_file(tmp_path: Path) -> None:
     f = tmp_path / "tx.hex"
-    f.write_text("010000000000000000")
+    f.write_text("010000000000000000000000")
     result = runner.invoke(app, ["decode", "--input-file", str(f)])
     assert result.exit_code == 0
     data = json.loads(result.stdout)

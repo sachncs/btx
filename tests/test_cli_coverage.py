@@ -49,7 +49,7 @@ def test_main_with_version() -> None:
 
 
 def test_main_with_extract() -> None:
-    result = runner.invoke(app, ["extract", "010000000000000000"])
+    result = runner.invoke(app, ["extract", "010000000000000000000000"])
     assert result.exit_code == 0
 
 
@@ -120,7 +120,7 @@ def test_linearize_missing_argument() -> None:
 def test_extract_with_utxo_script() -> None:
     result = runner.invoke(
         app,
-        ["extract", "010000000000000000", "--utxo-script", "0014" + "00" * 20],
+        ["extract", "010000000000000000000000", "--utxo-script", "0014" + "00" * 20],
     )
     assert result.exit_code == 0
 
@@ -128,7 +128,7 @@ def test_extract_with_utxo_script() -> None:
 def test_extract_with_utxo_value() -> None:
     result = runner.invoke(
         app,
-        ["extract", "010000000000000000", "--utxo-value", "100000"],
+        ["extract", "010000000000000000000000", "--utxo-value", "100000"],
     )
     assert result.exit_code == 0
 
@@ -153,7 +153,7 @@ def test_extract_with_records() -> None:
         amount=100000,
     )
     with patch("btx.cli.app.extract_signatures", return_value=[mock_record]):
-        result = runner.invoke(app, ["extract", "010000000000000000"])
+        result = runner.invoke(app, ["extract", "010000000000000000000000"])
     assert result.exit_code == 0
     assert "txid:" in result.stdout
     assert "input_index:" in result.stdout
@@ -184,7 +184,7 @@ def test_linearize_with_records() -> None:
         amount=100000,
     )
     with patch("btx.cli.app.extract_signatures", return_value=[mock_record]):
-        result = runner.invoke(app, ["linearize", "010000000000000000"])
+        result = runner.invoke(app, ["linearize", "010000000000000000000000"])
     assert result.exit_code == 0
 
 
@@ -193,14 +193,14 @@ def test_linearize_with_records() -> None:
 
 def test_extract_no_signatures_found() -> None:
     with patch("btx.cli.app.extract_signatures", return_value=[]):
-        result = runner.invoke(app, ["extract", "010000000000000000"])
+        result = runner.invoke(app, ["extract", "010000000000000000000000"])
     assert result.exit_code == 0
     assert "No signatures found" in result.stdout
 
 
 def test_linearize_no_signatures_found() -> None:
     with patch("btx.cli.app.extract_signatures", return_value=[]):
-        result = runner.invoke(app, ["linearize", "010000000000000000"])
+        result = runner.invoke(app, ["linearize", "010000000000000000000000"])
     assert result.exit_code == 0
     assert "No signatures found" in result.stdout
 
@@ -220,7 +220,7 @@ def test_extract_json_output() -> None:
         amount=100000,
     )
     with patch("btx.cli.app.extract_signatures", return_value=[mock_record]):
-        result = runner.invoke(app, ["extract", "010000000000000000", "--json"])
+        result = runner.invoke(app, ["extract", "010000000000000000000000", "--json"])
     assert result.exit_code == 0
     import json
 
@@ -244,7 +244,7 @@ def test_extract_csv_output() -> None:
         amount=100000,
     )
     with patch("btx.cli.app.extract_signatures", return_value=[mock_record]):
-        result = runner.invoke(app, ["extract", "010000000000000000", "--csv"])
+        result = runner.invoke(app, ["extract", "010000000000000000000000", "--csv"])
     assert result.exit_code == 0
     assert "txid" in result.stdout
     assert ",0," in result.stdout
@@ -266,7 +266,7 @@ def test_extract_format_option() -> None:
     )
     with patch("btx.cli.app.extract_signatures", return_value=[mock_record]):
         result = runner.invoke(
-            app, ["extract", "010000000000000000", "--format", "json"]
+            app, ["extract", "010000000000000000000000", "--format", "json"]
         )
     assert result.exit_code == 0
     import json
@@ -276,7 +276,9 @@ def test_extract_format_option() -> None:
 
 
 def test_extract_json_csv_conflict() -> None:
-    result = runner.invoke(app, ["extract", "010000000000000000", "--json", "--csv"])
+    result = runner.invoke(
+        app, ["extract", "010000000000000000000000", "--json", "--csv"]
+    )
     assert result.exit_code != 0
 
 
@@ -295,7 +297,7 @@ def test_linearize_json_output() -> None:
         amount=100000,
     )
     with patch("btx.cli.app.extract_signatures", return_value=[mock_record]):
-        result = runner.invoke(app, ["linearize", "010000000000000000", "--json"])
+        result = runner.invoke(app, ["linearize", "010000000000000000000000", "--json"])
     assert result.exit_code == 0
     import json
 
@@ -318,7 +320,7 @@ def test_linearize_csv_output() -> None:
         amount=100000,
     )
     with patch("btx.cli.app.extract_signatures", return_value=[mock_record]):
-        result = runner.invoke(app, ["linearize", "010000000000000000", "--csv"])
+        result = runner.invoke(app, ["linearize", "010000000000000000000000", "--csv"])
     assert result.exit_code == 0
     assert "txid" in result.stdout
 

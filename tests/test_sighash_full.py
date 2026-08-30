@@ -98,6 +98,10 @@ TX_TAPROOT = make_tx(
     outputs=(make_txout(10000, b"\x01"), make_txout(20000, b"\x02")),
 )
 
+# BIP-341 requires amounts + scriptPubKeys for every input.
+TAPROOT_AMOUNTS = (10000, 20000)
+TAPROOT_SCRIPTPUBKEYS = (b"", b"")
+
 # ===================================================================
 # flag.py
 # ===================================================================
@@ -187,8 +191,10 @@ class TestSighashLegacy:
         assert len(h) == 32
 
     def test_single_out_of_range(self) -> None:
-        with pytest.raises(ValueError, match="out of bounds"):
-            sighash_legacy(TX_2IN_2OUT, 5, SCRIPT, SIGHASH_SINGLE)
+        """Out-of-range SIGHASH_SINGLE yields uint256::ONE (never hashed)."""
+        assert sighash_legacy(TX_2IN_2OUT, 5, SCRIPT, SIGHASH_SINGLE) == (
+            b"\x01" + b"\x00" * 31
+        )
 
     def test_anyonecanpay_all(self) -> None:
         h = sighash_legacy(TX_2IN_2OUT, 0, SCRIPT, SIGHASH_ALL_ANYONECANPAY)
@@ -266,11 +272,25 @@ class TestSighashTaproot:
     """100 % line / branch coverage of ``sighash_taproot``."""
 
     def test_key_path(self) -> None:
-        h = sighash_taproot(TX_TAPROOT, 0, script=None, sighash_flag=0x00)
+        h = sighash_taproot(
+            TX_TAPROOT,
+            0,
+            script=None,
+            sighash_flag=0x00,
+            amounts=TAPROOT_AMOUNTS,
+            scriptpubkeys=TAPROOT_SCRIPTPUBKEYS,
+        )
         assert len(h) == 32
 
     def test_key_path_with_flag(self) -> None:
-        h = sighash_taproot(TX_TAPROOT, 0, script=None, sighash_flag=0x01)
+        h = sighash_taproot(
+            TX_TAPROOT,
+            0,
+            script=None,
+            sighash_flag=0x01,
+            amounts=TAPROOT_AMOUNTS,
+            scriptpubkeys=TAPROOT_SCRIPTPUBKEYS,
+        )
         assert len(h) == 32
 
     def test_script_path(self) -> None:
@@ -280,16 +300,106 @@ class TestSighashTaproot:
             script=SCRIPT,
             sighash_flag=0x00,
             tapleaf_hash=TAPLEAF_HASH,
+            amounts=TAPROOT_AMOUNTS,
+            scriptpubkeys=TAPROOT_SCRIPTPUBKEYS,
         )
         assert len(h) == 32
 
     def test_script_path_missing_tapleaf_hash(self) -> None:
         with pytest.raises(ValueError, match="tapleaf_hash required"):
-            sighash_taproot(TX_TAPROOT, 0, script=SCRIPT, sighash_flag=0x00)
+            sighash_taproot(
+                TX_TAPROOT,
+                0,
+                script=SCRIPT,
+                sighash_flag=0x00,
+                amounts=TAPROOT_AMOUNTS,
+                scriptpubkeys=TAPROOT_SCRIPTPUBKEYS,
+            )
+
+    def test_script_path_derived_tapleaf_hash(self) -> None:
+        """A versioned leaf script derives its tapleaf_hash (BIP-341)."""
+        tapleaf = bytes([0xC0]) + SCRIPT
+        h = sighash_taproot(
+            TX_TAPROOT,
+            0,
+            script=tapleaf,
+            sighash_flag=0x00,
+            amounts=TAPROOT_AMOUNTS,
+            scriptpubkeys=TAPROOT_SCRIPTPUBKEYS,
+        )
+        assert len(h) == 32
 
     def test_input_index_out_of_range(self) -> None:
         with pytest.raises(IndexError, match="out of range"):
-            sighash_taproot(TX_TAPROOT, 5, script=None, sighash_flag=0x00)
+            sighash_taproot(
+                TX_TAPROOT,
+                5,
+                script=None,
+                sighash_flag=0x00,
+                amounts=TAPROOT_AMOUNTS,
+                scriptpubkeys=TAPROOT_SCRIPTPUBKEYS,
+            )
+
+    def test_invalid_hash_type(self) -> None:
+        with pytest.raises(ValueError, match="Invalid BIP-341 hash_type"):
+            sighash_taproot(
+                TX_TAPROOT,
+                0,
+                script=None,
+                sighash_flag=0x04,
+                amounts=TAPROOT_AMOUNTS,
+                scriptpubkeys=TAPROOT_SCRIPTPUBKEYS,
+            )
+
+    def test_amounts_length_mismatch(self) -> None:
+        with pytest.raises(ValueError, match="amounts must contain one entry"):
+            sighash_taproot(
+                TX_TAPROOT,
+                0,
+                script=None,
+                sighash_flag=0x00,
+                amounts=(10000,),
+                scriptpubkeys=TAPROOT_SCRIPTPUBKEYS,
+            )
+
+    def test_scriptpubkeys_length_mismatch(self) -> None:
+        with pytest.raises(ValueError, match="scriptpubkeys must contain one entry"):
+            sighash_taproot(
+                TX_TAPROOT,
+                0,
+                script=None,
+                sighash_flag=0x00,
+                amounts=TAPROOT_AMOUNTS,
+                scriptpubkeys=(b"",),
+            )
+
+    def test_key_version_out_of_range(self) -> None:
+        with pytest.raises(ValueError, match="key_version must fit in one byte"):
+            sighash_taproot(
+                TX_TAPROOT,
+                0,
+                script=SCRIPT,
+                sighash_flag=0x00,
+                tapleaf_hash=TAPLEAF_HASH,
+                key_version=256,
+                amounts=TAPROOT_AMOUNTS,
+                scriptpubkeys=TAPROOT_SCRIPTPUBKEYS,
+            )
+
+    def test_codeseparator_position_out_of_range(self) -> None:
+        with pytest.raises(
+            ValueError, match="codeseparator_position must fit in 32 bits"
+        ):
+            sighash_taproot(
+                TX_TAPROOT,
+                0,
+                script=SCRIPT,
+                sighash_flag=0x00,
+                tapleaf_hash=TAPLEAF_HASH,
+                codeseparator_position=2**32,
+                amounts=TAPROOT_AMOUNTS,
+                scriptpubkeys=TAPROOT_SCRIPTPUBKEYS,
+            )
 
     def test_with_annex(self) -> None:
         h = sighash_taproot(
@@ -298,16 +408,8 @@ class TestSighashTaproot:
             script=None,
             sighash_flag=0x00,
             annex=b"\x50\x00",
-        )
-        assert len(h) == 32
-
-    def test_with_extension(self) -> None:
-        h = sighash_taproot(
-            TX_TAPROOT,
-            0,
-            script=None,
-            sighash_flag=0x00,
-            extension=b"\x01\x02",
+            amounts=TAPROOT_AMOUNTS,
+            scriptpubkeys=TAPROOT_SCRIPTPUBKEYS,
         )
         assert len(h) == 32
 
@@ -319,6 +421,8 @@ class TestSighashTaproot:
             sighash_flag=0x00,
             tapleaf_hash=TAPLEAF_HASH,
             key_version=1,
+            amounts=TAPROOT_AMOUNTS,
+            scriptpubkeys=TAPROOT_SCRIPTPUBKEYS,
         )
         assert len(h) == 32
 
@@ -330,6 +434,8 @@ class TestSighashTaproot:
             sighash_flag=0x00,
             tapleaf_hash=TAPLEAF_HASH,
             codeseparator_position=42,
+            amounts=TAPROOT_AMOUNTS,
+            scriptpubkeys=TAPROOT_SCRIPTPUBKEYS,
         )
         assert len(h) == 32
 
@@ -341,11 +447,20 @@ class TestSighashTaproot:
             sighash_flag=0x00,
             tapleaf_hash=TAPLEAF_HASH,
             annex=b"\x50",
+            amounts=TAPROOT_AMOUNTS,
+            scriptpubkeys=TAPROOT_SCRIPTPUBKEYS,
         )
         assert len(h) == 32
 
     def test_flag_with_acp(self) -> None:
-        h = sighash_taproot(TX_TAPROOT, 0, script=None, sighash_flag=0x83)
+        h = sighash_taproot(
+            TX_TAPROOT,
+            0,
+            script=None,
+            sighash_flag=0x83,
+            amounts=TAPROOT_AMOUNTS,
+            scriptpubkeys=TAPROOT_SCRIPTPUBKEYS,
+        )
         assert len(h) == 32
 
     def test_large_script_fd_varint(self) -> None:
@@ -357,6 +472,8 @@ class TestSighashTaproot:
             script=big_script,
             sighash_flag=0x00,
             tapleaf_hash=TAPLEAF_HASH,
+            amounts=TAPROOT_AMOUNTS,
+            scriptpubkeys=TAPROOT_SCRIPTPUBKEYS,
         )
         assert len(h) == 32
 
@@ -369,6 +486,8 @@ class TestSighashTaproot:
             script=big_script,
             sighash_flag=0x00,
             tapleaf_hash=TAPLEAF_HASH,
+            amounts=TAPROOT_AMOUNTS,
+            scriptpubkeys=TAPROOT_SCRIPTPUBKEYS,
         )
         assert len(h) == 32
 
@@ -381,6 +500,8 @@ class TestSighashTaproot:
             script=SCRIPT,
             sighash_flag=0x83,
             tapleaf_hash=TAPLEAF_HASH,
+            amounts=TAPROOT_AMOUNTS,
+            scriptpubkeys=TAPROOT_SCRIPTPUBKEYS,
         )
         assert len(h) == 32
 
@@ -397,17 +518,33 @@ class TestComputeSighashDispatch:
         from btx.signature.extraction.helpers import compute_sighash
 
         tapleaf = bytes([TAPROOT_SCRIPT_PATH_PREFIXES[0]]) + SCRIPT
-        digest = compute_sighash(TX_TAPROOT, 0, tapleaf, 0x00, 10000)
+        digest = compute_sighash(
+            TX_TAPROOT,
+            0,
+            tapleaf,
+            0x00,
+            10000,
+            amounts=TAPROOT_AMOUNTS,
+            scriptpubkeys=TAPROOT_SCRIPTPUBKEYS,
+        )
         assert len(digest) == 32
 
+        # The leaf version prefix is split off; only the tapscript body
+        # is hashed (BIP-341).
         expected_tapleaf_hash = tagged_hash(
             "TapLeaf",
             bytes([TAPROOT_SCRIPT_PATH_PREFIXES[0]])
-            + encode_varint(len(tapleaf))
-            + tapleaf,
+            + encode_varint(len(SCRIPT))
+            + SCRIPT,
         )
         assert digest == sighash_taproot(
-            TX_TAPROOT, 0, tapleaf, 0x00, tapleaf_hash=expected_tapleaf_hash
+            TX_TAPROOT,
+            0,
+            tapleaf,
+            0x00,
+            tapleaf_hash=expected_tapleaf_hash,
+            amounts=TAPROOT_AMOUNTS,
+            scriptpubkeys=TAPROOT_SCRIPTPUBKEYS,
         )
 
     def test_segwit(self) -> None:
@@ -479,8 +616,10 @@ class TestSerializer:
         assert isinstance(raw, bytes)
 
     def test_legacy_sighash_single_out_of_range(self) -> None:
-        with pytest.raises(ValueError, match="out of bounds"):
-            serialize_legacy_tx_for_sighash(TX_2IN_2OUT, 5, SCRIPT, SIGHASH_SINGLE)
+        """Out-of-range SINGLE serialises null CTxOut entries (Core parity)."""
+        raw = serialize_legacy_tx_for_sighash(TX_1OUT, 1, SCRIPT, SIGHASH_SINGLE)
+        # input_index + 1 = 2 outputs are serialised; the second is null
+        assert b"\xff\xff\xff\xff\xff\xff\xff\xff\x00" in raw
 
     def test_legacy_sighash_anyonecanpay_all(self) -> None:
         raw = serialize_legacy_tx_for_sighash(

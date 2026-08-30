@@ -4,8 +4,6 @@
 
 from __future__ import annotations
 
-import pytest
-
 from btx import (
     SIGHASH_ALL,
     SIGHASH_ANYONECANPAY,
@@ -95,11 +93,12 @@ class TestSighashLegacy:
         assert a != b
 
     def test_sighash_legacy_single_no_output(self) -> None:
-        """SINGLE with no matching output raises ValueError."""
+        """SINGLE with no matching output short-circuits to uint256::ONE."""
         txin = TxIn(OutPoint(b"\x00" * 32, 0), b"", 0, Witness(()))
         tx = Tx(version=1, inputs=(txin,), outputs=(), lock_time=0)
-        with pytest.raises(ValueError, match="out of bounds"):
-            sighash_legacy(tx, 0, b"\x00", SIGHASH_SINGLE)
+        assert sighash_legacy(tx, 0, b"\x00", SIGHASH_SINGLE) == (
+            b"\x01" + b"\x00" * 31
+        )
 
 
 class TestSighashSegwit:
@@ -142,13 +141,19 @@ class TestSighashTaproot:
 
     def test_sighash_taproot_returns_32_bytes(self) -> None:
         tx = self.make_tx()
-        result = sighash_taproot(tx, 0, None, SIGHASH_ALL)
+        result = sighash_taproot(
+            tx, 0, None, SIGHASH_ALL, amounts=(1000,), scriptpubkeys=(b"",)
+        )
         assert len(result) == 32
 
     def test_sighash_taproot_deterministic(self) -> None:
         tx = self.make_tx()
-        a = sighash_taproot(tx, 0, None, SIGHASH_ALL)
-        b = sighash_taproot(tx, 0, None, SIGHASH_ALL)
+        a = sighash_taproot(
+            tx, 0, None, SIGHASH_ALL, amounts=(1000,), scriptpubkeys=(b"",)
+        )
+        b = sighash_taproot(
+            tx, 0, None, SIGHASH_ALL, amounts=(1000,), scriptpubkeys=(b"",)
+        )
         assert a == b
 
 
@@ -184,7 +189,7 @@ class TestExtractTaproot:
         )
         assert len(records) == 1
         assert records[0].script_type == "p2tr"
-        assert records[0].sighash_flag == 0x01  # SIGHASH_ALL default
+        assert records[0].sighash_flag == 0x00  # SIGHASH_DEFAULT for 64-byte sig
 
     def test_taproot_key_path_with_sighash(self) -> None:
         """Key-path spend with 65-byte sig containing explicit sighash."""

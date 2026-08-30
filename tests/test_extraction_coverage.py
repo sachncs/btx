@@ -745,7 +745,7 @@ class TestExtractTaproot:
         )
         assert len(records) == 1
         assert records[0].script_type == P2TR
-        assert records[0].sighash_flag == 0x01
+        assert records[0].sighash_flag == 0x00
 
     def test_key_path_65_bytes(self) -> None:
         sc = p2tr_script(b"\x00" * 32)
