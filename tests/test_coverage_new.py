@@ -691,42 +691,6 @@ class TestPipeline:
         assert result.successful == 2
         assert result.failed == 0
 
-    def test_batch_extract_from_file2(self) -> None:
-        """batch_extract_from_file reads hex txs from a file (2)."""
-        import tempfile
-
-        from btx.script import build_p2pkh
-        from btx.script.parser import serialize_script
-        from btx.services.serializer import serialize_legacy_tx
-        from btx.signature.pipeline import batch_extract_from_file
-        from btx.transaction.models import OutPoint, Tx, TxIn, TxOut, Witness
-
-        priv = 42
-        txin = TxIn(OutPoint(b"\x01" * 32, 0), b"", 0xFFFFFFFF, Witness(()))
-        txout = TxOut(1000, build_p2pkh(TEST_PUB_HASH))
-        tx = Tx(2, (txin,), (txout,), 0)
-        sig = sign_tx_input(tx, 0, priv, script=build_p2pkh(TEST_PUB_HASH), value=0)
-        pubkey = multiply(priv, GENERATOR_POINT)
-        scriptsig = serialize_script([sig, pubkey.to_sec_compressed()])
-        txin2 = TxIn(OutPoint(b"\x01" * 32, 0), scriptsig, 0xFFFFFFFF, Witness(()))
-        tx2 = Tx(2, (txin2,), (txout,), 0)
-        raw_hex = serialize_legacy_tx(tx2).hex()
-        with tempfile.NamedTemporaryFile(
-            mode="w", suffix=".txt", delete=False, encoding="utf-8"
-        ) as f:
-            f.write(raw_hex + "\n")
-            f.write("# comment\n")
-            f.write(raw_hex + "\n")
-            fpath = f.name
-        try:
-            result = batch_extract_from_file(fpath)
-            assert result.total == 2
-            assert result.successful == 2
-        finally:
-            import os
-
-            os.unlink(fpath)
-
 
 # ===================================================================
 # blockchain.py (27 % coverage)
