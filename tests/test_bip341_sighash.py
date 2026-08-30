@@ -87,18 +87,13 @@ def reference_sighash_taproot(
     if not anyonecanpay:
         data += sha256(
             b"".join(
-                i.previous_output.txid
-                + i.previous_output.vout.to_bytes(4, "little")
+                i.previous_output.txid + i.previous_output.vout.to_bytes(4, "little")
                 for i in tx.inputs
             )
         )
         data += sha256(b"".join(a.to_bytes(8, "little") for a in amounts))
-        data += sha256(
-            b"".join(encode_varint(len(s)) + s for s in scriptpubkeys)
-        )
-        data += sha256(
-            b"".join(i.sequence.to_bytes(4, "little") for i in tx.inputs)
-        )
+        data += sha256(b"".join(encode_varint(len(s)) + s for s in scriptpubkeys))
+        data += sha256(b"".join(i.sequence.to_bytes(4, "little") for i in tx.inputs))
 
     output_type = 1 if base == 0 else base  # 1=ALL, 2=NONE, 3=SINGLE
     if output_type == 1:
