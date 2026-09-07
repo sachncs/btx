@@ -1,0 +1,8 @@
+title: "btx"
+description: "Extract and linearize ECDSA signatures (r, s, z) from Bitcoin transactions with pure-Python secp256k1"
+theme: minima
+logo: /assets/logo.svg
+show_downloads: false
+permalink: /:title/
+plugins:
+  - jekyll-feed
