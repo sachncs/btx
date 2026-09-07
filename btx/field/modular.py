@@ -1,0 +1,57 @@
+# Copyright (c) 2026 secp contributors
+# SPDX-License-Identifier: MIT
+"""Modular arithmetic over finite fields: inversion.
+
+Provides :func:`inverse` (the modular multiplicative inverse, computed
+via the extended Euclidean algorithm).
+
+Why not just call ``pow(value, -1, modulus)``?  Two reasons:
+
+1. Older Python versions (pre-3.8) did not support negative exponents
+   in :func:`pow`, so this module guarantees a consistent baseline.
+2. :func:`inverse` raises :exc:`ValueError` for non-coprime inputs
+   (including zero), letting callers handle that case explicitly
+   without distinguishing ``ValueError`` from the underlying
+   ``ZeroDivisionError``.
+"""
+
+
+def inverse(value: int, modulus: int) -> int:
+    """Return the modular inverse of *value* modulo *modulus*.
+
+    Uses the extended Euclidean algorithm.
+
+    Args:
+        value: Integer whose inverse is sought. Must be non-negative.
+        modulus: Modulus. Must be greater than 1.
+
+    Returns:
+        Integer *x* such that ``(value * x) % modulus == 1``.
+
+    Raises:
+        TypeError: If either argument is not an ``int``.
+        ValueError: If *modulus* is ≤ 1, *value* is negative, or
+            *value* and *modulus* are not coprime (including when
+            *value* is zero).
+    """
+    if not isinstance(value, int):
+        raise TypeError(f"Value must be int, got {type(value).__name__}.")
+    if not isinstance(modulus, int):
+        raise TypeError(f"Modulus must be int, got {type(modulus).__name__}.")
+    if modulus <= 1:
+        raise ValueError(f"Modulus must be > 1, got {modulus}.")
+    if value < 0:
+        raise ValueError(f"Value must be non-negative, got {value}.")
+    if value == 0:
+        raise ValueError("Zero has no modular inverse.")
+
+    old_r, r = modulus, value
+    old_t, t = 0, 1
+    while r != 0:
+        quotient = old_r // r
+        old_r, r = r, old_r - quotient * r
+        old_t, t = t, old_t - quotient * t
+
+    if old_r != 1:
+        raise ValueError(f"Value {value} is not invertible modulo {modulus}.")
+    return old_t % modulus

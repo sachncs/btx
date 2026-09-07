@@ -1,0 +1,67 @@
+# Copyright (c) 2026 secp contributors
+# SPDX-License-Identifier: MIT
+"""Partially Signed Bitcoin Transaction (PSBT) types, parsing, editing, and extraction.
+
+Implements BIP-174 (and the BIP-174 + Taproot extensions implicitly
+via unknown-key preservation).  The subpackage contains:
+
+- :mod:`btx.psbt.models` – frozen dataclasses :class:`Psbt`,
+  :class:`PsbtInput`, :class:`PsbtOutput` with serialise / extract
+  methods.
+- :mod:`btx.psbt.parser` – BIP-174 binary reader and writer,
+  including the key-type constants, witness-stack parsing, the
+  BIP-32 keypath parser.
+- :mod:`btx.psbt.editor` – :class:`PsbtEditor` fluent API for
+  programmatically constructing or signing a PSBT.
+- :mod:`btx.psbt.extraction` – :func:`psbt_extract_signatures` and
+  the helper that finds the public key in a parsed script.
+- :mod:`btx.psbt.pipeline` – :func:`process_psbt_batch` /
+  :func:`process_psbt_batch_with` for parallel PSBT file processing
+  with structured logging and graceful error capture.
+
+Defensive limits
+----------------
+
+:mod:`btx.psbt.parser` enforces four safety limits on untrusted
+input:
+
+- :data:`MAX_KEY_VALUE_MAP_ENTRIES` – number of key-value pairs per
+  map.
+- :data:`MAX_KEY_SIZE` – size of a single key.
+- :data:`MAX_VALUE_SIZE` – size of a single value.
+- :data:`MAX_PSBT_WITNESS_ITEMS` / :data:`MAX_PSBT_WITNESS_ITEM_SIZE`
+  – per-input witness stack bounds.
+
+These defaults are deliberately generous (a real mainnet PSBT has at
+most a few dozen entries per map and kilobyte-sized values).
+"""
+
+from btx.psbt.editor import PsbtEditor
+from btx.psbt.extraction import psbt_extract_signatures
+from btx.psbt.models import Psbt, PsbtInput, PsbtOutput
+from btx.psbt.parser import (
+    parse_keypath_value,
+    parse_psbt,
+    parse_psbt_from_file,
+    parse_psbt_hex,
+    serialize_psbt,
+)
+from btx.psbt.pipeline import (
+    process_psbt_batch,
+    process_psbt_batch_with,
+)
+
+__all__ = [
+    "Psbt",
+    "PsbtEditor",
+    "PsbtInput",
+    "PsbtOutput",
+    "parse_keypath_value",
+    "parse_psbt",
+    "parse_psbt_from_file",
+    "parse_psbt_hex",
+    "process_psbt_batch",
+    "process_psbt_batch_with",
+    "psbt_extract_signatures",
+    "serialize_psbt",
+]

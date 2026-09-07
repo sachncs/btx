@@ -1,0 +1,104 @@
+# Copyright (c) 2026 secp contributors
+# SPDX-License-Identifier: MIT
+"""Schnorr signature verification (BIP-340) for Taproot inputs.
+
+Implements BIP-340's Schnorr signature verification used by Taproot
+key-path spends.  Two primitives:
+
+- :func:`lift_x` – lift a 32-byte x-only public-key coordinate into
+  an affine ``(x, y)`` pair with **even** ``y``, per the BIP-340
+  convention.  Returns ``None`` if the x-coordinate does not
+  correspond to a valid curve point.
+- :func:`verify_schnorr_signature` – full BIP-340 verification:
+
+      R = s·G − e·P
+      check R.y even and R.x == r
+
+  where ``e = tagged_hash("BIP0340/challenge", r || P || m)``.
+
+Reference: BIP-340 "Schnorr Signatures for secp256k1".
+"""
+
+from __future__ import annotations
+
+from btx.curve import GENERATOR_POINT
+from btx.curve.dispatch import add, multiply, negate
+from btx.curve.params import CURVE_ORDER, FIELD_PRIME
+from btx.encoding.hasher import tagged_hash
+
+
+def lift_x(x: int) -> tuple[int, int] | None:
+    """Lift an x-coordinate to a point with even y (BIP-340).
+
+    Args:
+        x: The x-coordinate (0 <= x < p).
+
+    Returns:
+        ``(x, y)`` where y is even, or ``None`` if no such point exists.
+    """
+    if x >= FIELD_PRIME:
+        return None
+    y_sq = (pow(x, 3, FIELD_PRIME) + 7) % FIELD_PRIME
+    y = pow(y_sq, (FIELD_PRIME + 1) // 4, FIELD_PRIME)
+    if (y * y) % FIELD_PRIME != y_sq:
+        return None
+    if y & 1:
+        y = FIELD_PRIME - y
+    return (x, y)
+
+
+def verify_schnorr_signature(
+    public_key_bytes: bytes,
+    signature_bytes: bytes,
+    message_hash: bytes,
+) -> bool:
+    """Verify a BIP-340 Schnorr signature.
+
+    Args:
+        public_key_bytes: 32-byte x-only public key.
+        signature_bytes: 64-byte signature ``(r || s)``.
+        message_hash: 32-byte message hash.
+
+    Returns:
+        ``True`` if the signature is valid.
+    """
+    if (
+        len(public_key_bytes) != 32
+        or len(signature_bytes) != 64
+        or len(message_hash) != 32
+    ):
+        return False
+
+    p = lift_x(int.from_bytes(public_key_bytes, "big"))
+    if p is None:
+        return False
+
+    r = int.from_bytes(signature_bytes[:32], "big")
+    s = int.from_bytes(signature_bytes[32:], "big")
+
+    if r >= FIELD_PRIME or s >= CURVE_ORDER:
+        return False
+
+    from btx.curve.point import Point
+
+    pubkey_point = Point(x=p[0], y=p[1])
+
+    e = tagged_hash(
+        "BIP0340/challenge", signature_bytes[:32] + public_key_bytes + message_hash
+    )
+    e_int = int.from_bytes(e, "big") % CURVE_ORDER
+
+    sG = multiply(s, GENERATOR_POINT)
+    eP = multiply(e_int, pubkey_point)
+    R = add(sG, negate(eP))
+
+    if R.infinity or R.x is None or R.y is None or (R.y & 1) != 0:
+        return False
+
+    return R.x == r
+
+
+__all__ = [
+    "lift_x",
+    "verify_schnorr_signature",
+]

@@ -1,0 +1,256 @@
+# Copyright (c) 2026 secp contributors
+# SPDX-License-Identifier: MIT
+"""Transaction serialisation to Bitcoin wire format.
+
+Two complete serialisers and two sighash-specific pre-image builders:
+
+- :func:`serialize_tx` – SegWit-aware wire format (BIP-144).  When
+  the transaction has any non-empty witness it emits the ``0x00 0x01``
+  marker + flag and appends witness data after the outputs.
+- :func:`serialize_legacy_tx` – pre-SegWit wire format.  Witness data
+  is omitted entirely.
+- :func:`serialize_legacy_tx_for_sighash` – the legacy sighash
+  pre-image, with input scripts and outputs modified per the
+  SIGHASH flag (the script being signed replaces the input's
+  ``scriptSig``).
+- :func:`serialize_tx_for_sighash_taproot` – the common transaction
+  prefix used by the BIP-341 Taproot sighash.
+
+Plus :func:`tx_to_json`, which converts a :class:`Tx` to a JSON-
+serialisable dict suitable for inspection or HTTP response bodies.
+"""
+
+from __future__ import annotations
+
+from typing import TYPE_CHECKING, Any
+
+from btx.encoding.hex import encode_hex
+from btx.encoding.varint import encode_varint
+from btx.transaction.ops import is_segwit, txid
+
+if TYPE_CHECKING:
+    from btx.transaction.models import Tx
+
+
+def serialize_tx(tx: Tx) -> bytes:
+    """Serialize a transaction to wire format (SegWit-aware).
+
+    Automatically includes the SegWit marker (``0x00``) and flag
+    (``0x01``) when the transaction has any non-empty witness, and
+    appends witness data after the outputs.
+
+    Args:
+        tx: The transaction to serialise.
+
+    Returns:
+        Wire-format bytes.
+    """
+    data = bytearray()
+    data.extend(tx.version.to_bytes(4, "little"))
+
+    if is_segwit(tx):
+        data.extend(b"\x00\x01")  # SegWit marker + flag
+
+    data.extend(encode_varint(len(tx.inputs)))
+    for txin in tx.inputs:
+        data.extend(txin.previous_output.txid)
+        data.extend(txin.previous_output.vout.to_bytes(4, "little"))
+        data.extend(encode_varint(len(txin.script_sig)))
+        data.extend(txin.script_sig)
+        data.extend(txin.sequence.to_bytes(4, "little"))
+
+    data.extend(encode_varint(len(tx.outputs)))
+    for txout in tx.outputs:
+        data.extend(txout.value.to_bytes(8, "little"))
+        data.extend(encode_varint(len(txout.script_pubkey)))
+        data.extend(txout.script_pubkey)
+
+    if is_segwit(tx):
+        for txin in tx.inputs:
+            data.extend(encode_varint(len(txin.witness)))
+            for item in txin.witness.items:
+                data.extend(encode_varint(len(item)))
+                data.extend(item)
+
+    data.extend(tx.lock_time.to_bytes(4, "little"))
+    return bytes(data)
+
+
+def tx_to_json(tx: Tx) -> dict[str, Any]:
+    """Convert a transaction to a JSON-serializable dict.
+
+    Args:
+        tx: The transaction to convert.
+
+    Returns:
+        A dict representing the full transaction structure.
+    """
+    return {
+        "txid": encode_hex(txid(tx)),
+        "version": tx.version,
+        "lock_time": tx.lock_time,
+        "inputs": [
+            {
+                "txid": encode_hex(txin.previous_output.txid),
+                "vout": txin.previous_output.vout,
+                "script_sig": encode_hex(txin.script_sig),
+                "sequence": txin.sequence,
+                "witness": [encode_hex(w) for w in txin.witness.items]
+                if txin.witness.items
+                else None,
+            }
+            for txin in tx.inputs
+        ],
+        "outputs": [
+            {
+                "value": txout.value,
+                "script_pubkey": encode_hex(txout.script_pubkey),
+            }
+            for txout in tx.outputs
+        ],
+    }
+
+
+def serialize_legacy_tx(tx: Tx) -> bytes:
+    """Serialize a transaction in legacy (non-SegWit) format.
+
+    Witness data is omitted entirely, matching the pre-SegWit wire
+    format.
+
+    Args:
+        tx: The transaction to serialise.
+
+    Returns:
+        Legacy wire-format bytes.
+    """
+    data = bytearray()
+    data.extend(tx.version.to_bytes(4, "little"))
+    data.extend(encode_varint(len(tx.inputs)))
+    for txin in tx.inputs:
+        data.extend(txin.previous_output.txid)
+        data.extend(txin.previous_output.vout.to_bytes(4, "little"))
+        data.extend(encode_varint(len(txin.script_sig)))
+        data.extend(txin.script_sig)
+        data.extend(txin.sequence.to_bytes(4, "little"))
+    data.extend(encode_varint(len(tx.outputs)))
+    for txout in tx.outputs:
+        data.extend(txout.value.to_bytes(8, "little"))
+        data.extend(encode_varint(len(txout.script_pubkey)))
+        data.extend(txout.script_pubkey)
+    data.extend(tx.lock_time.to_bytes(4, "little"))
+    return bytes(data)
+
+
+def serialize_legacy_tx_for_sighash(
+    tx: Tx, input_index: int, script: bytes, flag: int
+) -> bytes:
+    """Serialise a transaction for legacy sighash computation.
+
+    Produces the pre-image that is double-SHA256 hashed to produce the
+    legacy sighash.  The serialisation varies according to the SIGHASH
+    flags (ANYONECANPAY, NONE, SINGLE).
+
+    Args:
+        tx: The transaction.
+        input_index: Index of the input being signed.
+        script: Script to place at the input being signed.
+        flag: The SIGHASH flag.
+
+    Returns:
+        Serialised sighash pre-image bytes.  For ``SIGHASH_SINGLE``,
+        every output slot other than the signed one (including slots
+        beyond the output range) is serialised as a null ``CTxOut``,
+        mirroring Bitcoin Core.  Callers that need consensus-exact
+        digests should not rely on out-of-range ``SIGHASH_SINGLE``
+        pre-images — :func:`btx.sighash.legacy.sighash_legacy`
+        short-circuits such inputs to ``uint256::ONE`` instead.
+    """
+    from btx.sighash.flag import (
+        SIGHASH_ANYONECANPAY,
+        SIGHASH_MASK,
+        SIGHASH_NONE,
+        SIGHASH_SINGLE,
+    )
+
+    base_flag = flag & SIGHASH_MASK
+    data = bytearray()
+    data.extend(tx.version.to_bytes(4, "little"))
+
+    if flag & SIGHASH_ANYONECANPAY:
+        data.extend(encode_varint(1))
+        txin = tx.inputs[input_index]
+        data.extend(txin.previous_output.txid)
+        data.extend(txin.previous_output.vout.to_bytes(4, "little"))
+        data.extend(encode_varint(len(script)))
+        data.extend(script)
+        data.extend(txin.sequence.to_bytes(4, "little"))
+    else:
+        data.extend(encode_varint(len(tx.inputs)))
+        for i, txin in enumerate(tx.inputs):
+            data.extend(txin.previous_output.txid)
+            data.extend(txin.previous_output.vout.to_bytes(4, "little"))
+            if i == input_index:
+                data.extend(encode_varint(len(script)))
+                data.extend(script)
+                data.extend(txin.sequence.to_bytes(4, "little"))
+            else:
+                data.append(0x00)  # empty script length
+                if base_flag in (SIGHASH_NONE, SIGHASH_SINGLE):
+                    data.extend(b"\x00\x00\x00\x00")
+                else:
+                    data.extend(txin.sequence.to_bytes(4, "little"))
+
+    if base_flag == SIGHASH_NONE:
+        data.append(0x00)  # varint 0 — zero outputs
+    elif base_flag == SIGHASH_SINGLE:
+        data.extend(encode_varint(input_index + 1))
+        for i in range(input_index + 1):
+            if i == input_index and i < len(tx.outputs):
+                out = tx.outputs[i]
+                data.extend(out.value.to_bytes(8, "little"))
+                data.extend(encode_varint(len(out.script_pubkey)))
+                data.extend(out.script_pubkey)
+            else:
+                # Null CTxOut (value -1, empty script) for every slot other
+                # than the signed output, mirroring Bitcoin Core's
+                # SerializeOutput (nOutput != nIn).
+                data.extend((0xFFFFFFFFFFFFFFFF).to_bytes(8, "little"))
+                data.append(0x00)
+    else:
+        data.extend(encode_varint(len(tx.outputs)))
+        for out in tx.outputs:
+            data.extend(out.value.to_bytes(8, "little"))
+            data.extend(encode_varint(len(out.script_pubkey)))
+            data.extend(out.script_pubkey)
+
+    data.extend(tx.lock_time.to_bytes(4, "little"))
+    data.extend(flag.to_bytes(4, "little"))
+    return bytes(data)
+
+
+def serialize_tx_for_sighash_taproot(tx: Tx) -> bytes:
+    """Serialise transaction data for BIP-341 Taproot sighash.
+
+    Produces the common transaction data shared across all inputs during
+    Taproot sighash computation (inputs and outputs, without witness
+    data).  The caller is responsible for output pruning based on the
+    sighash flag.
+
+    Args:
+        tx: The transaction.
+
+    Returns:
+        Serialised bytes of inputs and outputs for the Taproot sighash.
+    """
+    data = bytearray()
+    data.extend(encode_varint(len(tx.inputs)))
+    for txin in tx.inputs:
+        data.extend(txin.previous_output.txid)
+        data.extend(txin.previous_output.vout.to_bytes(4, "little"))
+        data.extend(txin.sequence.to_bytes(4, "little"))
+    data.extend(encode_varint(len(tx.outputs)))
+    for txout in tx.outputs:
+        data.extend(txout.value.to_bytes(8, "little"))
+        data.extend(encode_varint(len(txout.script_pubkey)))
+        data.extend(txout.script_pubkey)
+    return bytes(data)
