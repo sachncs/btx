@@ -1,4 +1,4 @@
-# Copyright (c) 2026 secp contributors
+# Copyright (c) 2026 Sachin
 # SPDX-License-Identifier: MIT
 """Secp256k1 curve parameters (SEC-1 / SEC-2, ANSI X9.62).
 

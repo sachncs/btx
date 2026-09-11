@@ -1,4 +1,4 @@
-# Copyright (c) 2026 secp contributors
+# Copyright (c) 2026 Sachin
 # SPDX-License-Identifier: MIT
 """Comprehensive CLI tests covering every branch in btx/cli/app.py."""
 

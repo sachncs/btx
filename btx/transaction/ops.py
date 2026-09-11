@@ -1,4 +1,4 @@
-# Copyright (c) 2026 secp contributors
+# Copyright (c) 2026 Sachin
 # SPDX-License-Identifier: MIT
 """Transaction-level operations that take a :class:`Tx` as an argument.
 

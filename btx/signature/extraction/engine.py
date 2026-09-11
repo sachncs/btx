@@ -1,4 +1,4 @@
-# Copyright (c) 2026 secp contributors
+# Copyright (c) 2026 Sachin
 # SPDX-License-Identifier: MIT
 """Engine for extracting ECDSA and Schnorr signatures from Bitcoin transactions.
 

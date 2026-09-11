@@ -1,4 +1,4 @@
-# Copyright (c) 2026 secp contributors
+# Copyright (c) 2026 Sachin
 # SPDX-License-Identifier: MIT
 """Field square root via Tonelli-Shanks for ``p ≡ 3 (mod 4)``.
 
