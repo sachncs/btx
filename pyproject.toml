@@ -55,10 +55,6 @@ addopts = "-q"
 line-length = 88
 target-version = "py312"
 
-[tool.yapf]
-based_on_style = "pep8"
-column_limit = 88
-
 [tool.ruff.lint]
 select = ["E", "F", "UP", "B", "I", "N"]
 
