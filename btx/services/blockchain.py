@@ -40,6 +40,7 @@ from __future__ import annotations
 import asyncio
 import json
 import logging
+import re
 import ssl
 import time
 from typing import TYPE_CHECKING, Any
@@ -355,7 +356,7 @@ def validate_txid(txid: str) -> str:
     Raises:
         ValueError: If *txid* is not a valid 64-character hex string.
     """
-    if len(txid) != 64 or not all(c in TXID_PATTERN for c in txid):
+    if not TXID_RE.fullmatch(txid):
         raise ValueError(f"Invalid txid: {txid!r}")
     return txid
 
@@ -565,9 +566,7 @@ def fetch_and_extract(
     if provider is None:
         provider = blockstream_provider()
 
-    is_txid = len(txid_or_hex) == 64 and all(
-        c in "0123456789abcdefABCDEF" for c in txid_or_hex
-    )
+    is_txid = bool(TXID_RE.fullmatch(txid_or_hex))
 
     if is_txid:
         tx_hex = provider.get_transaction_hex(txid_or_hex)
