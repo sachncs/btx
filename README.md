@@ -101,7 +101,7 @@ records = btx.extract_signatures(tx)
 sorted_records = btx.linearize_signatures(records)
 
 # Verify a signature
-ok = btx.verify_sig(message_hash, der_sig, public_key)
+ok = btx.verify_signature(message_hash, der_sig, public_key)
 ```
 
 ---
@@ -167,24 +167,27 @@ h = sighash_segwit(tx, input_index, script_code, amount, SIGHASH_ALL)
 
 ```python
 from btx import (
-    parse_script, serialize_script,
-    classify_script_pubkey, classify_script_sig,
-    classify_detailed, is_op_return, is_bare_multisig, has_timelocks,
-    P2PK, P2PKH, P2SH, P2WPKH, P2WSH, P2TR, MULTISIG, TIMELOCK,
+    parse_script,
+    classify_script_pubkey,
+    P2PKH, P2SH, P2WPKH, P2WSH, P2TR,
 )
 
-detail = classify_detailed(script)
-print(detail)  # P2WPKH, P2SH, P2TR, MULTISIG, ...
+detail = classify_script_pubkey(script)
+print(detail)  # P2WPKH, P2SH, P2TR, ...
 ```
 
 ### Blockchain Data Providers
 
 ```python
-from btx import BlockstreamProvider, BlockchainInfoProvider, MempoolSpaceProvider
+from btx import BlockstreamProvider  # noqa: F401
 
-provider = BlockstreamProvider()
-tx_hex = provider.get_transaction_hex("txid...")
-utxo_value = provider.get_utxo_value("txid...", vout=0)
+# Provider instance is constructed internally; use the helper functions
+# exported from btx.services.blockchain, or instantiate one explicitly.
+from btx.services.blockchain import blockstream_provider, mempool_space_provider
+
+provider = blockstream_provider()
+tx_hex = provider.get_transaction_hex("aa" * 32)
+utxo_value = provider.get_utxo_value("aa" * 32, vout=0)
 ```
 
 ---
@@ -245,17 +248,18 @@ Layering rules:
 
 | Variable | Default | Description |
 |----------|---------|-------------|
-| `BITCOIN_LOG_LEVEL` | `WARNING` | Log verbosity (`DEBUG`, `INFO`, `WARNING`, `ERROR`, `CRITICAL`) |
+| `BTX_LOG_LEVEL` | `WARNING` | Log verbosity (`DEBUG`, `INFO`, `WARNING`, `ERROR`, `CRITICAL`) |
 
 ### Settings singleton
 
 ```python
 from btx import settings
 
-settings.strict_mode = True               # raise on non-fatal issues
 settings.default_backend = "libsecp"      # or "native" / None
-settings.max_extraction_inputs = 5000
 ```
+
+`settings` is a frozen dataclass; use `dataclasses.replace(settings, ...)`
+to derive a customised copy.
 
 ---
 
@@ -263,14 +267,14 @@ settings.max_extraction_inputs = 5000
 
 | Symbol | Type | Description |
 |--------|------|-------------|
-| `parse_tx`, `make_tx`, `TransactionBuilder`, `tx_from_dict` | function / class | Transaction construction and parsing |
+| `parse_tx`, `TransactionBuilder`, `tx_from_dict` | function / class | Transaction construction and parsing |
 | `extract_signatures`, `linearize_signatures`, `batch_extract`, `correlate_across_transactions` | function | Signature extraction pipeline |
-| `verify_sig`, `verify_schnorr_sig`, `verify_all`, `recover_public_key` | function | ECDSA / Schnorr verification |
+| `verify_signature`, `verify_schnorr_signature`, `verify_all`, `recover_public_key` | function | ECDSA / Schnorr verification |
 | `sighash_legacy`, `sighash_segwit`, `sighash_taproot` | function | Sighash computation |
 | `parse_psbt`, `serialize_psbt`, `psbt_extract_signatures`, `PsbtEditor` | function / class | PSBT (BIP-174) |
 | `parse_public_key`, `serialize_public_key`, `multiply`, `add`, `double` | function | secp256k1 curve ops |
 | `analyze_descriptor`, `compile_descriptor`, `extract_keys` | function | Miniscript descriptor tools |
-| `BlockstreamProvider`, `BlockchainInfoProvider`, `MempoolSpaceProvider`, `GenericHttpProvider` | class | Blockchain data fetching |
+| `blockstream_provider`, `mempool_space_provider`, `BaseBlockchainProvider`, `BlockchainInfoProvider`, `GenericHttpProvider` | class | Blockchain data fetching |
 
 ### Newly promoted helpers
 
@@ -294,7 +298,7 @@ re-exported from their submodules:
 
 ```
 btx/
-├── __init__.py          # Public API surface (191 symbols)
+├── __init__.py          # Public API surface (~105 symbols)
 ├── cli/                 # Typer CLI commands
 ├── curve/               # secp256k1 point operations & pluggable backends
 │   ├── backend/         # CurveBackend ABC, native (pure-Python), libsec (coincurve)
@@ -313,7 +317,7 @@ btx/
 │   ├── extraction/      # Extractor plugin registry + engine
 │   └── linearization/   # (α, β) coefficient derivation
 └── transaction/         # Tx parse, build, serialize, fee, RBF
-tests/                   # Test suite (868 passing)
+tests/                   # Test suite (886 passing)
 docs/                    # Documentation
 ```
 
@@ -358,7 +362,7 @@ chore: update ruff config
 ## Testing
 
 ```bash
-pytest                       # 868 tests
+pytest                       # 886 tests
 pytest --cov=btx         # With coverage report
 make test-cov                # Via Makefile
 ```
