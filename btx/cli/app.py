@@ -519,6 +519,11 @@ def recover(
 ) -> None:
     """Recover the public key from an ECDSA signature."""
     configure_logging()
+    if recovery_flag not in (27, 28, 29, 30, 31, 32, 33, 34):
+        fail(
+            "--recid must be in 27..30 (compressed) or 31..34 (uncompressed); "
+            f"got {recovery_flag}."
+        )
     msg = decode_hex(read_tx_hex(message_hash, input_file))
     pk = recover_public_key(msg, decode_hex(signature), recovery_flag)
     if pk is None or pk.infinity:
