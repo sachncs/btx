@@ -2,89 +2,65 @@
 
 ## Top-level symbols (`btx/__init__.py`)
 
+The canonical list lives in `btx/__init__.py` under `__all__`.
+Representative top-level symbols include:
+
 ```python
 from btx import (
-    # Constants
-    GENERATOR, INFINITY, CURVE_ORDER, FIELD_PRIME,
-    P2PK, P2PKH, P2SH, P2WPKH, P2WSH, P2TR,
-    MULTISIG, TIMELOCK, OP_RETURN,
-    SIGHASH_ALL, SIGHASH_NONE, SIGHASH_SINGLE, SIGHASH_ANYONECANPAY,
-    SIGHASH_DEFAULT,
-    EMPTY_WITNESS,
-    NULL,
+    # Curve and field
+    CURVE_ORDER, FIELD_PRIME, GENERATOR_POINT, INFINITY_POINT,
+    Point, CurveBackend, NativeBackend, LibsecpBackend,
+    add, double, multiply, negate, is_on_curve,
+    get_backend, parse_public_key, serialize_public_key,
+    inverse, sqrt,
 
-    # Classes
-    Point,
-    Tx, TxIn, TxOut, OutPoint, Witness,
-    ScriptChunk,
-    Settings,
-    Record,
-    BtxError,
+    # Encoding
+    sha256, hash256, hash160, tagged_hash,
+    encode_hex, decode_hex, encode_der, decode_der,
+    encode_varint, decode_varint, parse_sec, serialize_sec,
 
-    # Functions
-    extract_signatures,
-    linearize_signatures,
-    verify_sig,
-    verify_schnorr_sig,
-    verify_all,
-    recover_public_key,
-    parse_tx,
-    make_tx,
-    parse_psbt,
-    serialize_psbt,
-    sighash_legacy,
-    sighash_segwit,
-    sighash_taproot,
-    parse_script,
-    serialize_script,
-    classify_script_pubkey,
-    classify_script_sig,
-    classify_detailed,
-    is_op_return,
-    is_bare_multisig,
-    has_timelocks,
-    build_p2pkh,
-    build_p2wpkh,
-    build_p2sh,
-    build_p2wsh,
-    build_p2tr,
-    get_x_only_pubkey,
-    parse_taproot_witness_stack,
-    parse_sec,
-    serialize_sec,
-    encode_hex,
-    decode_hex,
-    encode_der,
-    decode_der,
-    encode_varint,
-    decode_varint,
-    serialize_tx,
-    serialize_legacy_tx,
-    tx_to_json,
-    is_opt_in_rbf,
-    has_sequence_lock,
-    health,
-    sha256,
-    hash256,
-    hash160,
-    tagged_hash,
-    bytes_to_int,
-    int_to_bytes,
-    negate,
-    add,
-    double,
-    multiply,
-    is_on_curve,
-    sqrt_field,
-    normalize,
-    inverse,
-    sqrt,
-    pow_mod,
-    set_backend,
-    get_backend,
-    validate_non_negative,
+    # Script
+    P2PKH, P2SH, P2WPKH, P2WSH, P2TR,
+    parse_script, classify_script_pubkey,
+    build_p2pkh, build_p2sh, build_p2wpkh, build_p2wsh, build_p2tr,
+
+    # Sighash
+    SIGHASH_ALL, SIGHASH_NONE, SIGHASH_SINGLE,
+    SIGHASH_ANYONECANPAY, SIGHASH_DEFAULT,
+    sighash_legacy, sighash_segwit, sighash_taproot,
+
+    # Transaction
+    Tx, TxIn, TxOut, OutPoint, Witness, EMPTY_WITNESS,
+    TransactionBuilder, parse_tx, tx_from_dict,
+    estimate_minimum_fee, estimate_optimal_fee, estimate_vsize,
+    is_opt_in_rbf, has_sequence_lock,
+
+    # Signature
+    Record, SignatureCollection,
+    extract_signatures, linearize_signatures,
+    verify_signature, verify_schnorr_signature, verify_all,
+    recover_public_key, sign, sign_tx_input,
+    batch_extract, batch_extract_from_file,
+    correlate_across_transactions,
+
+    # PSBT
+    Psbt, PsbtEditor, PsbtInput, PsbtOutput,
+    parse_psbt, parse_psbt_from_file, parse_psbt_hex,
+    serialize_psbt, psbt_extract_signatures,
+
+    # Descriptor
+    DescriptorError, DescriptorInfo, DescriptorNode,
+    analyze_descriptor, compile_descriptor, extract_keys,
+    estimate_satisfaction, contains_op,
+
+    # Services
+    BaseBlockchainProvider, BlockchainInfoProvider, GenericHttpProvider,
+    blockstream_provider, mempool_space_provider,
+    broadcast_transaction,
+
+    # Errors and settings
+    BtxError, UnsupportedScriptPathError,
     settings,
-    encode_sig_hash_flags,
 )
 ```
 
@@ -143,17 +119,6 @@ def parse_tx(raw: bytes, /) -> tuple[Tx, int]:
 ```
 
 Parse a raw Bitcoin transaction. Returns `(Tx, bytes_consumed)`. Supports both legacy and SegWit v0/v1 (taproot) transactions. Raises `ValueError` on malformed data.
-
-### `btx.make_tx`
-
-```python
-def make_tx(
-    version: int,
-    inputs: list[TxIn],
-    outputs: list[TxOut],
-    lock_time: int = 0,
-) -> Tx:
-```
 
 ### `btx.transaction.TransactionBuilder`
 
@@ -221,10 +186,10 @@ values `{0x00, 0x01, 0x02, 0x03, 0x81, 0x82, 0x83}`.
 
 ## Signature Verification
 
-### `btx.verify_sig`
+### `btx.verify_signature`
 
 ```python
-def verify_sig(message_hash: bytes, der_sig: bytes, public_key: Point) -> bool:
+def verify_signature(message_hash: bytes, der_sig: bytes, public_key: Point) -> bool:
 ```
 
 Verify an ECDSA signature. Returns `True` if valid. Uses constant-time comparison internally.
@@ -237,10 +202,12 @@ def recover_public_key(message_hash: bytes, der_sig: bytes, rec_id: int) -> Poin
 
 Recover the public key from a message hash and signature with recovery ID (0–3).
 
-### `btx.verify_schnorr_sig`
+### `btx.verify_schnorr_signature`
 
 ```python
-def verify_schnorr_sig(message_hash: bytes, schnorr_sig: bytes, x_only_pubkey: bytes) -> bool:
+def verify_schnorr_signature(
+    message_hash: bytes, schnorr_sig: bytes, x_only_pubkey: bytes
+) -> bool:
 ```
 
 Verify a BIP-340 Schnorr signature.
@@ -436,37 +403,15 @@ Fluent builder for constructing and editing PSBTs.
 
 ## Script Classification
 
-### `btx.classify_detailed`
+### `btx.script.classify_script_pubkey`
 
 ```python
-def classify_detailed(script: bytes) -> dict:
+def classify_script_pubkey(script_pubkey: bytes) -> str:
 ```
 
-Returns a dict with keys: `"type"` (P2PKH, P2SH, P2WPKH, P2WSH, P2TR, MULTISIG, TIMELOCK, OP_RETURN, NONSTANDARD).
-
-### `btx.is_op_return`
-
-```python
-def is_op_return(script: bytes) -> bool:
-```
-
-True if script starts with `OP_RETURN`.
-
-### `btx.is_bare_multisig`
-
-```python
-def is_bare_multisig(script: bytes) -> bool:
-```
-
-True if script is a bare multisig (M of N without pay-to-script-hash).
-
-### `btx.has_timelocks`
-
-```python
-def has_timelocks(script: bytes) -> bool:
-```
-
-True if script contains `OP_CHECKLOCKTIMEVERIFY` or `OP_CHECKSEQUENCEVERIFY`.
+Classify a scriptPubKey and return one of the script-type strings
+(`P2PKH`, `P2PK`, `P2SH`, `P2WPKH`, `P2WSH`, `P2TR`,
+`NON_STANDARD`, etc.).
 
 ### `btx.get_x_only_pubkey`
 
@@ -487,6 +432,10 @@ def parse_taproot_witness_stack(witness: Witness) -> tuple[Point | None, list[Ta
 ```
 
 Parse a taproot witness stack. Returns `(x_only_pubkey, list_of_script_paths)`.
+
+Note: `is_bare_multisig`, `classify_detailed`, `is_op_return`,
+`has_timelocks`, `MULTISIG`, `TIMELOCK`, and `OP_RETURN` were
+removed in 0.5.0; classify via `btx.classify_script_pubkey` instead.
 
 ---
 
@@ -538,40 +487,44 @@ Fetch UTXO details for each input and return an enriched transaction with metada
 ### `btx.Settings`
 
 ```python
+@dataclass(frozen=True, slots=True)
 class Settings:
-    strict_mode: bool = False
     default_backend: str | None = None
-    max_extraction_inputs: int = 0
 ```
 
-Global settings object via `btx.settings`. Modify at runtime:
+Global settings object via `btx.settings`. Configure via the
+`BTX_DEFAULT_BACKEND` environment variable or derive a customised
+copy:
 
 ```python
+from dataclasses import replace
 from btx import settings
-settings.strict_mode = True
-settings.default_backend = "libsecp"
-settings.max_extraction_inputs = 5000
+
+settings = replace(settings, default_backend="libsecp")
 ```
 
 ---
 
 ## Curve Backend
 
-### `btx.set_backend`
+### `btx.curve.dispatch.set_backend`
 
 ```python
-def set_backend(backend_name: str) -> None:
+def set_backend(backend: CurveBackend) -> None:
 ```
 
-Set the curve backend by name: `"native"` (pure Python) or `"libsecp"` (coincurve).
+Install a `CurveBackend` instance (e.g. `LibsecpBackend()`) as the
+active backend for curve operations. Accepts only instances; pass a
+string and it raises `TypeError`.
 
-### `btx.get_backend`
+### `btx.curve.dispatch.resolve_backend`
 
 ```python
-def get_backend() -> CurveBackend:
+def resolve_backend() -> CurveBackend:
 ```
 
-Return the active backend instance.
+Return the active backend (or the default `NativeBackend()` when
+none has been explicitly installed).
 
 ---
 
