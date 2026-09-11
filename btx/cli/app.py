@@ -442,7 +442,8 @@ def health() -> None:
     configure_logging()
     status = run_health()
     typer.echo(json.dumps(status, indent=2, default=str))
-    if not status.get("curve_operation", False):
+    curve = status.get("curve_operation")
+    if not isinstance(curve, dict) or not curve.get("ok", False):
         logger.critical("health check FAILED: curve operation failed")
         raise typer.Exit(EXIT_ERROR)
 
