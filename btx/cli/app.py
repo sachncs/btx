@@ -298,14 +298,68 @@ def _decode_tx(tx_hex_resolved: str):
 @app.command()
 def decode(
     tx_hex: str | None = typer.Argument(None, help="Transaction hex"),
+    json_output: bool = typer.Option(False, "--json", help="Output as JSON"),
+    csv_output: bool = typer.Option(False, "--csv", help="Output as CSV"),
+    output_format: str = typer.Option("json", "--format", help="Output format"),
     input_file: Path | None = typer.Option(
         None, "--input-file", help="Read tx hex from file"
     ),
 ) -> None:
-    """Decode a raw transaction and output as JSON."""
+    """Decode a raw transaction and emit JSON (default), CSV, or text."""
     configure_logging()
+    fmt = resolve_output_format(
+        json_output=json_output, csv_output=csv_output, output_format=output_format
+    )
     tx, _ = _decode_tx(read_tx_hex(tx_hex, input_file))
-    typer.echo(json.dumps(tx_to_json(tx), indent=2))
+    data = tx_to_json(tx)
+    if fmt == "json":
+        typer.echo(json.dumps(data, indent=2))
+    elif fmt == "csv":
+        buf = io.StringIO()
+        writer = csv.writer(buf)
+        writer.writerow(["kind", "field1", "field2", "field3", "field4", "field5"])
+        writer.writerow(
+            [
+                "header",
+                data.get("version", ""),
+                data.get("lock_time", ""),
+                data.get("has_witness", False),
+                "",
+                "",
+            ]
+        )
+        for inp in data.get("inputs", []):
+            prev = inp.get("previous_output", {}) if isinstance(inp, dict) else {}
+            writer.writerow(
+                [
+                    "input",
+                    prev.get("hash", ""),
+                    prev.get("index", ""),
+                    inp.get("script_sig", "") if isinstance(inp, dict) else "",
+                    inp.get("sequence", "") if isinstance(inp, dict) else "",
+                    inp.get("witness", "") if isinstance(inp, dict) else "",
+                ]
+            )
+        for out in data.get("outputs", []):
+            writer.writerow(
+                [
+                    "output",
+                    out.get("index", "") if isinstance(out, dict) else "",
+                    out.get("value", "") if isinstance(out, dict) else "",
+                    out.get("script_pubkey", "") if isinstance(out, dict) else "",
+                    "",
+                    "",
+                ]
+            )
+        typer.echo(buf.getvalue().rstrip())
+    else:
+        typer.echo(f"version={data.get('version')} lock_time={data.get('lock_time')}")
+        typer.echo(f"inputs ({len(data.get('inputs', []))}):")
+        for i, inp in enumerate(data.get("inputs", [])):
+            typer.echo(f"  [{i}] {inp}")
+        typer.echo(f"outputs ({len(data.get('outputs', []))}):")
+        for i, out in enumerate(data.get("outputs", [])):
+            typer.echo(f"  [{i}] {out}")
 
 
 @app.command()
