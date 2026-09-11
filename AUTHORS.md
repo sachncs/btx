@@ -2,7 +2,7 @@
 
 ## Maintainers
 
-- Sachin <chakravarthy1393966@gmail.com> (@sachncs) — Lead maintainer
+- Sachin <sachncs@gmail.com> (@sachncs) — Lead maintainer
 
 ## Contributors
 

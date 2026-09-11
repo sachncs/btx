@@ -46,7 +46,7 @@ an individual is officially representing the community in public spaces.
 ## Enforcement
 
 Instances of abusive, harassing, or otherwise unacceptable behavior may be
-reported to the project team at **chakravarthy1393966@gmail.com**. All
+reported to the project team at **sachncs@gmail.com**. All
 complaints will be reviewed and investigated promptly and fairly.
 
 ## Enforcement Guidelines

@@ -9,7 +9,7 @@ privately **before** disclosing it publicly.
 vulnerability (including steps to reproduce, affected versions, and any
 proof-of-concept) to:
 
-- **Primary contact:** chakravarthy1393966@gmail.com
+- **Primary contact:** sachncs@gmail.com
 - **Alternative:** Open a [GitHub Security Advisory][gh-advisory]
 
 You should receive a response within **72 hours**. If you do not, please follow
@@ -29,8 +29,8 @@ up.
 
 | Version | Supported          |
 |---------|--------------------|
-| 0.4.x   | :white_check_mark: |
-| < 0.4.0 | :x:                |
+| 0.5.x   | :white_check_mark: |
+| < 0.5.0 | :x:                |
 
 ## Scope
 
