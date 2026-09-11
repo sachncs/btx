@@ -60,7 +60,7 @@ HTTP_TIMEOUT = 30
 MAX_RETRIES = 3
 RETRY_BACKOFF = 1.0  # seconds
 RETRYABLE_STATUSES = {429, 500, 502, 503, 504}
-TXID_PATTERN = "0123456789abcdefABCDEF"
+TXID_RE = re.compile(r"^[0-9a-fA-F]{64}$")
 SSL_CONTEXT = ssl.create_default_context()
 
 
@@ -86,7 +86,12 @@ class BaseBlockchainProvider:
     value_key: str = "value"
 
     def __init__(self, base_url: str) -> None:
-        self.base_url: str = base_url.rstrip("/")
+        normalized = base_url.rstrip("/")
+        if not normalized.startswith(("http://", "https://")):
+            raise ValueError(
+                f"base_url must start with http:// or https://, got {base_url!r}."
+            )
+        self.base_url: str = normalized
 
     def get_transaction_hex(self, txid: str) -> str:
         """Fetch a raw transaction hex.
