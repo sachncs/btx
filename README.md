@@ -2,7 +2,7 @@
   <h1 align="center">btx</h1>
   <p align="center">Pure-Python parsing, signature extraction, and nonce-reuse analysis for the Bitcoin secp256k1 stack.</p>
   <p align="center">
-    <a href="#installation"><img src="https://img.shields.io/badge/python-3.12%20%7C%203.13%20%7C%203.14-blue" alt="Python"></a>
+    <a href="#installation"><img src="https://img.shields.io/pypi/pyversions/btx" alt="Python"></a>
     <a href="LICENSE"><img src="https://img.shields.io/badge/license-MIT-green" alt="License"></a>
     <a href="https://github.com/sachncs/btx/actions"><img src="https://img.shields.io/github/actions/workflow/status/sachncs/btx/ci.yml?branch=master" alt="CI"></a>
     <a href="https://pypi.org/project/btx/"><img src="https://img.shields.io/pypi/v/btx" alt="PyPI"></a>
