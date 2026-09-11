@@ -157,10 +157,12 @@ pip install btx[coincurve]
 
 Or use the pure-Python backend (default):
 
-```python
-from btx import set_backend
-set_backend("native")
-```
+The default backend is selected at import time via the
+``BTX_DEFAULT_BACKEND`` environment variable. The native backend is
+used automatically; install `coincurve` and set
+``BTX_DEFAULT_BACKEND=libsecp`` to switch to the C-backed
+libsecp256k1 backend.
+
 
 ### "ValueError: Invalid transaction format"
 
