@@ -84,10 +84,16 @@ def check_imports() -> dict[str, bool]:
 
 def health() -> dict[str, Any]:
     """Run all health checks and return a comprehensive status dict."""
+    import btx
     from btx.curve import GENERATOR_POINT, multiply
 
+    try:
+        version = importlib.metadata.version("btx")
+    except importlib.metadata.PackageNotFoundError:
+        version = btx.__version__
+
     status: dict[str, Any] = {
-        "version": importlib.metadata.version("btx"),
+        "version": version,
         "imports": check_imports(),
         "backends": check_backend(),
     }
