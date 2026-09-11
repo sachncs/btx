@@ -9,14 +9,17 @@ the ``extract`` command.  The actual command implementations live in
 
 Commands exposed by the CLI:
 
-- ``decode`` – parse a raw transaction and emit JSON.
+- ``decode`` – parse a raw transaction and emit JSON/CSV/text.
 - ``extract`` – extract signatures from a transaction.
 - ``linearize`` – extract and sort signatures.
 - ``broadcast`` – broadcast a raw transaction via a configured
   provider.
 - ``health`` – run health checks and print a JSON status report.
 - ``schema`` – print the JSON Schema for an output format.
-- ``install_completion`` – show tab-completion instructions.
+- ``sign`` – sign a 32-byte message hash with a private key.
+- ``verify`` – verify an ECDSA signature.
+- ``recover`` – recover the public key from a signature.
+- ``parse-script`` – parse and decompile a Bitcoin script.
 - ``version`` – print the installed package version.
 
 The CLI is registered as the ``btx`` console script by the
