@@ -47,6 +47,7 @@ from typing import TYPE_CHECKING, Any
 from urllib.error import HTTPError, URLError
 from urllib.request import Request, urlopen
 
+from btx import __version__ as _btx_version
 from btx.encoding.hex import decode_hex, encode_hex
 from btx.transaction.parser import parse_tx
 
@@ -55,7 +56,7 @@ if TYPE_CHECKING:
 
 logger = logging.getLogger(__name__)
 
-USER_AGENT = "btx/0.4.0 (+https://github.com/sachncs/btx)"
+USER_AGENT = f"btx/{_btx_version} (+https://github.com/sachncs/btx)"
 HTTP_TIMEOUT = 30
 MAX_RETRIES = 3
 RETRY_BACKOFF = 1.0  # seconds
