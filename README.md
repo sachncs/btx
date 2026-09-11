@@ -1,4 +1,7 @@
 <p align="center">
+  <picture>
+    <img src="assets/btx-logo.svg" alt="btx logo" width="96" height="96">
+  </picture>
   <h1 align="center">btx</h1>
   <p align="center">Pure-Python parsing, signature extraction, and nonce-reuse analysis for the Bitcoin secp256k1 stack.</p>
   <p align="center">
