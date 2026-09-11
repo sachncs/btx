@@ -62,14 +62,14 @@ for rec in records:
 ### Verify a Signature
 
 ```python
-from btx import verify_sig
+from btx import verify_signature
 from btx.encoding import sha256
 
 message_hash = sha256(b"message to verify")
 public_key = bytes.fromhex("02...")  # Compressed public key
 der_sig = bytes.fromhex("30...")     # DER-encoded signature
 
-ok = verify_sig(message_hash, der_sig, public_key)
+ok = verify_signature(message_hash, der_sig, public_key)
 print(f"Signature valid: {ok}")
 ```
 
@@ -166,22 +166,18 @@ for group in groups:
 
 | Variable | Default | Description |
 |----------|---------|-------------|
-| `BITCOIN_LOG_LEVEL` | `WARNING` | Log verbosity (`DEBUG`, `INFO`, `WARNING`, `ERROR`, `CRITICAL`) |
+| `BTX_LOG_LEVEL` | `WARNING` | Log verbosity (`DEBUG`, `INFO`, `WARNING`, `ERROR`, `CRITICAL`) |
 
 ### Programmatic Settings
 
 ```python
 from btx import settings
 
-# Enable strict mode (raises on non-fatal issues)
-settings.strict_mode = True
-
-# Use accelerated backend
 settings.default_backend = "libsecp"  # Requires coincurve
-
-# Limit extraction inputs
-settings.max_extraction_inputs = 10000
 ```
+
+`settings` is a frozen dataclass; derive customised copies with
+`dataclasses.replace(settings, ...)` rather than mutating in place.
 
 ## Next Steps
 

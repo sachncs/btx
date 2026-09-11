@@ -191,14 +191,14 @@ The transaction uses a script feature not yet supported (e.g., OP_CODESEPARATOR)
 ### How do I enable debug logging?
 
 ```bash
-export BITCOIN_LOG_LEVEL=DEBUG
+export BTX_LOG_LEVEL=DEBUG
 ```
 
 Or programmatically:
 
 ```python
 import os
-os.environ["BITCOIN_LOG_LEVEL"] = "DEBUG"
+os.environ["BTX_LOG_LEVEL"] = "DEBUG"
 ```
 
 ## Contributing
