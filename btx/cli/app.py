@@ -543,7 +543,7 @@ def main(args: Sequence[str] | None = None) -> int:
             app()
     except typer.Exit as exc:
         return getattr(exc, "exit_code", 0) or 0
-    except (ValueError, OSError, KeyError, IndexError) as exc:
+    except (ValueError, OSError) as exc:
         logger.critical("Unhandled CLI error: %s", exc, exc_info=True)
         typer.echo(f"Unexpected error: {exc}", err=True)
         return EXIT_ERROR
