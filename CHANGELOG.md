@@ -180,7 +180,7 @@ submodules.
 - Single `Exit` constants module (`EXIT_OK`, `EXIT_ERROR`).
 - `BTX_LOG_LEVEL` env var with backward-compat fallback to
   `BITCOIN_LOG_LEVEL` (emits `DeprecationWarning`).
-- `version()` banner reads `btx v0.4.0`.
+- `version()` banner reads `btx v0.5.0`.
 
 ### Backward-compat
 - `BitcoinError` is re-exported as an alias for `BtxError` for one
