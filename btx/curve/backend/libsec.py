@@ -1,4 +1,4 @@
-# Copyright (c) 2026 secp contributors
+# Copyright (c) 2026 Sachin
 # SPDX-License-Identifier: MIT
 """libsecp256k1-backed secp256k1 backend via the ``coincurve`` package.
 

@@ -10,8 +10,8 @@ sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), "..",
 import btx  # noqa: E402
 
 project = "btx"
-copyright = "2026, secp contributors"
-author = "secp contributors"
+copyright = "2026, Sachin"
+author = "Sachin"
 release = btx.__version__
 
 extensions = [
