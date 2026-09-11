@@ -351,6 +351,12 @@ def extract(
 @app.command()
 def linearize(
     tx_hex: str | None = typer.Argument(None, help="Transaction hex"),
+    utxo_scripts: list[str] | None = typer.Option(
+        None, "--utxo-script", help="UTXO scriptPubKey (one per input)"
+    ),
+    utxo_values: list[int] | None = typer.Option(
+        None, "--utxo-value", help="UTXO value in satoshis (one per input)"
+    ),
     json_output: bool = typer.Option(False, "--json", help="Output as JSON"),
     csv_output: bool = typer.Option(False, "--csv", help="Output as CSV"),
     output_format: str = typer.Option("text", "--format", help="Output format"),
@@ -366,13 +372,15 @@ def linearize(
     )
     tx, _ = _decode_tx(read_tx_hex(tx_hex, input_file))
 
+    script_pubkeys = [decode_hex(s) for s in utxo_scripts] if utxo_scripts else None
+
     if progress:
         typer.echo(
             f"Parsed tx with {len(tx.inputs)} inputs, {len(tx.outputs)} outputs.",
             err=True,
         )
 
-    records = extract_signatures(tx)
+    records = extract_signatures(tx, script_pubkeys, utxo_values)
     sorted_records = linearize_signatures(records)
 
     if progress:
