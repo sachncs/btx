@@ -1,0 +1,227 @@
+---
+const stats = [
+  { value: '886', label: 'Tests passing' },
+  { value: '99%+', label: 'Code coverage' },
+  { value: '0', label: 'Runtime deps' },
+  { value: '3.12+', label: 'Python' },
+];
+---
+
+<section class="relative isolate overflow-hidden pb-24 pt-16 sm:pb-32 sm:pt-24 lg:pb-40 lg:pt-32">
+  <!-- Background grid + glow -->
+  <div class="pointer-events-none absolute inset-0 -z-10 overflow-hidden" aria-hidden="true">
+    <div class="absolute inset-0 bg-grid-faint bg-grid-md mask-fade-b opacity-[0.6]"></div>
+    <div class="absolute left-1/2 top-[-20%] h-[800px] w-[1100px] max-w-none -translate-x-1/2 rounded-full bg-[radial-gradient(closest-side,rgba(95,208,164,0.18),transparent_70%)] blur-2xl"></div>
+    <div class="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-accent-500/40 to-transparent"></div>
+  </div>
+
+  <div class="container-page relative">
+    <div class="mx-auto max-w-4xl text-center">
+      <div class="reveal">
+        <span class="pill">
+          <span class="pill-dot"></span>
+          <span>Pure-Python · secp256k1 · No network required</span>
+        </span>
+      </div>
+
+      <h1
+        class="reveal mt-6 text-display-2xl font-semibold text-balance"
+        style="--delay: 80ms;"
+        data-delay="80"
+      >
+        <span class="text-gradient">The Bitcoin stack,</span><br />
+        <span class="text-gradient-accent">parsed at the byte.</span>
+      </h1>
+
+      <p
+        class="reveal mx-auto mt-7 max-w-2xl text-pretty text-lg leading-relaxed text-ink-300 sm:text-xl"
+        data-delay="160"
+      >
+        A precision Python toolkit for parsing raw transactions,
+        extracting ECDSA and Schnorr signatures, and analysing nonce
+        reuse on the <span class="text-white">secp256k1</span> curve — with
+        zero runtime dependencies and an all-public API.
+      </p>
+
+      <div
+        class="reveal mt-10 flex flex-col items-center justify-center gap-3 sm:flex-row"
+        data-delay="240"
+      >
+        <a
+          href="https://pypi.org/project/btx/"
+          target="_blank"
+          rel="noopener noreferrer"
+          class="btn-accent"
+        >
+          <span>Install from PyPI</span>
+          <svg viewBox="0 0 16 16" class="h-3.5 w-3.5" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+            <path d="M3 8h10M9 4l4 4-4 4" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+        </a>
+        <a
+          href="https://github.com/sachncs/btx"
+          target="_blank"
+          rel="noopener noreferrer"
+          class="btn-ghost"
+        >
+          <svg viewBox="0 0 24 24" class="h-4 w-4" fill="currentColor" aria-hidden="true">
+            <path d="M12 .5C5.65.5.5 5.65.5 12a11.5 11.5 0 008 10.94c.59.11.8-.25.8-.56v-2c-3.26.7-3.95-1.4-3.95-1.4-.53-1.35-1.3-1.71-1.3-1.71-1.06-.72.08-.7.08-.7 1.17.08 1.79 1.2 1.79 1.2 1.04 1.78 2.73 1.27 3.4.97.1-.76.41-1.27.74-1.56-2.6-.3-5.34-1.3-5.34-5.78 0-1.28.46-2.32 1.2-3.14-.12-.3-.52-1.49.11-3.1 0 0 .98-.31 3.21 1.2a11.2 11.2 0 015.86 0c2.23-1.51 3.21-1.2 3.21-1.2.63 1.61.23 2.8.11 3.1.74.82 1.2 1.86 1.2 3.14 0 4.49-2.74 5.47-5.36 5.77.42.36.8 1.06.8 2.13v3.16c0 .31.21.67.81.55A11.5 11.5 0 0023.5 12C23.5 5.65 18.35.5 12 .5z"/>
+          </svg>
+          <span>View on GitHub</span>
+        </a>
+      </div>
+
+      <div
+        class="reveal mt-6 flex items-center justify-center gap-3 text-xs text-ink-400"
+        data-delay="300"
+      >
+        <span class="kbd">pip install btx</span>
+        <span class="text-ink-500">·</span>
+        <span>Python 3.12 — 3.14</span>
+      </div>
+    </div>
+
+    <!-- Stats strip -->
+    <dl
+      class="reveal mx-auto mt-16 grid max-w-3xl grid-cols-2 gap-x-4 gap-y-6 px-2 sm:mt-20 sm:grid-cols-4 sm:gap-x-6 sm:gap-y-4 sm:px-0"
+      data-delay="360"
+    >
+      {stats.map((s, i) => (
+        <div class="relative flex flex-col items-center sm:items-start">
+          <dt class="text-[10px] font-medium uppercase tracking-[0.18em] text-ink-400 sm:text-[11px]">{s.label}</dt>
+          <dd class="mt-1 font-mono text-2xl font-medium text-white sm:text-3xl">
+            {s.value}
+          </dd>
+          {i < stats.length - 1 && (
+            <div class="absolute right-0 top-1 hidden h-10 w-px bg-white/10 sm:block"></div>
+          )}
+        </div>
+      ))}
+    </dl>
+
+    <!-- Hero product mockup: terminal + curve graphic -->
+    <div class="reveal mt-20" data-delay="420">
+      <div class="relative mx-auto max-w-5xl overflow-hidden sm:overflow-visible">
+        <div class="absolute -inset-x-12 -inset-y-6 -z-10 rounded-[2rem] bg-gradient-to-b from-accent-500/10 via-transparent to-transparent blur-2xl"></div>
+
+        <div class="grid gap-4 lg:grid-cols-[1.1fr_0.9fr]">
+          <!-- Terminal -->
+          <div class="code-block noise">
+            <div class="flex items-center justify-between border-b border-white/[0.06] bg-white/[0.02] px-4 py-2.5">
+              <div class="flex items-center gap-1.5">
+                <span class="h-2.5 w-2.5 rounded-full bg-[#ff5f57]/80"></span>
+                <span class="h-2.5 w-2.5 rounded-full bg-[#febc2e]/80"></span>
+                <span class="h-2.5 w-2.5 rounded-full bg-[#28c840]/80"></span>
+              </div>
+              <div class="font-mono text-[11px] text-ink-400">btx — extract signatures</div>
+              <div class="font-mono text-[11px] text-ink-500">~/btx</div>
+            </div>
+            <pre><code><span class="text-ink-400">$</span> <span class="text-white">btx extract</span> <span class="text-accent-400">0200000001...</span> --json
+<span class="text-ink-500">{</span>
+  <span class="text-accent-300">"txid"</span>: <span class="text-accent-100">"9f2c...8e44"</span>,
+  <span class="text-accent-300">"inputs"</span>: <span class="text-ink-500">[{</span>
+    <span class="text-accent-300">"index"</span>: <span class="text-accent-100">0</span>,
+    <span class="text-accent-300">"script_type"</span>: <span class="text-accent-100">"P2WPKH"</span>,
+    <span class="text-accent-300">"r"</span>: <span class="text-accent-100">"c8b3...4a2f"</span>,
+    <span class="text-accent-300">"s"</span>: <span class="text-accent-100">"1d6e...92bc"</span>,
+    <span class="text-accent-300">"z"</span>: <span class="text-accent-100">"7a91...05d3"</span>,
+    <span class="text-accent-300">"verified"</span>: <span class="text-accent-500">true</span>
+  <span class="text-ink-500">}]</span>
+<span class="text-ink-500">}</span>
+<span class="text-ink-400">$</span> <span class="text-white">btx health</span>
+<span class="text-accent-500">✓</span> curve ops         <span class="text-accent-500">ok</span>
+<span class="text-accent-500">✓</span> sighash           <span class="text-accent-500">ok</span>
+<span class="text-accent-500">✓</span> psbt              <span class="text-accent-500">ok</span>
+<span class="text-accent-500">✓</span> backend: native   <span class="text-ink-400">3.41 ms</span><span class="text-ink-500">/op</span></code></pre>
+          </div>
+
+          <!-- Curve graphic -->
+          <div class="relative overflow-hidden rounded-2xl border border-white/[0.07] bg-ink-900/60 p-6">
+            <div class="absolute inset-0 -z-0 opacity-[0.4]">
+              <div class="absolute inset-0 bg-grid-faint bg-grid-md opacity-50"></div>
+            </div>
+            <div class="relative flex h-full flex-col">
+              <div class="flex items-center justify-between">
+                <span class="eyebrow">secp256k1 · y² = x³ + 7</span>
+                <span class="font-mono text-[11px] text-ink-400">G · 256-bit</span>
+              </div>
+
+              <!-- The curve -->
+              <div class="relative mt-4 flex-1">
+                <svg viewBox="0 0 400 280" class="h-full w-full" aria-hidden="true">
+                  <defs>
+                    <linearGradient id="curveGrad" x1="0" y1="0" x2="1" y2="0">
+                      <stop offset="0%" stop-color="#7ce2c8" stop-opacity="0.2"/>
+                      <stop offset="50%" stop-color="#5fd0a4" stop-opacity="1"/>
+                      <stop offset="100%" stop-color="#34d399" stop-opacity="0.2"/>
+                    </linearGradient>
+                    <linearGradient id="curveGrad2" x1="0" y1="0" x2="1" y2="0">
+                      <stop offset="0%" stop-color="#7ce2c8" stop-opacity="0.08"/>
+                      <stop offset="50%" stop-color="#5fd0a4" stop-opacity="0.5"/>
+                      <stop offset="100%" stop-color="#34d399" stop-opacity="0.08"/>
+                    </linearGradient>
+                    <radialGradient id="dotGrad" cx="50%" cy="50%" r="50%">
+                      <stop offset="0%" stop-color="#ecfdf6" stop-opacity="1"/>
+                      <stop offset="60%" stop-color="#5fd0a4" stop-opacity="1"/>
+                      <stop offset="100%" stop-color="#1f8d6b" stop-opacity="0"/>
+                    </radialGradient>
+                  </defs>
+
+                  <!-- axes -->
+                  <line x1="0" y1="140" x2="400" y2="140" stroke="rgba(255,255,255,0.06)" stroke-width="1"/>
+                  <line x1="200" y1="0" x2="200" y2="280" stroke="rgba(255,255,255,0.06)" stroke-width="1"/>
+
+                  <!-- lower branch -->
+                  <path
+                    d="M 0 140 C 60 140, 100 230, 200 230 S 340 140, 400 140"
+                    stroke="url(#curveGrad2)" stroke-width="1.5" fill="none"
+                  />
+                  <!-- upper branch -->
+                  <path
+                    d="M 0 140 C 60 140, 100 50, 200 50 S 340 140, 400 140"
+                    stroke="url(#curveGrad)" stroke-width="2" fill="none"
+                    stroke-linecap="round"
+                  />
+
+                  <!-- points -->
+                  <g>
+                    <circle cx="200" cy="50" r="14" fill="url(#dotGrad)" opacity="0.3" class="origin-center">
+                      <animate attributeName="r" values="14;22;14" dur="3s" repeatCount="indefinite"/>
+                      <animate attributeName="opacity" values="0.3;0.05;0.3" dur="3s" repeatCount="indefinite"/>
+                    </circle>
+                    <circle cx="200" cy="50" r="4" fill="#ecfdf6"/>
+                  </g>
+
+                  <!-- floating sigs -->
+                  <g font-family="JetBrains Mono, ui-monospace, monospace" font-size="10" fill="#9aacb3">
+                    <text x="40"  y="80">r = c8b3…</text>
+                    <text x="40"  y="94" fill="#5fd0a4">s = 1d6e…</text>
+                    <text x="300" y="80">z = 7a91…</text>
+                    <text x="300" y="94" fill="#5fd0a4">G = 02a7…</text>
+                  </g>
+                </svg>
+              </div>
+
+              <div class="mt-4 flex items-center justify-between border-t border-white/[0.06] pt-4 font-mono text-[11px] text-ink-400">
+                <span>p = 2²⁵⁶ − 2³² − 977</span>
+                <span class="text-accent-400">n = 0xffff…fecd</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Trust strip -->
+    <div class="reveal mt-16 flex flex-wrap items-center justify-center gap-x-8 gap-y-3 text-xs text-ink-400" data-delay="500">
+      <span class="font-medium uppercase tracking-[0.18em] text-ink-500">Built for</span>
+      <span class="text-ink-200">Security researchers</span>
+      <span class="text-ink-500">·</span>
+      <span class="text-ink-200">Wallet engineers</span>
+      <span class="text-ink-500">·</span>
+      <span class="text-ink-200">Forensic analysts</span>
+      <span class="text-ink-500">·</span>
+      <span class="text-ink-200">Cryptography teams</span>
+    </div>
+  </div>
+</section>

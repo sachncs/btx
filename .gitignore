@@ -41,3 +41,9 @@ htmlcov/
 *.swo
 *~
 .DS_Store
+
+# Site (Astro) — keep build outputs and dependencies out
+site/node_modules/
+site/dist/
+site/.astro/
+site/.cache/

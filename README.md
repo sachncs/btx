@@ -5,6 +5,7 @@
   <h1 align="center">btx</h1>
   <p align="center">Pure-Python parsing, signature extraction, and nonce-reuse analysis for the Bitcoin secp256k1 stack.</p>
   <p align="center">
+    <a href="https://sachncs.github.io/btx/"><img src="https://img.shields.io/badge/website-sachncs.github.io%2Fbtx-5fd0a4?style=for-the-badge" alt="Website"></a>
     <a href="#installation"><img src="https://img.shields.io/pypi/pyversions/btx" alt="Python"></a>
     <a href="LICENSE"><img src="https://img.shields.io/badge/license-MIT-green" alt="License"></a>
     <a href="https://github.com/sachncs/btx/actions"><img src="https://img.shields.io/github/actions/workflow/status/sachncs/btx/ci.yml?branch=master" alt="CI"></a>
@@ -12,6 +13,8 @@
     <a href="https://github.com/sachncs/btx/stargazers"><img src="https://img.shields.io/github/stars/sachncs/btx" alt="Stars"></a>
   </p>
 </p>
+
+> **Product site**: [sachncs.github.io/btx](https://sachncs.github.io/btx/) — built with Astro + Tailwind, deployed to GitHub Pages. The source lives in [`site/`](site/).
 
 **btx** is a pure-Python library for parsing raw Bitcoin transactions,
 extracting ECDSA and Schnorr signatures (`r`, `s`, `z`), deriving

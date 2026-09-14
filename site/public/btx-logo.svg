@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128" role="img" aria-label="btx logo">
+  <title>btx</title>
+  <desc>btx logo: a secp256k1 curve flowing into a hex motif.</desc>
+  <rect width="128" height="128" rx="20" fill="#0b1f2a"/>
+  <g transform="translate(64 70)" fill="none" stroke="#5fd0a4" stroke-width="3" stroke-linecap="round">
+    <path d="M -42 0 C -28 -28, -14 -28, 0 0 S 28 28, 42 0"/>
+    <path d="M -42 16 C -28 -12, -14 -12, 0 16 S 28 44, 42 16"/>
+  </g>
+  <g font-family="ui-monospace, SFMono-Regular, Menlo, monospace" font-weight="700" font-size="22" fill="#7ce2c8" text-anchor="middle">
+    <text x="64" y="32">btx</text>
+  </g>
+  <g font-family="ui-monospace, SFMono-Regular, Menlo, monospace" font-size="10" fill="#3aa18c" text-anchor="start">
+    <text x="22" y="118">02</text>
+    <text x="56" y="118">a7</text>
+    <text x="90" y="118">f3</text>
+  </g>
+</svg>

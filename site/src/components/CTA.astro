@@ -1,0 +1,122 @@
+---
+const pkgManagers = [
+  { name: 'pip', cmd: 'pip install btx' },
+  { name: 'uv',  cmd: 'uv add btx' },
+  { name: 'poetry', cmd: 'poetry add btx' },
+];
+---
+
+<section class="relative py-24 sm:py-32">
+  <div class="container-page">
+    <div class="reveal relative overflow-hidden rounded-3xl border border-white/[0.08] bg-gradient-to-br from-ink-900/90 via-ink-950 to-ink-900/90 px-8 py-16 text-center shadow-soft sm:px-16 sm:py-24">
+      <!-- Glow background -->
+      <div class="absolute inset-0 -z-10">
+        <div class="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-accent-500/60 to-transparent"></div>
+        <div class="absolute left-1/2 top-1/2 h-[600px] w-[800px] -translate-x-1/2 -translate-y-1/2 rounded-full bg-[radial-gradient(closest-side,rgba(95,208,164,0.16),transparent_70%)] blur-3xl"></div>
+        <div class="absolute inset-0 opacity-[0.35] bg-grid-faint bg-grid-lg mask-fade-b"></div>
+      </div>
+
+      <span class="eyebrow justify-center">
+        <span class="pill-dot"></span>
+        Ready when you are
+      </span>
+
+      <h2 class="mt-4 text-display-lg font-semibold text-balance sm:text-display-xl">
+        <span class="text-gradient">Install btx.</span><br />
+        <span class="text-gradient-accent">Ship something serious.</span>
+      </h2>
+
+      <p class="mx-auto mt-5 max-w-xl text-pretty text-lg text-ink-300">
+        One line of pip. Zero dependencies. A Bitcoin-grade toolkit that
+        behaves the way cryptography should.
+      </p>
+
+      <!-- Install commands -->
+      <div class="mx-auto mt-10 max-w-2xl">
+        <div class="code-block noise inline-flex w-full items-stretch overflow-hidden p-0">
+          <div class="flex shrink-0 items-center gap-1.5 border-r border-white/[0.06] bg-white/[0.02] px-4">
+            <span class="h-2.5 w-2.5 rounded-full bg-[#ff5f57]/80"></span>
+            <span class="h-2.5 w-2.5 rounded-full bg-[#febc2e]/80"></span>
+            <span class="h-2.5 w-2.5 rounded-full bg-[#28c840]/80"></span>
+          </div>
+          <div class="flex flex-1 items-center justify-between gap-3 px-5 py-4">
+            <code class="font-mono text-[14px] text-ink-100">
+              <span class="text-ink-400">$</span>
+              <span class="ml-2 text-white">pip install</span>
+              <span class="ml-2 text-accent-400">btx</span>
+              <span class="ml-1 inline-block h-3.5 w-1.5 translate-y-0.5 animate-blink bg-accent-500"></span>
+            </code>
+            <button
+              type="button"
+              data-copy="pip install btx"
+              class="copy-btn shrink-0 rounded-md border border-white/10 bg-white/[0.03] px-2.5 py-1 font-mono text-[11px] text-ink-300 transition-colors hover:bg-white/[0.06] hover:text-white"
+              aria-label="Copy install command"
+            >
+              <span class="copy-label">copy</span>
+            </button>
+          </div>
+        </div>
+
+        <div class="mt-4 flex flex-wrap items-center justify-center gap-x-4 gap-y-2 text-xs text-ink-400">
+          {pkgManagers.map((p, i) => (
+            <div class="flex items-center gap-2">
+              {i > 0 && <span class="text-ink-600">·</span>}
+              <span class="font-mono text-ink-500">{p.name}</span>
+              <code class="kbd">{p.cmd}</code>
+            </div>
+          ))}
+        </div>
+      </div>
+
+      <div class="mt-10 flex flex-col items-center justify-center gap-3 sm:flex-row">
+        <a
+          href="https://github.com/sachncs/btx"
+          target="_blank"
+          rel="noopener noreferrer"
+          class="btn-accent"
+        >
+          Star on GitHub
+          <svg viewBox="0 0 16 16" class="h-3.5 w-3.5" fill="currentColor" aria-hidden="true">
+            <path d="M8 .25l2.3 4.66 5.15.75-3.73 3.63.88 5.13L8 11.94l-4.6 2.42.88-5.13L.55 5.6l5.15-.75L8 .25z"/>
+          </svg>
+        </a>
+        <a
+          href="https://pypi.org/project/btx/"
+          target="_blank"
+          rel="noopener noreferrer"
+          class="btn-ghost"
+        >
+          View on PyPI
+        </a>
+      </div>
+    </div>
+  </div>
+
+  <script is:inline>
+    document.querySelectorAll('.copy-btn').forEach((btn) => {
+      btn.addEventListener('click', async () => {
+        const text = btn.getAttribute('data-copy') || '';
+        try {
+          await navigator.clipboard.writeText(text);
+        } catch (e) {
+          const ta = document.createElement('textarea');
+          ta.value = text;
+          document.body.appendChild(ta);
+          ta.select();
+          document.execCommand('copy');
+          ta.remove();
+        }
+        const label = btn.querySelector('.copy-label');
+        if (label) {
+          const prev = label.textContent;
+          label.textContent = 'copied';
+          btn.classList.add('text-accent-400');
+          setTimeout(() => {
+            label.textContent = prev;
+            btn.classList.remove('text-accent-400');
+          }, 1400);
+        }
+      });
+    });
+  </script>
+</section>

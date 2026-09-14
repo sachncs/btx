@@ -1,0 +1,105 @@
+---
+const layers = [
+  {
+    title: 'btx.cli',
+    sub: 'Typer-based command-line interface',
+    items: ['decode', 'extract', 'linearize', 'broadcast', 'health'],
+    tone: 'top',
+  },
+  {
+    title: 'btx.services',
+    sub: 'Blockchain data providers + async batch',
+    items: ['Blockstream', 'Mempool.space', 'blockchain.info', 'generic HTTP'],
+    tone: 'top',
+  },
+  {
+    title: 'btx.signature',
+    sub: 'Extraction · linearisation · attacks · signing',
+    items: ['ECDSA', 'Schnorr', 'nonce reuse', 'verifier', 'plugin registry'],
+    tone: 'mid',
+  },
+  {
+    title: 'btx.descriptor · psbt · sighash · transaction · script',
+    sub: 'Transaction, script and PSBT machinery',
+    items: ['BIP-174', 'BIP-341', 'BIP-143', 'miniscript', 'builder'],
+    tone: 'mid',
+  },
+  {
+    title: 'btx.encoding · field · curve',
+    sub: 'Byte-level, modular arithmetic & secp256k1 point ops',
+    items: ['hex · varint · DER · SEC', 'inverse · sqrt', 'point · dispatch · batch'],
+    tone: 'base',
+  },
+];
+---
+
+<section id="architecture" class="relative py-24 sm:py-32">
+  <div class="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-white/10 to-transparent"></div>
+
+  <div class="container-page">
+    <div class="mx-auto max-w-2xl text-center">
+      <span class="eyebrow reveal">Architecture</span>
+      <h2 class="reveal mt-3 text-display-lg font-semibold text-balance" data-delay="80">
+        Layered like the protocol itself.
+      </h2>
+      <p class="reveal mt-4 text-pretty text-ink-300" data-delay="160">
+        Strict dependency rules mean each layer can be reasoned about
+        and tested in isolation. No upward dependencies. No
+        cross-layer leakage.
+      </p>
+    </div>
+
+    <div class="reveal mx-auto mt-16 max-w-4xl" data-delay="200">
+      <div class="relative rounded-3xl border border-white/[0.07] bg-ink-900/40 p-2 shadow-soft">
+        <div class="absolute -top-3 left-6 rounded-full border border-white/10 bg-ink-950 px-3 py-1 font-mono text-[10px] text-ink-400">
+          btx/
+        </div>
+
+        <div class="space-y-2">
+          {layers.map((l, i) => (
+            <div
+              class={`arch-layer group relative overflow-hidden rounded-2xl border border-white/[0.06] bg-gradient-to-br p-5 transition-colors ${
+                l.tone === 'top'
+                  ? 'from-accent-500/[0.08] to-transparent hover:from-accent-500/[0.12]'
+                  : l.tone === 'mid'
+                  ? 'from-accent-500/[0.05] to-transparent hover:from-accent-500/[0.08]'
+                  : 'from-white/[0.02] to-transparent hover:from-white/[0.04]'
+              }`}
+            >
+              <div class="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
+                <div class="min-w-0 flex-1">
+                  <div class="flex items-center gap-3">
+                    <span class={`flex h-1.5 w-1.5 rounded-full ${l.tone === 'base' ? 'bg-white/40' : 'bg-accent-500'} shadow-[0_0_8px_rgba(95,208,164,0.6)]`}></span>
+                    <h3 class="font-mono text-sm font-medium text-white">{l.title}</h3>
+                    <span class="hidden text-xs text-ink-400 lg:inline">— {l.sub}</span>
+                  </div>
+                  <p class="mt-1 pl-4 text-xs text-ink-400 lg:hidden">{l.sub}</p>
+                </div>
+                <div class="flex flex-wrap gap-1.5 lg:flex-nowrap lg:justify-end">
+                  {l.items.map((item) => (
+                    <span class="rounded-full border border-white/[0.07] bg-white/[0.03] px-2.5 py-1 font-mono text-[11px] text-ink-300">
+                      {item}
+                    </span>
+                  ))}
+                </div>
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+
+      <div class="mt-8 grid gap-4 sm:grid-cols-3">
+        {[
+          { k: 'No upward refs', v: 'Higher layers never depend on lower ones — enforced by tests.' },
+          { k: 'No network in core', v: 'Only the services layer touches I/O. Core is import-safe offline.' },
+          { k: 'Pluggable backends', v: 'Pure-Python by default, libsecp256k1 for production throughput.' },
+        ].map((p, i) => (
+          <div class="reveal rounded-2xl border border-white/[0.06] bg-ink-900/40 p-4" data-delay={i * 80}>
+            <p class="font-mono text-[11px] uppercase tracking-[0.18em] text-accent-400">{p.k}</p>
+            <p class="mt-2 text-sm text-ink-300">{p.v}</p>
+          </div>
+        ))}
+      </div>
+    </div>
+  </div>
+</section>

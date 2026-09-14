@@ -1,0 +1,99 @@
+---
+const features = [
+  {
+    icon: 'parse',
+    title: 'Transaction parsing',
+    desc: 'Legacy, SegWit v0 (BIP-143) and Taproot (BIP-341) wire formats — parsed with deterministic, well-tested code paths.',
+    accent: 'from-accent-500/30 to-accent-500/0',
+  },
+  {
+    icon: 'sig',
+    title: 'Signature extraction',
+    desc: 'ECDSA and Schnorr from every standard script type: P2PK, P2PKH, P2SH-multisig, P2WPKH, P2WSH, nested SegWit and Taproot key & script paths.',
+    accent: 'from-accent-400/30 to-accent-400/0',
+  },
+  {
+    icon: 'curve',
+    title: 'Pluggable curve backends',
+    desc: 'Pure Python by default. Swap in libsecp256k1 via coincurve for production throughput — same API, no rewrites.',
+    accent: 'from-accent-600/30 to-accent-600/0',
+  },
+  {
+    icon: 'attack',
+    title: 'Nonce-reuse analysis',
+    desc: 'Linearised ECDSA (α, β) relations with both same-nonce and related-nonce recovery — the algebra behind real-world key extraction.',
+    accent: 'from-accent-500/30 to-accent-500/0',
+  },
+  {
+    icon: 'psbt',
+    title: 'PSBT pipeline',
+    desc: 'BIP-174 parse, edit, sign and extract. Process batches of PSBTs with ThreadPool or ProcessPool executors and graceful shutdown.',
+    accent: 'from-accent-400/30 to-accent-400/0',
+  },
+  {
+    icon: 'shield',
+    title: 'Air-gap friendly',
+    desc: 'Zero runtime dependencies. Network I/O lives in an isolated services layer — the core library is import-safe offline.',
+    accent: 'from-accent-600/30 to-accent-600/0',
+  },
+];
+
+const icons: Record<string, string> = {
+  parse: `<path d="M5 4h14v4H5zM5 12h10v2H5zM5 16h14v2H5zM5 20h7v2H5z" stroke="currentColor" stroke-width="1.5" fill="none" stroke-linecap="round"/><circle cx="20" cy="13" r="2.5" stroke="currentColor" stroke-width="1.5" fill="none"/>`,
+  sig: `<path d="M12 3l8 4v6c0 5-3.5 8-8 9-4.5-1-8-4-8-9V7l8-4z" stroke="currentColor" stroke-width="1.5" fill="none" stroke-linejoin="round"/><path d="M9 12l2.5 2.5L15 11" stroke="currentColor" stroke-width="1.5" fill="none" stroke-linecap="round" stroke-linejoin="round"/>`,
+  curve: `<path d="M3 14C5 9 7 9 9 14s4 5 6 0 4-5 6 0" stroke="currentColor" stroke-width="1.5" fill="none" stroke-linecap="round"/><path d="M3 18C5 13 7 13 9 18s4 5 6 0 4-5 6 0" stroke="currentColor" stroke-width="1.5" fill="none" stroke-linecap="round" opacity="0.5"/>`,
+  attack: `<path d="M12 2v3M12 19v3M4.2 4.2l2.1 2.1M17.7 17.7l2.1 2.1M2 12h3M19 12h3M4.2 19.8l2.1-2.1M17.7 6.3l2.1-2.1" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/><circle cx="12" cy="12" r="4" stroke="currentColor" stroke-width="1.5" fill="none"/>`,
+  psbt: `<path d="M4 7l8-4 8 4-8 4-8-4z" stroke="currentColor" stroke-width="1.5" fill="none" stroke-linejoin="round"/><path d="M4 12l8 4 8-4M4 17l8 4 8-4" stroke="currentColor" stroke-width="1.5" fill="none" stroke-linejoin="round" opacity="0.5"/>`,
+  shield: `<path d="M12 3l8 3v6c0 5-3.5 8-8 9-4.5-1-8-4-8-9V6l8-3z" stroke="currentColor" stroke-width="1.5" fill="none" stroke-linejoin="round"/><path d="M12 8v5M12 16v.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>`,
+};
+---
+
+<section id="features" class="relative py-24 sm:py-32">
+  <div class="container-page">
+    <div class="mx-auto max-w-2xl text-center">
+      <span class="eyebrow reveal">Capabilities</span>
+      <h2 class="reveal mt-3 text-display-lg font-semibold text-balance" data-delay="80">
+        Every layer of the stack. <br class="hidden sm:block" />
+        <span class="text-gradient-accent">Audited, layered, public.</span>
+      </h2>
+      <p class="reveal mt-4 text-pretty text-ink-300" data-delay="160">
+        btx is organised as a strict dependency pyramid. Each layer is
+        understandable and testable in isolation — no hidden behaviour,
+        no semi-private helpers.
+      </p>
+    </div>
+
+    <div class="mt-16 grid gap-4 sm:grid-cols-2 lg:mt-20 lg:grid-cols-3">
+      {features.map((f, i) => (
+        <article
+          class="card reveal group"
+          data-spotlight
+          data-delay={i * 60}
+        >
+          <div class={`absolute -right-12 -top-12 h-32 w-32 rounded-full bg-gradient-to-br ${f.accent} opacity-50 blur-2xl transition-opacity duration-500 group-hover:opacity-100`}></div>
+
+          <div class="relative flex h-full flex-col">
+            <div class="flex h-10 w-10 items-center justify-center rounded-xl border border-white/[0.08] bg-white/[0.03] text-accent-400 transition-colors group-hover:text-accent-300">
+              <svg viewBox="0 0 24 24" class="h-5 w-5" set:html={icons[f.icon]} />
+            </div>
+
+            <h3 class="mt-5 text-lg font-semibold tracking-tight text-white">
+              {f.title}
+            </h3>
+            <p class="mt-2 text-sm leading-relaxed text-ink-300">
+              {f.desc}
+            </p>
+
+            <div class="mt-auto pt-6">
+              <div class="h-px w-full bg-gradient-to-r from-transparent via-white/10 to-transparent"></div>
+              <div class="mt-3 flex items-center justify-between font-mono text-[11px] text-ink-500">
+                <span>{String(i + 1).padStart(2, '0')}</span>
+                <span class="text-ink-400 transition-colors group-hover:text-accent-400">learn more →</span>
+              </div>
+            </div>
+          </div>
+        </article>
+      ))}
+    </div>
+  </div>
+</section>
