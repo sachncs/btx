@@ -1,6 +1,7 @@
 # Plan Overview — `bitcoin` → `btx` Refactor
 
-This directory contains the atomic checklist for the refactor of `/Users/sachin/repo/bitcoin`. Each phase has its own file with detailed tasks and acceptance criteria.
+This directory contains the atomic checklist for the `btx` refactor. Each
+phase has its own file with detailed tasks and acceptance criteria.
 
 ## Phases at a glance
 
@@ -34,7 +35,7 @@ This directory contains the atomic checklist for the refactor of `/Users/sachin/
 | 25 | [phase25.md](phase25.md) | Regenerate build artefacts | ✅ |
 | 26 | [phase26.md](phase26.md) | Verification | ✅ |
 | 27 | [phase27.md](phase27.md) | CHANGELOG entry | ✅ |
-| 28 | [phase28.md](phase28.md) | Commit (opt-in) | ⬜ opt-in; not executed |
+| 28 | [phase28.md](phase28.md) | Commit and publish requested changes | ✅ |
 
 ## Naming policy
 
@@ -71,11 +72,13 @@ This directory contains the atomic checklist for the refactor of `/Users/sachin/
 3. After each phase, run the "End-of-Phase Verification" section.
 4. If verification fails, return to the relevant phase and fix before moving on.
 5. After Phase 26 (full verification), update CHANGELOG (Phase 27).
-6. Phase 28 is opt-in; commit only when the user explicitly requests it.
+6. Phase 28 is complete: the requested changes were committed atomically and
+   pushed to `origin/master`.
 
 ## Total
 
 - 29 phase files (phase00.md through phase28.md + this README)
 - ~260 atomic tasks
 - All with explicit acceptance criteria
-- 27 of 28 phases complete (✅). Remaining: Phase 28 (opt-in commit).
+- 28 of 28 phases complete (✅). The checklist is historical; new work should
+  be tracked in `plan.md` and the changelog.

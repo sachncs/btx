@@ -4,10 +4,12 @@
 
 | Package | Required | Condition | License | Purpose |
 |---------|----------|-----------|---------|---------|
-| `typer` | Yes (CLI only) | — | MIT | CLI argument parsing |
+| `typer` | Yes | — | MIT | CLI argument parsing |
 | `coincurve` | No | `[coincurve]` extra | Apache-2.0 AND MIT | Optional secp256k1 C bindings |
 
-`typer` is only needed when using the CLI. The Python API has **zero** runtime dependencies outside the standard library.
+The parser, transaction, curve, and signature modules use only the Python
+standard library. The distribution still declares `typer` as its runtime
+dependency because the supported `btx` command is installed with the package.
 
 ## Development (`[dev]` extra)
 

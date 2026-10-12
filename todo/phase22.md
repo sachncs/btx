@@ -7,4 +7,7 @@ Add small API improvements that integrate naturally with Phase 10's `Tx` method 
 
 ## Notes
 - `tx.to_dict()` enables JSON serialization via existing `tx_to_json()` helper.
-- The free function `total_output_value` is removed from `btx/transaction/fee.py` and from the `btx/transaction` and `btx` re-exports; only the method `Tx.total_output_value()` at `btx/transaction/models.py` remains.
+- `total_output_value` remains a supported module-level operation in
+  `btx.transaction.ops` and is re-exported from `btx.transaction`; the
+  current transaction model intentionally keeps domain operations outside the
+  frozen data carrier.

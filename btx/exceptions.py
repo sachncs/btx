@@ -14,12 +14,9 @@ Hierarchy::
         └── UnsupportedScriptPathError  # script features this
                                          # library does not implement
 
-Callers should catch :exc:`BtxError` to handle every library
-error in a single ``except`` clause.  Domain-level failures that used
-to raise the dedicated subclasses ``NotInvertible``, ``PointError``,
-and ``ParsingError`` now raise plain :exc:`ValueError` (still caught
-by ``except BtxError`` since :exc:`BtxError` subclasses
-:exc:`ValueError`).
+Callers should catch :exc:`BtxError` to handle package-level domain errors
+in a single ``except`` clause. Malformed values at low-level parsing and
+arithmetic boundaries raise the standard :exc:`ValueError`.
 """
 
 __all__ = [

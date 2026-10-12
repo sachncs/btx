@@ -71,5 +71,7 @@ selection.
 - **Exhaustive type annotations** — `mypy` strict-ish clean across all source files
 - **`__init__.py` is the public API surface** — submodules are implementation details
 - **models.py is the zero-import leaf** — `transaction/models.py` imports nothing from the package, avoiding circular deps
-- **Pure Python first, C optional** — core library has zero runtime dependencies (only `typer` for CLI)
+- **Pure Python first, C optional** — core parsing and cryptographic modules
+  use the standard library; `typer` is the package dependency for the CLI and
+  `coincurve` is optional acceleration.
 

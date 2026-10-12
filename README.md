@@ -1,60 +1,53 @@
-<p align="center">
-  <picture>
-    <img src="assets/btx-logo.svg" alt="btx logo" width="96" height="96">
-  </picture>
-  <h1 align="center">btx</h1>
-  <p align="center">Pure-Python parsing, signature extraction, and nonce-reuse analysis for the Bitcoin secp256k1 stack.</p>
-  <p align="center">
-    <a href="https://sachncs.github.io/btx/"><img src="https://img.shields.io/badge/website-sachncs.github.io%2Fbtx-5fd0a4?style=for-the-badge" alt="Website"></a>
-    <a href="#installation"><img src="https://img.shields.io/badge/python-3.12%2B-3776AB" alt="Python 3.12+"></a>
-    <a href="LICENSE"><img src="https://img.shields.io/badge/license-MIT-green" alt="License"></a>
-    <a href="https://github.com/sachncs/btx/actions"><img src="https://img.shields.io/github/actions/workflow/status/sachncs/btx/ci.yml?branch=master" alt="CI"></a>
-    <a href="https://github.com/sachncs/btx/stargazers"><img src="https://img.shields.io/github/stars/sachncs/btx" alt="Stars"></a>
-  </p>
-</p>
+# btx
 
-> **Product site**: [sachncs.github.io/btx](https://sachncs.github.io/btx/) — built with Astro + Tailwind, deployed to GitHub Pages. The source lives in [`site/`](site/).
+Pure-Python Bitcoin transaction and secp256k1 tooling for inspecting raw
+transactions, signatures, scripts, sighashes, and PSBTs.
 
-**btx** is a pure-Python library for parsing raw Bitcoin transactions,
-extracting ECDSA and Schnorr signatures (`r`, `s`, `z`), deriving
-linearised ECDSA relations, recovering nonce reuse, and verifying
-signatures — all on the secp256k1 curve. The core library has **no
-network dependencies**; blockchain data fetching lives behind an
-optional, isolated services layer.
+[![CI](https://github.com/sachncs/btx/actions/workflows/ci.yml/badge.svg)](https://github.com/sachncs/btx/actions/workflows/ci.yml)
+[![Python 3.12+](https://img.shields.io/badge/python-3.12%2B-3776AB)](https://www.python.org/)
+[![License: MIT](https://img.shields.io/badge/license-MIT-7C3AED)](LICENSE)
 
-> **Distribution status:** btx is currently installed from source or the Git
-> repository; it is not published to PyPI yet. The pure-Python backend supports
-> Python 3.12–3.14. The optional `coincurve` backend is validated on Python
-> 3.12–3.13 while upstream packaging catches up with Python 3.14.
+> **Distribution status:** `btx` is not published to PyPI yet. Install it
+> from a checkout or directly from GitHub. Do not use `pip install btx`.
 
----
+## What it provides
 
-## Features
+- Legacy, SegWit v0, and Taproot transaction parsing and serialization.
+- ECDSA and Schnorr signature extraction, verification, signing, and recovery.
+- Sighash computation for legacy, SegWit v0, and Taproot transactions.
+- Bitcoin Script classification, parsing, construction, and Taproot helpers.
+- PSBT (BIP-174) parsing, editing, signing, and extraction.
+- Descriptor parsing and analysis.
+- Nonce-reuse and related-nonce analysis for ECDSA signatures.
+- Optional blockchain providers for fetching UTXO data and broadcasting.
+- A pure-Python curve backend by default, with optional `coincurve`
+  acceleration.
 
-- **Transaction Parsing** — Legacy, SegWit v0 (BIP-143), and Taproot (BIP-341) wire format
-- **Signature Extraction** — ECDSA and Schnorr from P2PK, P2PKH, P2SH-multisig, P2WPKH, P2WSH, P2SH-P2WPKH/WSH, P2TR key-path and script-path
-- **Nonce Reuse Detection** — `d = α·k − β` algebra with both *same-nonce* and *related-nonce* recovery
-- **Sighash Computation** — Legacy, SegWit v0, and Taproot with all SIGHASH flag combinations
-- **PSBT Support** — BIP-174 parse, edit, sign, and extract
-- **Script Analysis** — Classify, parse, and build standard Bitcoin scripts
-- **Transaction Construction** — Immutable `Tx` models, fluent `TransactionBuilder`, and `PsbtEditor`
-- **Batch Processing** — `ThreadPoolExecutor` and `ProcessPoolExecutor` pipelines with graceful shutdown
-- **Pluggable Backends** — Pure Python (default) or `coincurve`/libsecp256k1
-- **CLI** — Typer-based `decode`, `extract`, `linearize`, `broadcast`, `health` commands
-- **Blockchain Providers** — Blockstream, Mempool.space, blockchain.info, plus a generic HTTP provider
-- **Documented API** — Stable helpers are documented and re-exported where appropriate; internal implementation details remain private
+## Documentation
 
----
+The [public documentation](https://sachncs.github.io/btx/docs/) is standalone
+and is the source of truth for users:
 
-## Installation
+- [Getting started](https://sachncs.github.io/btx/docs/getting-started/)
+- [API reference](https://sachncs.github.io/btx/docs/api/)
+- [Architecture](https://sachncs.github.io/btx/docs/architecture/)
+- [Testing](https://sachncs.github.io/btx/docs/testing/)
+- [Security](https://sachncs.github.io/btx/docs/security/)
+- [Contributing](https://sachncs.github.io/btx/docs/contributing/)
+- [Changelog](https://sachncs.github.io/btx/docs/changelog/)
 
-### From source (current distribution method)
+The repository also contains deeper design notes in [`docs/`](docs/).
+
+## Install from source
+
+### Editable install
 
 ```bash
 git clone https://github.com/sachncs/btx.git
 cd btx
 python -m venv .venv
 .venv/bin/python -m pip install -e .
+.venv/bin/btx health
 ```
 
 For development and tests:
@@ -63,421 +56,132 @@ For development and tests:
 .venv/bin/python -m pip install -e ".[dev]"
 ```
 
-For optional libsecp256k1 acceleration:
+For the optional `libsecp256k1` backend:
 
 ```bash
 .venv/bin/python -m pip install -e ".[coincurve]"
 ```
 
-The package requires Python ≥ 3.12 and Typer at runtime. Keep the
-`coincurve` extra optional when you need the C-backed curve implementation.
-
-Alternatively, install directly from Git without keeping a checkout:
+### Direct Git installation
 
 ```bash
 python -m pip install "btx @ git+https://github.com/sachncs/btx.git"
 ```
 
----
+`typer` is the package's CLI dependency. The core parsing and cryptographic
+modules use the Python standard library; `coincurve` is optional.
 
-## Quick Start
+## Quick start
 
-### CLI
+### Command line
 
 ```bash
 # Decode a raw transaction
-btx decode <tx-hex>
+btx decode < transaction.hex
 
 # Extract signatures
-btx extract <tx-hex>
+btx extract < transaction.hex
 
-# With UTXO metadata (needed for SegWit v0 sighash)
-btx extract <tx-hex> --utxo-value 100000000
+# Emit JSON
+btx extract < transaction.hex --json
 
-# Output as JSON
-btx extract <tx-hex> --json
-
-# Linearise (sort) signatures by txid/vin
-btx linearize <tx-hex>
-
-# Run health checks
+# Check the local installation and available backends
 btx health
 ```
 
 ### Python API
 
 ```python
-import btx
+from btx import extract_signatures, parse_tx
 
-# Parse a raw transaction
-tx, _ = btx.parse_tx(bytes.fromhex(raw_hex))
-
-# Extract signatures
-records = btx.extract_signatures(tx)
-
-# Linearise (sort) signatures
-sorted_records = btx.linearize_signatures(records)
-
-# Verify a signature
-ok = btx.verify_signature(message_hash, der_sig, public_key)
-```
-
----
-
-## Examples
-
-### Extract Signatures
-
-```python
-from btx import parse_tx, extract_signatures, encode_hex
-
-tx, _ = parse_tx(bytes.fromhex(raw_hex))
+raw_hex = "..."
+tx, bytes_consumed = parse_tx(bytes.fromhex(raw_hex))
 records = extract_signatures(tx)
 
-for rec in records:
-    print(encode_hex(rec.txid), rec.input_index, encode_hex(rec.signature))
+print(bytes_consumed, len(records))
 ```
 
-SegWit v0 inputs need UTXO values and/or scriptPubKeys:
+SegWit v0 signature extraction requires the spent output's script and value:
 
 ```python
 records = extract_signatures(
     tx,
-    utxo_script_pubkeys=[bytes.fromhex(script_hex)],
-    utxo_values=[100000000],
+    utxo_script_pubkeys=[bytes.fromhex(script_pubkey_hex)],
+    utxo_values=[100_000_000],
 )
 ```
-
-### Nonce Reuse Detection
-
-```python
-from btx.signature.linearization.coefficients import (
-    LinearCoefficientCollection, derive_linear_coefficients,
-)
-from btx.signature.attack import detect_nonce_reuse, recover_from_nonce_reuse
-
-collection = LinearCoefficientCollection(records=tuple(
-    derive_linear_coefficients(r=rec.r, s=rec.s, z=rec.z, input_index=i)
-    for i, rec in enumerate(records)
-))
-groups = detect_nonce_reuse(collection)
-
-for group in groups:
-    result = recover_from_nonce_reuse(
-        collection.records[group.indices[0]],
-        collection.records[group.indices[1]],
-    )
-    # result.private_key, result.nonce
-```
-
-### Sighash Computation
-
-```python
-from btx import (
-    sighash_legacy, sighash_segwit, sighash_taproot,
-    SIGHASH_ALL, SIGHASH_NONE, SIGHASH_SINGLE, SIGHASH_ANYONECANPAY,
-)
-
-h = sighash_segwit(tx, input_index, script_code, amount, SIGHASH_ALL)
-```
-
-### Script Classification
-
-```python
-from btx import (
-    parse_script,
-    classify_script_pubkey,
-    P2PKH, P2SH, P2WPKH, P2WSH, P2TR,
-)
-
-detail = classify_script_pubkey(script)
-print(detail)  # P2WPKH, P2SH, P2TR, ...
-```
-
-### Blockchain Data Providers
-
-```python
-from btx import BlockstreamProvider  # noqa: F401
-
-# Provider instance is constructed internally; use the helper functions
-# exported from btx.services.blockchain, or instantiate one explicitly.
-from btx.services.blockchain import blockstream_provider, mempool_space_provider
-
-provider = blockstream_provider()
-tx_hex = provider.get_transaction_hex("aa" * 32)
-utxo_value = provider.get_utxo_value("aa" * 32, vout=0)
-```
-
----
 
 ## Architecture
 
-The library is intentionally organised around a layered architecture
-so each layer can be understood and tested in isolation:
+The package is layered so byte-level primitives and curve operations can be
+tested independently from Bitcoin models, signature analysis, PSBT handling,
+and network access:
 
-```
-┌─────────────────────────────────────────────────────────────────┐
-│  btx.cli            Typer-based command-line interface       │
-├─────────────────────────────────────────────────────────────────┤
-│  btx.services       Blockchain data providers + async batch   │
-├─────────────────────────────────────────────────────────────────┤
-│  btx.signature      Extraction, linearisation, attacks, sig  │
-├─────────────────────────────────────────────────────────────────┤
-│  btx.descriptor     Miniscript parsing, compilation, analyse │
-│  btx.psbt           BIP-174 parse, edit, extract, batch     │
-│  btx.sighash        Legacy, SegWit v0, Taproot sighash        │
-│  btx.transaction    Tx models, parser, builder, fee, RBF     │
-│  btx.script         Script parse, classify, build, Taproot   │
-├─────────────────────────────────────────────────────────────────┤
-│  btx.encoding       hex, varint, DER, SEC, hasher            │
-│  btx.field          inverse, sqrt (Tonelli-Shanks, p≡3 mod 4)│
-│  btx.curve          secp256k1 params, point, operations,     │
-│                         dispatch, batch, pluggable backends      │
-└─────────────────────────────────────────────────────────────────┘
+```text
+field / curve / encoding
+          ↓
+script / transaction / sighash
+          ↓
+signature / psbt / descriptor
+          ↓
+services (optional network I/O)
+          ↓
+cli
 ```
 
-Layering rules:
-
-- The **curve** and **field** layers are independent of every other
-  layer and have no Bitcoin-specific knowledge.
-- The **encoding** layer is purely byte-level and contains no
-  transaction or script logic.
-- The **script**, **sighash**, and **transaction** layers depend only
-  on the curve, field, and encoding layers.
-- The **signature** layer depends on every layer below it.
-- The **services** layer is the only place that performs network I/O.
-
-### Design invariants
-
-- All public dataclasses are `frozen=True, slots=True` for value
-  semantics and predictable hashing.
-- The package root re-exports every public symbol; no need to
-  chase submodules.
-- No `from btx.foo import _bar` is ever required — every
-  documented helper has a plain public name.
-- Network I/O is opt-in: the core library is import-safe in
-  air-gapped environments.
-
----
+Network access is opt-in. Importing and using the core parser does not contact
+remote services. Providers validate transaction IDs, URLs, response sizes,
+timeouts, and retryable failures at their boundary.
 
 ## Configuration
 
-### Environment Variables
+Set `BTX_DEFAULT_BACKEND` before importing `btx`:
 
-| Variable | Default | Description |
-|----------|---------|-------------|
-| `BTX_LOG_LEVEL` | `WARNING` | Log verbosity (`DEBUG`, `INFO`, `WARNING`, `ERROR`, `CRITICAL`) |
-
-### Settings snapshot
-
-```python
-from dataclasses import replace
-from btx import settings
-
-libsecp_settings = replace(settings, default_backend="libsecp")
+```bash
+BTX_DEFAULT_BACKEND=native   # default pure-Python backend
+BTX_DEFAULT_BACKEND=libsecp  # optional coincurve backend
 ```
 
-`settings` is a frozen dataclass; use `dataclasses.replace(settings, ...)`
-to derive a customised copy. To configure the process-wide default before
-importing btx, set `BTX_DEFAULT_BACKEND=native` or `BTX_DEFAULT_BACKEND=libsecp`.
-
----
-
-## API
-
-| Symbol | Type | Description |
-|--------|------|-------------|
-| `parse_tx`, `TransactionBuilder`, `tx_from_dict` | function / class | Transaction construction and parsing |
-| `extract_signatures`, `linearize_signatures`, `batch_extract`, `correlate_across_transactions` | function | Signature extraction pipeline |
-| `verify_signature`, `verify_schnorr_signature`, `verify_all`, `recover_public_key` | function | ECDSA / Schnorr verification |
-| `sighash_legacy`, `sighash_segwit`, `sighash_taproot` | function | Sighash computation |
-| `parse_psbt`, `serialize_psbt`, `psbt_extract_signatures`, `PsbtEditor` | function / class | PSBT (BIP-174) |
-| `parse_public_key`, `serialize_public_key`, `multiply`, `add`, `double` | function | secp256k1 curve ops |
-| `analyze_descriptor`, `compile_descriptor`, `extract_keys` | function | Miniscript descriptor tools |
-| `blockstream_provider`, `mempool_space_provider`, `BaseBlockchainProvider`, `BlockchainInfoProvider`, `GenericHttpProvider` | class | Blockchain data fetching |
-
-### Public helpers
-
-The following helpers are part of the public API and are also
-re-exported from their submodules:
-
-| Helper | Module |
-|--------|--------|
-| `collect_info`, `collect_keys`, `contains_op`, `estimate_satisfaction`, `sorted_unique` | `btx.descriptor` |
-| `split_args`, `emit_script` | `btx.descriptor` |
-| `DescriptorError`, `DescriptorInfo`, `DescriptorNode`, `ESTIMATED_SATISFACTION` | `btx.descriptor` |
-| `parse_psbt_impl`, `parse_psbt_worker`, `process_psbt_batch`, `process_psbt_batch_with` | `btx.psbt` |
-| `process_single_worker`, `BUILTINS_REGISTERED` | `btx.signature` |
-| `registry` | `btx.signature.extraction.plugins` |
-| `LOGGING_CONFIGURED` | `btx.cli` |
-| `CURVE_A`, `CURVE_B` | `btx.curve` |
-
----
-
-## Project Structure
-
-```
-btx/
-├── __init__.py          # Public API surface (~105 symbols)
-├── cli/                 # Typer CLI commands
-├── curve/               # secp256k1 point operations & pluggable backends
-│   ├── backend/         # CurveBackend ABC, native (pure-Python), libsec (coincurve)
-│   └── dispatch.py      # Backend singleton + fixed-base multiplication
-├── descriptor/          # Miniscript descriptor parsing & analysis
-├── encoding/            # Hex, varint, DER, SEC, hashing
-├── exceptions.py        # Exception hierarchy
-├── field/               # Modular arithmetic
-├── health.py            # Runtime health checks
-├── psbt/                # BIP-174 parse, serialize, edit, batch
-├── script/              # Script parse, classify, build, Taproot
-├── services/            # Blockchain data providers + async batch
-├── settings.py          # Settings singleton
-├── sighash/             # Legacy, SegWit v0, Taproot sighash
-├── signature/           # Extraction, linearisation, verification, signing
-│   ├── extraction/      # Extractor plugin registry + engine
-│   └── linearization/   # (α, β) coefficient derivation
-└── transaction/         # Tx parse, build, serialize, fee, RBF
-tests/                   # Test suite; CI enforces an 80%+ coverage gate
-docs/                    # Documentation
-```
-
----
+The value is exposed through the immutable `btx.settings` object. Use
+`dataclasses.replace()` to derive a different settings snapshot instead of
+mutating global state.
 
 ## Development
 
-```bash
-./setup.sh                          # uv sync + site install + validation
-make bootstrap                      # install locked Python/site dependencies
-make test                           # pytest
-make typecheck                     # mypy
-make lint                          # ruff
-make test-cov                      # pytest + 80% coverage gate
-make test-all                      # complete native validation
-make docker-test                   # clean-room validation
-./cleanup.sh                        # remove caches, .venv, egg-info
-```
-
-### Code Style
-
-- Line length: 88 (per `pyproject.toml`)
-- Quotes: double (`"`)
-- Formatting: `ruff format` (PEP 8 + project rules)
-- Type hints: required on all public signatures; mypy runs in strict-ish mode
-- Docstrings: Google-style with "what" and "why"
-- Public APIs are documented and re-exported where appropriate; internal helpers
-  may remain private when they are not part of the supported surface.
-
-### Commit Conventions
-
-We use [Conventional Commits](https://www.conventionalcommits.org/):
-
-```
-feat: add Taproot script-path signature extraction
-fix: handle non-canonical DER encoding
-docs: expand module docstrings across the signature pipeline
-refactor: promote semi-private helpers to public API
-test: add parity tests for cached vs streamed memory
-chore: update ruff config
-```
-
----
-
-## Testing
+Prerequisites: Python 3.12 or later, [`uv`](https://docs.astral.sh/uv/), and
+Node.js 22 for site checks.
 
 ```bash
-uv run pytest tests/          # Full test suite
-uv run pytest tests/ --cov=btx --cov-fail-under=80
-make test-all                # Python + site validation
+./setup.sh
+make test-all
 ```
 
----
-
-## Build
+Useful focused commands:
 
 ```bash
-python -m build
-make clean                   # Remove caches and build artifacts
+make test
+make test-cov
+make lint
+make typecheck
+make docker-test
+cd site && npm run check && npm run build
 ```
 
----
+The site is an Astro application under [`site/`](site/) and is deployed by
+the workflow in [`.github/workflows/deploy-site.yml`](.github/workflows/deploy-site.yml).
 
-## Release
+## Security and scope
 
-1. Bump version in `pyproject.toml`
-2. Update `CHANGELOG.md`
-3. Commit with a `version:X.Y.Z` message
-4. Tag and push only after the release environment has explicitly enabled publication
-
----
-
-## Supported Script Types
-
-- P2PK (legacy)
-- P2PKH (legacy)
-- P2SH multisig (legacy)
-- P2WPKH (SegWit v0)
-- P2WSH multisig (SegWit v0)
-- P2SH-P2WPKH / P2SH-P2WSH (nested SegWit v0)
-- P2TR key-path and script-path (Taproot)
-
----
-
-## References
-
-- [SEC-2 v2.0](https://www.secg.org/sec2-v2.pdf) — secp256k1 curve parameters
-- [BIP-141](https://github.com/bitcoin/bips/blob/master/bip-0141.mediawiki) — Segregated Witness
-- [BIP-143](https://github.com/bitcoin/bips/blob/master/bip-0143.mediawiki) — SegWit v0 sighash
-- [BIP-174](https://github.com/bitcoin/bips/blob/master/bip-0174.mediawiki) — PSBT format
-- [BIP-340](https://github.com/bitcoin/bips/blob/master/bip-0340.mediawiki) — Schnorr signatures
-- [BIP-341](https://github.com/bitcoin/bips/blob/master/bip-0341.mediawiki) — Taproot
-- [RFC-6979](https://datatracker.ietf.org/doc/html/rfc6979) — Deterministic ECDSA nonces
-
----
-
-## Tech Stack
-
-| Category | Technology |
-|----------|------------|
-| Language | Python 3.12+ |
-| CLI | [Typer](https://typer.tiangolo.com/) |
-| Testing | [pytest](https://docs.pytest.org/), [Hypothesis](https://hypothesis.readthedocs.io/) |
-| Lint / Format | [Ruff](https://docs.astral.sh/ruff/) |
-| Type Check | [mypy](https://mypy-lang.org/) |
-| Build | [setuptools](https://setuptools.pypa.io/) |
-| Package Manager | [uv](https://github.com/astral-sh/uv) |
-| Optional | [coincurve](https://github.com/ofek/coincurve) (libsecp256k1 bindings) |
-
----
-
-## Roadmap
-
-- [ ] Full Miniscript integration
-- [ ] Taproot tree parsing
-- [ ] Additional blockchain providers
-- [ ] Optional Rust backend for maximum performance
-
----
+`btx` is analysis and developer tooling, not a wallet or custody system. Do
+not provide private keys or signing material to an unreviewed workflow. See
+[`SECURITY.md`](SECURITY.md) for responsible disclosure instructions.
 
 ## Contributing
 
-Contributions are welcome. Please read [CONTRIBUTING.md](CONTRIBUTING.md)
-for guidelines on development setup, code style, the pull request
-process, and testing requirements.
-
-## Code of Conduct
-
-This project follows the [Contributor Covenant v2.1](CODE_OF_CONDUCT.md).
-By participating you agree to abide by its terms.
-
-## Security
-
-For reporting security vulnerabilities, please see [SECURITY.md](SECURITY.md).
+Bug reports, tests, documentation improvements, and focused code changes are
+welcome. Read [`CONTRIBUTING.md`](CONTRIBUTING.md), run `make test-all`, and
+include the relevant test or documentation update with your change.
 
 ## License
 
-[MIT](LICENSE) © 2026 Sachin
-
-## Acknowledgments
-
-- Built on the [secp256k1](https://www.secg.org/sec2-v2.pdf) elliptic curve
-- Inspired by the Bitcoin ecosystem and its need for robust tooling
+MIT. See [`LICENSE`](LICENSE).

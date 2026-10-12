@@ -25,4 +25,7 @@ All checks now pass, including the ruff format check (26.5) and the Sphinx docs 
 
 ## Notes
 - This phase is the gate. Do not commit until every task passes.
-- Verified-complete tasks in the current tree: 26.1 (no stray `bitcoin` refs in product files — remaining hits are the intentional CHANGELOG rename notes, the `pyproject.toml` keyword, and this `todo/` plan), 26.2/26.3 (underscore sweep clean in `btx/` and `tests/`), 26.4 (`ruff check` exits 0), 26.6 (`mypy btx/` clean), 26.7 (pytest: 879 passed, coverage 87.41% ≥ 80%), 26.8 (tests for `Point`/`Tx`/extractor/scheme dispatch exist and coverage ≥ 80%), 26.10 (`btx --help` shows program name `btx`), 26.11 (`btx health` exits 0 and reports `"version": "0.4.0"`), 26.12/26.13 (both env vars work; `BITCOIN_LOG_LEVEL` emits the `DeprecationWarning`), 26.14 (`btx.BtxError` imports), 26.15 (`btx --help` lists `sign`/`verify`/`recover`/`parse-script`), 26.16 (all four subcommands' `--help` succeed), 26.17 (`TestComputeSighashDispatch` taproot test passes).
+- Verified-complete tasks in the current tree include the formatting, lint,
+  type-check, test, coverage, CLI, health, import, and sighash dispatch gates.
+  The exact output is intentionally validated by the current `make test-all`
+  run rather than copied into this historical phase note.

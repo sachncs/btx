@@ -166,9 +166,9 @@ tx_from_dict({"version": 2, "inputs": [...], "outputs": [...], ...})
 ## 8. Enriched Transaction Flow
 
 ```
-enrich_transaction(tx, provider=BlockstreamProvider())
+enrich_transaction(tx, provider=blockstream_provider())
     │
-    ├─ For each input: fetch UTXO tx via provider.fetch_raw_tx()
+    ├─ For each input: fetch UTXO tx via provider.get_transaction_hex()
     ├─ Parse UTXO tx to find the spent output
     ├─ Attach script_pubkey and value
     └─ Return enriched Tx with metadata

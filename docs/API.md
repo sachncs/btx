@@ -441,36 +441,34 @@ removed in 0.5.0; classify via `btx.classify_script_pubkey` instead.
 
 ## Blockchain Services
 
-### `btx.services.BlockstreamProvider`
+### `btx.services.blockstream_provider`
 
 ```python
-class BlockstreamProvider:
-    def __init__(self, network: str = "mainnet") -> None: ...
-    def fetch_raw_tx(self, txid: str) -> bytes: ...
-    def fetch_outpoint_spend(self, txid: str, vout: int) -> dict | None: ...
+def blockstream_provider() -> BaseBlockchainProvider: ...
 ```
 
-Fetches transaction data from blockstream.info API. Optional runtime dependency via `urllib.request`.
+Create a provider for the Blockstream API. The provider uses the standard
+library HTTP client, bounded timeouts, response-size limits, and retries for
+transient failures.
+
+### `btx.services.mempool_space_provider`
+
+```python
+def mempool_space_provider() -> BaseBlockchainProvider: ...
+```
+
+Create a provider for the Mempool.space API.
 
 ### `btx.services.BlockchainInfoProvider`
 
 ```python
-class BlockchainInfoProvider:
-    def __init__(self) -> None: ...
-    def fetch_raw_tx(self, txid: str) -> bytes: ...
+class BlockchainInfoProvider(BaseBlockchainProvider):
+    def get_transaction_hex(self, txid: str) -> str: ...
+    def get_utxo_script_pubkey(self, txid: str, vout: int) -> bytes: ...
+    def get_utxo_value(self, txid: str, vout: int) -> int: ...
 ```
 
-Fetches transaction data from blockchain.info API.
-
-### `btx.services.MempoolSpaceProvider`
-
-```python
-class MempoolSpaceProvider:
-    def __init__(self, network: str = "mainnet") -> None: ...
-    def fetch_raw_tx(self, txid: str) -> bytes: ...
-```
-
-Fetches transaction data from mempool.space API.
+Fetches transaction and UTXO data from the blockchain.info API.
 
 ### `btx.services.enrich_transaction`
 
@@ -478,7 +476,8 @@ Fetches transaction data from mempool.space API.
 def enrich_transaction(tx: Tx, provider: BaseBlockchainProvider | None = None) -> Tx:
 ```
 
-Fetch UTXO details for each input and return an enriched transaction with metadata. Falls back to a default provider if none given.
+Fetch UTXO details for each input. If no provider is supplied, the helper
+uses the Blockstream factory.
 
 ---
 

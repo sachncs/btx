@@ -20,7 +20,7 @@ Fixes #<!-- issue number if applicable -->
 - [ ] All existing and new tests pass (`make test`).
 - [ ] Type checking passes (`make typecheck`).
 - [ ] Linting passes (`make lint`).
-- [ ] Coverage remains at 99%+ (`make test-cov`).
+- [ ] Coverage remains above the configured threshold (`make test-cov`).
 - [ ] I have updated `CHANGELOG.md` under the `[Unreleased]` section.
 - [ ] I have added/updated docstrings and type hints for any new public API.
 

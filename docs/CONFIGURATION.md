@@ -49,11 +49,10 @@ from btx.curve.dispatch import set_backend
 set_backend(LibsecpBackend())       # activate C-backed explicitly
 ```
 
-## Former Config File Support
+## Configuration boundary
 
-The old `Config` class (file + env-var loading) has been replaced by
-the simpler `Settings` singleton. Environment variables
-(`BITCOIN_ECC_BACKEND`, `BITCOIN_NETWORK`, etc.) are no longer
-supported; configuration is done programmatically or via the
-`BTX_*` environment variables documented above.
+`btx` has one supported configuration variable: `BTX_DEFAULT_BACKEND`.
+Network providers are configured explicitly by constructing a provider or by
+using one of the provider factory helpers; there is no implicit network or
+configuration-file state.
 
