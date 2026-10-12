@@ -4,13 +4,13 @@ set -euo pipefail
 REPO_DIR="$(cd "$(dirname "$0")" && pwd)"
 cd "$REPO_DIR"
 
-echo "Creating virtual environment via uv..."
-uv venv
+echo "Syncing locked development dependencies via uv..."
+uv sync --extra dev --frozen
 
-echo "Syncing dependencies..."
-uv sync --extra dev
+echo "Installing site dependencies..."
+(cd site && npm ci --no-audit --no-fund)
 
 echo "Running tests..."
-uv run pytest tests/
+make test-all
 
 echo "Done."

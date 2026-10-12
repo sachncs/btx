@@ -1,0 +1,17 @@
+.git
+.venv
+site/node_modules
+site/dist
+site/.astro
+site/.cache
+__pycache__
+*.pyc
+.pytest_cache
+.hypothesis
+.coverage*
+htmlcov
+.mypy_cache
+.ruff_cache
+dist
+build
+*.egg-info
