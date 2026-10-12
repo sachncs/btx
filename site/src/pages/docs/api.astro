@@ -1,0 +1,38 @@
+---
+import DocsLayout from '~/layouts/DocsLayout.astro';
+---
+
+<DocsLayout title="API reference" active="api" description="Standalone API reference for the public btx Python surface.">
+  <span class="pill">public Python surface</span>
+  <h1 class="mt-6">API reference</h1>
+  <p class="lead">The package root exposes the workflows most callers need. Import lower-level helpers from their named modules when you need finer control.</p>
+
+  <h2>Transactions</h2>
+  <div class="docs-table-wrap"><table><thead><tr><th>Symbol</th><th>Purpose</th></tr></thead><tbody>
+    <tr><td><code>parse_tx(data)</code></td><td>Parse raw transaction bytes and return <code>(Tx, consumed_bytes)</code>.</td></tr>
+    <tr><td><code>serialize_tx(tx)</code></td><td>Serialize a transaction in its canonical wire format.</td></tr>
+    <tr><td><code>txid(tx)</code> / <code>wtxid(tx)</code></td><td>Compute legacy and witness transaction identifiers.</td></tr>
+    <tr><td><code>TransactionBuilder</code></td><td>Construct immutable transaction models fluently.</td></tr>
+  </tbody></table></div>
+
+  <h2>Signatures and keys</h2>
+  <div class="docs-table-wrap"><table><thead><tr><th>Symbol</th><th>Purpose</th></tr></thead><tbody>
+    <tr><td><code>extract_signatures(tx)</code></td><td>Extract ECDSA and Schnorr records from supported input types.</td></tr>
+    <tr><td><code>verify_signature(...)</code></td><td>Verify an ECDSA signature against a message hash and public key.</td></tr>
+    <tr><td><code>verify_schnorr_signature(...)</code></td><td>Verify a BIP-340 Schnorr signature.</td></tr>
+    <tr><td><code>linearize_signatures(records)</code></td><td>Derive deterministic linear relations for signature analysis.</td></tr>
+    <tr><td><code>detect_nonce_reuse(...)</code></td><td>Find same-nonce and related-nonce candidates.</td></tr>
+  </tbody></table></div>
+
+  <h2>Sighashes, scripts, and PSBTs</h2>
+  <div class="docs-grid">
+    <div class="docs-card"><h3>Sighashes</h3><p><code>sighash_legacy</code>, <code>sighash_segwit</code>, and <code>sighash_taproot</code> implement the Bitcoin signing rules.</p></div>
+    <div class="docs-card"><h3>Scripts</h3><p><code>parse_script</code>, <code>classify_script_pubkey</code>, and the <code>build_p2*</code> helpers handle standard output forms.</p></div>
+    <div class="docs-card"><h3>PSBT</h3><p><code>parse_psbt</code>, <code>serialize_psbt</code>, <code>PsbtEditor</code>, and extraction helpers cover BIP-174 workflows.</p></div>
+    <div class="docs-card"><h3>Services</h3><p><code>blockstream_provider</code>, <code>mempool_space_provider</code>, and <code>GenericHttpProvider</code> provide bounded network access.</p></div>
+  </div>
+
+  <h2>Errors and contracts</h2>
+  <p>Malformed data raises deterministic <code>ValueError</code>-compatible domain errors. Provider calls validate transaction IDs, enforce timeouts and response limits, and distinguish transport failures from invalid responses. Batch functions preserve input order and propagate worker failures.</p>
+  <div class="docs-callout">For exact signatures and type annotations, inspect the installed package with your editor or <code>help(btx)</code>. The site documents supported behavior without requiring a repository Markdown file.</div>
+</DocsLayout>

@@ -214,6 +214,131 @@
   .kbd {
     @apply inline-flex items-center rounded-md border border-white/10 bg-white/[0.04] px-1.5 py-0.5 font-mono text-[11px] text-ink-300;
   }
+
+  .docs-page {
+    @apply min-h-screen pb-24 pt-10 sm:pt-14;
+  }
+
+  .docs-breadcrumbs {
+    @apply mb-10 flex flex-wrap items-center gap-2 font-mono text-xs text-ink-500;
+  }
+
+  .docs-breadcrumbs a {
+    @apply text-ink-300 transition-colors hover:text-accent-300;
+  }
+
+  .docs-layout {
+    @apply grid gap-12 lg:grid-cols-[220px_minmax(0,760px)] lg:gap-20;
+  }
+
+  .docs-sidebar {
+    @apply lg:sticky lg:top-24 lg:h-fit;
+  }
+
+  .docs-sidebar-link {
+    @apply block rounded-lg px-3 py-2 text-sm text-ink-400 transition-colors hover:bg-white/[0.04] hover:text-white;
+  }
+
+  .docs-sidebar-link.active {
+    @apply bg-accent-500/10 text-accent-200;
+    box-shadow: inset 2px 0 0 var(--accent);
+  }
+
+  .docs-sidebar-note {
+    @apply mt-8 flex items-center gap-2 rounded-xl border border-accent-500/20 bg-accent-500/[0.06] px-3 py-3 font-mono text-[10px] uppercase tracking-[0.12em] text-accent-200;
+  }
+
+  .docs-prose {
+    @apply text-[15px] leading-7 text-ink-300;
+  }
+
+  .docs-prose h1 {
+    @apply text-4xl font-semibold leading-tight tracking-tight text-white sm:text-5xl;
+  }
+
+  .docs-prose h2 {
+    @apply mt-16 border-t border-white/[0.08] pt-8 text-2xl font-semibold text-white;
+  }
+
+  .docs-prose h3 {
+    @apply mt-10 text-lg font-semibold text-white;
+  }
+
+  .docs-prose p {
+    @apply mt-5;
+  }
+
+  .docs-prose .lead {
+    @apply mt-6 max-w-2xl text-lg leading-8 text-ink-200;
+  }
+
+  .docs-prose ul {
+    @apply mt-5 list-disc space-y-2 pl-6;
+  }
+
+  .docs-prose ol {
+    @apply mt-5 list-decimal space-y-2 pl-6;
+  }
+
+  .docs-prose li::marker {
+    color: var(--accent);
+  }
+
+  .docs-prose a {
+    @apply text-accent-300 underline decoration-accent-500/40 underline-offset-4 transition-colors hover:text-accent-200;
+  }
+
+  .docs-prose code {
+    @apply rounded bg-white/[0.06] px-1.5 py-0.5 font-mono text-[0.88em] text-accent-200;
+  }
+
+  .docs-prose pre {
+    @apply mt-6 overflow-x-auto rounded-2xl border border-white/[0.08] bg-ink-950 p-5 font-mono text-[13px] leading-6 text-ink-200;
+  }
+
+  .docs-prose pre code {
+    @apply bg-transparent p-0 text-inherit;
+  }
+
+  .docs-prose .docs-callout {
+    @apply mt-8 rounded-2xl border border-accent-500/20 bg-accent-500/[0.06] p-5 text-sm text-ink-200;
+  }
+
+  .docs-prose .docs-grid {
+    @apply mt-8 grid gap-4 sm:grid-cols-2;
+  }
+
+  .docs-prose .docs-card {
+    @apply rounded-2xl border border-white/[0.08] bg-white/[0.025] p-5;
+  }
+
+  .docs-prose .docs-card h3 {
+    @apply mt-0 text-base;
+  }
+
+  .docs-prose .docs-card p {
+    @apply mt-2 text-sm leading-6 text-ink-400;
+  }
+
+  .docs-prose .docs-table-wrap {
+    @apply mt-6 overflow-x-auto rounded-2xl border border-white/[0.08];
+  }
+
+  .docs-prose table {
+    @apply w-full min-w-[560px] text-left text-sm;
+  }
+
+  .docs-prose th {
+    @apply bg-white/[0.04] px-4 py-3 font-mono text-[11px] uppercase tracking-[0.12em] text-ink-300;
+  }
+
+  .docs-prose td {
+    @apply border-t border-white/[0.06] px-4 py-3 align-top text-ink-400;
+  }
+
+  .docs-prose td code {
+    @apply whitespace-nowrap;
+  }
 }
 
 @layer utilities {

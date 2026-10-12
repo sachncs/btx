@@ -1,0 +1,38 @@
+---
+import DocsLayout from '~/layouts/DocsLayout.astro';
+---
+
+<DocsLayout title="Testing" active="testing" description="Run btx's native and clean-room validation workflow locally, including tests, coverage, audits, and site checks.">
+  <span class="pill">reproducible validation</span>
+  <h1 class="mt-6">Testing</h1>
+  <p class="lead">The project uses one local validation contract for formatting, typing, tests, dependency audits, and the standalone site.</p>
+
+  <h2>Bootstrap</h2>
+  <pre><code>./setup.sh
+
+# Or install without running the full suite
+make bootstrap</code></pre>
+
+  <h2>Fast checks</h2>
+  <pre><code>make lint
+make typecheck
+make test-cov
+make audit
+make site-check
+make site-build</code></pre>
+
+  <h2>Full native validation</h2>
+  <pre><code>make test-all</code></pre>
+  <p>This runs Ruff, mypy, pytest with the 80% coverage gate, pip-audit, Astro diagnostics, a production build, and site content/base-path checks.</p>
+
+  <h2>Clean-room validation</h2>
+  <pre><code>make docker-test</code></pre>
+  <p>The Docker runner installs Python 3.13, uv, Node 22, and npm dependencies inside a clean image. It does not use the host virtual environment, site dependencies, or caches.</p>
+
+  <h2>Visual QA</h2>
+  <pre><code>cd site
+npm run dev
+npm run inspect -- http://127.0.0.1:4321/btx/ 390
+npm run screenshot -- http://127.0.0.1:4321/btx/ /tmp/btx.png 1440 900</code></pre>
+  <p>The mobile inspector must report matching document and viewport widths with no layout offenders. Screenshots should be checked at desktop and narrow mobile widths.</p>
+</DocsLayout>

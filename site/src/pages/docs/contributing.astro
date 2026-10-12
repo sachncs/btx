@@ -1,0 +1,24 @@
+---
+import DocsLayout from '~/layouts/DocsLayout.astro';
+---
+
+<DocsLayout title="Contributing" active="contributing" description="Contribute code, tests, documentation, and site improvements to btx.">
+  <span class="pill">project workflow</span>
+  <h1 class="mt-6">Contributing</h1>
+  <p class="lead">Small, focused changes are easier to review and safer to merge. Keep public behavior explicit, tested, and documented.</p>
+
+  <h2>Development setup</h2>
+  <pre><code>git clone https://github.com/sachncs/btx.git
+cd btx
+./setup.sh</code></pre>
+  <p>Use Python 3.12 or newer. The setup script installs locked development dependencies, the site dependencies, and runs the validation suite.</p>
+
+  <h2>Before opening a change</h2>
+  <ol><li>Run <code>make test-all</code>.</li><li>Run <code>make docker-test</code> for changes to packaging, CI, or dependencies.</li><li>Run the site screenshot and mobile inspector for visual changes.</li><li>Update the standalone site docs when user-facing behavior changes.</li></ol>
+
+  <h2>Commit style</h2>
+  <p>Use Conventional Commits, for example <code>fix: bound provider responses</code>, <code>docs: clarify source installation</code>, or <code>feat: add taproot helper</code>. Keep commits atomic and explain compatibility-sensitive changes.</p>
+
+  <h2>Pull requests</h2>
+  <ul><li>Describe the behavior change and its compatibility impact.</li><li>Include regression tests for defects and edge cases.</li><li>Do not claim PyPI availability until the release workflow is explicitly enabled.</li><li>Keep generated environments and build output out of commits.</li></ul>
+</DocsLayout>

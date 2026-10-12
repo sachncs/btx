@@ -1,0 +1,52 @@
+---
+import Layout from '~/layouts/Layout.astro';
+import Nav from '~/components/Nav.astro';
+import Footer from '~/components/Footer.astro';
+
+export interface Props {
+  title: string;
+  description: string;
+  active: string;
+}
+
+const { title, description, active } = Astro.props;
+const base = import.meta.env.BASE_URL;
+const href = (path = '') => `${base}${path ? `/${path}` : ''}`;
+const links = [
+  { slug: 'docs', label: 'Documentation', href: href('docs') },
+  { slug: 'getting-started', label: 'Getting started', href: href('docs/getting-started') },
+  { slug: 'api', label: 'API reference', href: href('docs/api') },
+  { slug: 'architecture', label: 'Architecture', href: href('docs/architecture') },
+  { slug: 'testing', label: 'Testing', href: href('docs/testing') },
+  { slug: 'changelog', label: 'Changelog', href: href('docs/changelog') },
+  { slug: 'security', label: 'Security', href: href('docs/security') },
+  { slug: 'contributing', label: 'Contributing', href: href('docs/contributing') },
+];
+---
+
+<Layout title={`${title} · btx`} description={description}>
+  <Nav />
+  <main id="main" class="docs-page">
+    <div class="container-page">
+      <div class="docs-breadcrumbs" aria-label="Breadcrumb">
+        <a href={href()}>btx</a><span aria-hidden="true">/</span><a href={href('docs')}>docs</a><span aria-hidden="true">/</span><span>{active}</span>
+      </div>
+      <div class="docs-layout">
+        <aside class="docs-sidebar" aria-label="Documentation navigation">
+          <p class="eyebrow">Read the docs</p>
+          <nav class="mt-4 space-y-1">
+            {links.map((link) => <a href={link.href} class:list={["docs-sidebar-link", { active: link.slug === active }]}>{link.label}</a>)}
+          </nav>
+          <div class="docs-sidebar-note">
+            <span class="pill-dot"></span>
+            <span>Source-first distribution</span>
+          </div>
+        </aside>
+        <article class="docs-prose min-w-0">
+          <slot />
+        </article>
+      </div>
+    </div>
+  </main>
+  <Footer />
+</Layout>

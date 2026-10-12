@@ -1,0 +1,21 @@
+---
+import DocsLayout from '~/layouts/DocsLayout.astro';
+---
+
+<DocsLayout title="Changelog" active="changelog" description="Release notes and current changes for btx.">
+  <span class="pill">release notes</span>
+  <h1 class="mt-6">Changelog</h1>
+  <p class="lead">A concise, standalone view of the changes that affect users and contributors. PyPI publication is still gated.</p>
+
+  <h2>Unreleased</h2>
+  <h3>Reliability</h3>
+  <ul><li>Provider boundaries validate URLs and transaction IDs, bound response sizes, and enforce positive timeouts.</li><li>Health output reports backend, optional capabilities, and aggregate status.</li><li>Native and Docker validation workflows cover Python and site quality gates.</li></ul>
+  <h3>Documentation and site</h3>
+  <ul><li>Installation messaging is source-first and no longer advertises PyPI as available.</li><li>Documentation is now published as standalone Astro pages under <code>/btx/docs</code>.</li><li>The logo is a consistent transaction graph flowing through a secp256k1 curve.</li><li>Mobile overflow checks and base-path asset verification are part of local site QA.</li></ul>
+
+  <h2>0.5.0 · 2026-06-05</h2>
+  <p>The 0.5.0 release introduced the <code>btx</code> package surface, transaction/signature workflows, PSBT support, optional coincurve acceleration, and the current layered architecture.</p>
+  <div class="docs-grid"><div class="docs-card"><h3>Breaking changes</h3><p>Imports, CLI names, settings, exception names, batch result fields, and several removed compatibility aliases changed in the package rename.</p></div><div class="docs-card"><h3>Added</h3><p>Health introspection, related-nonce recovery, Taproot helpers, script builders, concurrency tests, and mainnet vectors.</p></div></div>
+
+  <div class="docs-callout">For the full historical record, this page is the published source of truth. It is intentionally maintained independently from repository Markdown.</div>
+</DocsLayout>

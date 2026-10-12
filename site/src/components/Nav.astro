@@ -1,6 +1,7 @@
 ---
 const base = import.meta.env.BASE_URL;
 const links = [
+  { href: `${base}/docs`, label: 'Docs' },
   { href: `${base}#capabilities`, label: 'Capabilities' },
   { href: `${base}#code`, label: 'Quick start' },
   { href: `${base}#architecture`, label: 'Architecture' },
@@ -11,9 +12,7 @@ const links = [
 <header class="sticky top-0 z-40 border-b border-white/[0.06] bg-ink-950/85 backdrop-blur-xl">
   <div class="container-page flex min-h-14 items-center justify-between gap-4 py-2">
     <a href={base} class="group flex shrink-0 items-center gap-2.5" aria-label="btx home">
-      <span class="relative flex h-7 w-7 items-center justify-center rounded-lg bg-gradient-to-br from-accent-500 to-accent-700 shadow-glow">
-        <svg viewBox="0 0 24 24" fill="none" class="h-4 w-4 text-ink-950" aria-hidden="true"><path d="M3 13c2-3 4-3 6 0s4 3 6 0 4-3 6 0M3 17c2-3 4-3 6 0s4 3 6 0 4-3 6 0" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
-      </span>
+      <img src={`${base}/btx-logo.svg`} alt="" class="h-7 w-7 rounded-lg shadow-glow" width="28" height="28" />
       <span class="text-[15px] font-semibold tracking-tight text-white">btx</span>
       <span class="hidden rounded-md border border-white/10 bg-white/[0.03] px-1.5 py-0.5 font-mono text-[10px] text-ink-300 lg:inline-block">source</span>
     </a>

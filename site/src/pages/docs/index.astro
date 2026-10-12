@@ -1,0 +1,28 @@
+---
+import DocsLayout from '~/layouts/DocsLayout.astro';
+const base = import.meta.env.BASE_URL;
+---
+
+<DocsLayout title="Documentation" active="docs" description="Standalone documentation for btx, a source-first Python toolkit for the Bitcoin secp256k1 stack.">
+  <span class="pill">btx documentation</span>
+  <h1 class="mt-6">Build from the bytes up.</h1>
+  <p class="lead">btx is a pure-Python toolkit for parsing Bitcoin transactions, extracting ECDSA and Schnorr signatures, working with PSBTs, and reasoning about secp256k1.</p>
+  <div class="docs-callout"><strong>Current distribution:</strong> install from source or directly from Git. btx is not published to PyPI yet.</div>
+
+  <h2>Choose a path</h2>
+  <div class="docs-grid">
+    <a class="docs-card no-underline" href={`${base}/docs/getting-started`}><h3>Getting started →</h3><p>Install an isolated checkout, run the CLI, and make your first API call.</p></a>
+    <a class="docs-card no-underline" href={`${base}/docs/api`}><h3>API reference →</h3><p>Find the stable entry points for parsing, signatures, PSBTs, scripts, and services.</p></a>
+    <a class="docs-card no-underline" href={`${base}/docs/architecture`}><h3>Architecture →</h3><p>Understand the dependency direction and the boundary around network I/O.</p></a>
+    <a class="docs-card no-underline" href={`${base}/docs/testing`}><h3>Testing →</h3><p>Run the same formatting, typing, audit, coverage, and site checks used in CI.</p></a>
+  </div>
+
+  <h2>What btx covers</h2>
+  <ul>
+    <li>Legacy, SegWit v0, and Taproot transaction parsing and sighash computation.</li>
+    <li>ECDSA and Schnorr extraction, verification, linearisation, and nonce-reuse analysis.</li>
+    <li>BIP-174 PSBT parsing, editing, signing, and extraction.</li>
+    <li>Pure-Python secp256k1 arithmetic with an optional coincurve/libsecp256k1 backend.</li>
+    <li>Explicit blockchain providers isolated in <code>btx.services</code>; core operations remain offline-safe.</li>
+  </ul>
+</DocsLayout>

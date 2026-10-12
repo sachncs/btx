@@ -1,0 +1,22 @@
+---
+import DocsLayout from '~/layouts/DocsLayout.astro';
+---
+
+<DocsLayout title="Security" active="security" description="Security policy, reporting instructions, and operational boundaries for btx.">
+  <span class="pill">responsible disclosure</span>
+  <h1 class="mt-6">Security</h1>
+  <p class="lead">Please report vulnerabilities privately before public disclosure. This page is the standalone security policy for the project.</p>
+
+  <h2>Report a vulnerability</h2>
+  <p>Email <a href="mailto:sachncs@gmail.com">sachncs@gmail.com</a> with the affected version, impact, reproduction steps, and any proof of concept. Do not open a public issue for an undisclosed vulnerability.</p>
+  <p>You should receive an acknowledgement within 72 hours. If you do not, follow up on the same thread.</p>
+
+  <h2>What to include</h2>
+  <ul><li>A concise impact statement and affected component.</li><li>Minimal reproduction steps or a test case.</li><li>Whether the issue requires network access, the optional backend, or special transaction data.</li><li>A suggested mitigation if you have one.</li></ul>
+
+  <h2>Security boundaries</h2>
+  <ul><li>The default curve backend is pure Python and does not make network calls.</li><li>Blockchain providers are opt-in and enforce URL, timeout, response-size, and transaction-ID validation.</li><li>Dependency audits run in CI and release validation.</li><li>The project is not a custody system, wallet, or guarantee of private-key safety; review signing and recovery workflows before using them with sensitive material.</li></ul>
+
+  <h2>Supported versions</h2>
+  <div class="docs-table-wrap"><table><thead><tr><th>Release line</th><th>Status</th></tr></thead><tbody><tr><td><code>0.5.x</code></td><td>Supported</td></tr><tr><td><code>&lt; 0.5.0</code></td><td>Unsupported</td></tr></tbody></table></div>
+</DocsLayout>

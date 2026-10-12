@@ -16,8 +16,10 @@ const {
 } = Astro.props;
 
 const base = import.meta.env.BASE_URL;
+const assetPath = (path: string) => `${base}/${path.replace(/^\/+/, '')}`;
 const canonicalURL = canonical ?? new URL(base, Astro.site).toString();
-const faviconURL = new URL(`${base}favicon.svg`.replace('//', '/'), Astro.site).toString();
+const faviconURL = new URL(assetPath('favicon.svg'), Astro.site).toString();
+const ogImageURL = new URL(assetPath(ogImage), Astro.site).toString();
 ---
 
 <!doctype html>
@@ -42,14 +44,14 @@ const faviconURL = new URL(`${base}favicon.svg`.replace('//', '/'), Astro.site).
     <meta property="og:url" content={canonicalURL} />
     <meta property="og:title" content={title} />
     <meta property="og:description" content={description} />
-    <meta property="og:image" content={new URL(ogImage, Astro.site).toString()} />
+    <meta property="og:image" content={ogImageURL} />
     <meta property="og:site_name" content="btx" />
 
     <!-- Twitter -->
     <meta name="twitter:card" content="summary_large_image" />
     <meta name="twitter:title" content={title} />
     <meta name="twitter:description" content={description} />
-    <meta name="twitter:image" content={new URL(ogImage, Astro.site).toString()} />
+    <meta name="twitter:image" content={ogImageURL} />
 
     <!-- Structured data -->
     <script is:inline type="application/ld+json" set:html={JSON.stringify({

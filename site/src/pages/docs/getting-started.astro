@@ -1,0 +1,50 @@
+---
+import DocsLayout from '~/layouts/DocsLayout.astro';
+---
+
+<DocsLayout title="Getting started" active="getting-started" description="Install btx from source and run your first Bitcoin transaction parsing workflow.">
+  <span class="pill">first five minutes</span>
+  <h1 class="mt-6">Getting started</h1>
+  <p class="lead">Use an isolated virtual environment, install the repository in editable mode, and keep the optional acceleration backend separate from the reliable pure-Python default.</p>
+
+  <h2>Requirements</h2>
+  <ul><li>Python 3.12 or newer.</li><li>Git for the source checkout.</li><li><code>uv</code> is recommended for development; standard <code>venv</code> and <code>pip</code> are supported.</li></ul>
+
+  <h2>Install from source</h2>
+  <pre><code>git clone https://github.com/sachncs/btx.git
+cd btx
+python -m venv .venv
+.venv/bin/python -m pip install -e .</code></pre>
+  <p>The editable install keeps the checkout and importable package in sync while you explore the code.</p>
+
+  <h3>Direct Git install</h3>
+  <pre><code>python -m pip install "btx @ git+https://github.com/sachncs/btx.git"</code></pre>
+  <div class="docs-callout"><strong>Not PyPI yet.</strong> Do not use <code>pip install btx</code>; the public release is intentionally gated until the package publication checklist is complete.</div>
+
+  <h2>Run the CLI</h2>
+  <pre><code>.venv/bin/btx --help
+.venv/bin/btx health
+.venv/bin/btx decode &lt;transaction-hex&gt;
+.venv/bin/btx extract &lt;transaction-hex&gt; --json</code></pre>
+
+  <h2>Use the Python API</h2>
+  <pre><code>from btx import extract_signatures, parse_tx
+from btx.transaction import txid
+
+tx, consumed = parse_tx(bytes.fromhex(raw_hex))
+print(consumed, txid(tx).hex())
+records = extract_signatures(tx)</code></pre>
+
+  <h2>Optional extras</h2>
+  <pre><code># Development, tests, typing, linting, and audits
+.venv/bin/python -m pip install -e ".[dev]"
+
+# Optional C-backed secp256k1 operations
+.venv/bin/python -m pip install -e ".[coincurve]"</code></pre>
+  <p>The pure-Python backend is the compatibility baseline. The optional coincurve backend is validated in CI on Python 3.12 and 3.13.</p>
+
+  <h2>Configure the backend</h2>
+  <pre><code>BTX_DEFAULT_BACKEND=native .venv/bin/btx health
+BTX_DEFAULT_BACKEND=libsecp .venv/bin/btx health</code></pre>
+  <p>The environment variable is read when <code>btx</code> is imported. The backend selection is a process configuration, not a mutable settings field.</p>
+</DocsLayout>

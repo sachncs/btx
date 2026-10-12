@@ -1,0 +1,29 @@
+---
+import DocsLayout from '~/layouts/DocsLayout.astro';
+---
+
+<DocsLayout title="Architecture" active="architecture" description="Learn how btx separates byte-level primitives, Bitcoin models, signature analysis, and network providers.">
+  <span class="pill">dependency direction</span>
+  <h1 class="mt-6">Architecture</h1>
+  <p class="lead">btx is layered so the cryptographic core can be tested offline, while transaction interpretation and network access remain explicit boundaries.</p>
+
+  <h2>Layers</h2>
+  <div class="docs-grid">
+    <div class="docs-card"><h3>Field and curve</h3><p>Finite-field arithmetic, secp256k1 points, serialization, and pluggable native/libsecp backends.</p></div>
+    <div class="docs-card"><h3>Encoding</h3><p>Hex, varints, DER, SEC keys, tagged hashes, and byte-level readers with bounded parsing.</p></div>
+    <div class="docs-card"><h3>Bitcoin models</h3><p>Transactions, scripts, sighashes, descriptors, and PSBTs depend on the lower-level primitives.</p></div>
+    <div class="docs-card"><h3>Signature analysis</h3><p>Extraction, verification, linearization, deterministic signing, and nonce-reuse analysis compose the models.</p></div>
+    <div class="docs-card"><h3>Services</h3><p>HTTP providers and concurrent enrichment live outside the offline core and have explicit timeouts and limits.</p></div>
+    <div class="docs-card"><h3>CLI</h3><p>Typer commands are a thin automation boundary over the public library functions and structured health output.</p></div>
+  </div>
+
+  <h2>Invariants</h2>
+  <ul><li>Network I/O is opt-in; importing and using core parsers does not contact a remote service.</li><li>Public transaction models are immutable value objects.</li><li>Backends expose the same curve contract, with pure Python as the compatibility baseline.</li><li>Parsers enforce structural limits before allocating untrusted data.</li><li>Services validate URLs, transaction IDs, response sizes, and timeouts at their boundary.</li></ul>
+
+  <h2>Backend selection</h2>
+  <pre><code># Default, works everywhere
+BTX_DEFAULT_BACKEND=native python -c "import btx; print(btx.health())"
+
+# Optional C-backed operations
+BTX_DEFAULT_BACKEND=libsecp python -c "import btx; print(btx.health())"</code></pre>
+</DocsLayout>
