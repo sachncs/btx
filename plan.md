@@ -4,7 +4,7 @@
 
 `btx` is a source-distributed Python 3.12+ package. The public site is an
 Astro application deployed to GitHub Pages at `/btx`; GitHub Pages is
-configured to deploy from the Pages workflow, not from a branch-root Jekyll
+configured to deploy from the Pages workflow, not from a branch-root legacy
 build. Public documentation is standalone Astro content and does not load
 repository Markdown at runtime.
 
@@ -22,7 +22,7 @@ publication behind an explicit dispatch input and environment approval.
   claims, accessible responsive UI, and base-path-safe assets.
 - Published standalone pages for getting started, API, architecture, testing,
   security, contributing, and changelog content.
-- Removed the root Jekyll entrypoints (`_config.yml` and `index.md`).
+- Removed the obsolete root Pages entrypoints (`_config.yml` and `index.md`).
 - Rewrote the repository README as the concise source-install and contributor
   entry point.
 - Updated repository documentation to match the current provider factories,
