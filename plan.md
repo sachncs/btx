@@ -28,8 +28,8 @@ publication behind an explicit dispatch input and environment approval.
 - Updated repository documentation to match the current provider factories,
   configuration boundary, dependency model, supported commands, and release
   state.
-- Audited `todo/`: all 28 phases are complete. The phase files remain as a
-  historical refactor record; new work belongs here and in the changelog.
+- Removed the obsolete `todo/` phase checklist; current work belongs here and
+  in the changelog.
 - Used atomic commits and pushed the requested changes to `origin/master`.
 
 ## Verification gates
