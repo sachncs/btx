@@ -47,7 +47,7 @@ jobs:
           enable-cache: true
           cache-suffix: ${{ matrix.python-version }}
       - run: uv sync --extra dev --frozen
-      - run: uv run pytest tests/ -v --cov=btx --cov-report=term-missing --cov-fail-under=80
+      - run: uv run pytest tests/ -v --cov=btx --cov-report=term-missing --cov-fail-under=90
 
   benchmark:
     runs-on: ubuntu-latest
@@ -103,7 +103,7 @@ jobs:
           enable-cache: true
           cache-suffix: "coincurve-${{ matrix.python-version }}"
       - run: uv sync --extra dev --extra coincurve --frozen
-      - run: uv run pytest tests/ -v --cov=btx --cov-report=term-missing --cov-fail-under=80
+      - run: uv run pytest tests/ -v --cov=btx --cov-report=term-missing --cov-fail-under=90
 
   site:
     runs-on: ubuntu-latest

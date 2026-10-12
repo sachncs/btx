@@ -29,7 +29,7 @@ test-verbose:
 	uv run pytest -v --tb=long
 
 test-cov:
-	uv run pytest tests/ --cov=btx --cov-report=term-missing --cov-fail-under=80
+	uv run pytest tests/ --cov=btx --cov-report=term-missing --cov-fail-under=90
 
 audit:
 	uv run pip-audit

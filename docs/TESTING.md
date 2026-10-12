@@ -31,9 +31,7 @@ uv run pytest tests/ --cov=btx
 | `test_signature.py` | Verify, recover, DER parsing |
 | `test_cli.py` | CLI commands via Typer `CliRunner` |
 | `test_cli_coverage.py` | CLI edge cases (file input, CSV, empty, etc.) |
-| `test_cli_integration.py` | End-to-end CLI tests |
-| `test_settings.py` | Settings defaults and mutations |
-| `test_exceptions.py` | Exception hierarchy and aliases |
+| `test_integration.py` | Local HTTP-provider and CLI integration tests |
 | `test_stateful.py` | Hypothesis `RuleBasedStateMachine` for extraction invariants |
 | `test_mainnet.py` | Live mainnet transaction parsing |
 | `test_fuzzing.py` | Hypothesis property-based tests (script, DER, fields) |
@@ -42,12 +40,12 @@ uv run pytest tests/ --cov=btx
 
 ## Coverage
 
-The project targets **80%+ line coverage**. Current CI gate rejects drops below 80%.
+The project targets **90%+ line coverage**. Current CI rejects drops below 90%.
 
 Run:
 
 ```bash
-uv run pytest tests/ --cov=btx --cov-fail-under=80
+uv run pytest tests/ --cov=btx --cov-fail-under=90
 ```
 
 ## Linting & Type Checking

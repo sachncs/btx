@@ -20,6 +20,10 @@ All notable changes to this project will be documented in this file.
   source/Git installation accurately; PyPI is not advertised as available.
 - Replaced the legacy letter-mark logo with a consistent transaction-graph
   and secp256k1-curve mark across the package, docs, site, favicon, and assets.
+- Astro is now the only documentation build, with standalone site content
+  independent of repository Markdown files.
+- Removed the obsolete `todo/` checklist and raised the CI coverage gate to
+  90%, including explicit integration and negative-path coverage.
 
 ## 0.5.0 - 2026-06-05
 

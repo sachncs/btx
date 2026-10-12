@@ -238,7 +238,7 @@ See [SECURITY.md](../SECURITY.md) for private disclosure instructions.
 The library is open-source and undergoes:
 - Automated security scanning (pip-audit)
 - Strict type checking (mypy)
-- An enforced 80%+ coverage gate in CI
+- An enforced 90%+ coverage gate in CI
 - CI/CD pipeline with security checks
 
 ## License
