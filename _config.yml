@@ -1,8 +1,13 @@
-title: "btx"
-description: "Extract and linearize ECDSA signatures (r, s, z) from Bitcoin transactions with pure-Python secp256k1"
-theme: minima
-logo: /assets/logo.svg
-show_downloads: false
-permalink: /:title/
-plugins:
-  - jekyll-feed
+# GitHub Pages is deployed by site/.github/workflows/deploy-site.yml. This
+# exclusion keeps the legacy branch-based Jekyll builder from interpreting
+# Astro source files as YAML front matter when GitHub runs its dynamic check.
+exclude:
+  - site
+  - btx
+  - tests
+  - docs
+  - scripts
+  - todo
+  - .venv
+  - dist
+  - uv.lock
