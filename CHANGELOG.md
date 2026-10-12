@@ -26,6 +26,8 @@ All notable changes to this project will be documented in this file.
   90%, including explicit integration and negative-path coverage.
 - Removed the remaining Read the Docs and placeholder HTML documentation
   artifacts so Astro is the sole published documentation surface.
+- Reframed the public homepage around transaction inspection, with a clearer
+  source-install path, protocol proof strip, and byte-level product surface.
 
 ## 0.5.0 - 2026-06-05
 

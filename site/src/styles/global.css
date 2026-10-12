@@ -117,6 +117,18 @@
     @apply h-1.5 w-1.5 rounded-full bg-accent-500 shadow-[0_0_10px_var(--accent-glow)];
   }
 
+  .byte-chip {
+    @apply inline-flex min-w-[2rem] items-center justify-center rounded-md border border-white/[0.08] bg-white/[0.035] px-1.5 py-1 text-ink-400;
+  }
+
+  .byte-chip-accent {
+    @apply border-accent-500/30 bg-accent-500/10 text-accent-300;
+  }
+
+  .inspect-card {
+    box-shadow: 0 1px 0 rgba(255,255,255,0.07) inset, 0 35px 90px -42px rgba(95,208,164,0.36), 0 20px 60px -40px rgba(0,0,0,0.85);
+  }
+
   /* Cards */
   .card {
     @apply relative overflow-hidden rounded-2xl border border-white/[0.07] bg-ink-900/60 p-6 transition-all duration-300;

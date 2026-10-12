@@ -1,66 +1,80 @@
 ---
 const base = import.meta.env.BASE_URL;
-const facts = [
-  { value: '3.12+', label: 'Supported Python' },
-  { value: 'CLI', label: 'and Python API' },
-  { value: 'Offline', label: 'core by default' },
-  { value: 'MIT', label: 'licensed' },
-];
+const bytes = ['02', '00', '00', '00', '01', '9f', '2c', '…', '8e', '44', '00', '00', '00', '00', '01'];
 ---
 
-<section class="relative isolate overflow-hidden pb-20 pt-16 sm:pb-28 sm:pt-24 lg:pb-32 lg:pt-28">
+<section class="hero-shell relative isolate overflow-hidden pb-20 pt-16 sm:pb-28 sm:pt-24 lg:pb-32 lg:pt-28">
   <div class="pointer-events-none absolute inset-0 -z-10 overflow-hidden" aria-hidden="true">
     <div class="absolute inset-0 bg-grid-faint bg-grid-md mask-fade-b opacity-[0.55]"></div>
-    <div class="absolute left-1/2 top-[-18%] h-[720px] w-[1000px] max-w-none -translate-x-1/2 rounded-full bg-[radial-gradient(closest-side,rgba(95,208,164,0.16),transparent_70%)] blur-3xl"></div>
+    <div class="absolute left-[58%] top-[-18%] h-[760px] w-[900px] max-w-none -translate-x-1/2 rounded-full bg-[radial-gradient(closest-side,rgba(95,208,164,0.14),transparent_70%)] blur-3xl"></div>
+    <div class="absolute -left-32 top-[38%] h-80 w-80 rounded-full bg-[radial-gradient(closest-side,rgba(244,176,73,0.08),transparent_70%)] blur-3xl"></div>
     <div class="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-accent-500/50 to-transparent"></div>
   </div>
 
   <div class="container-page">
-    <div class="grid items-center gap-12 lg:grid-cols-[1.05fr_0.95fr] lg:gap-16">
+    <div class="grid items-center gap-12 lg:grid-cols-[0.92fr_1.08fr] lg:gap-20">
       <div>
-        <div class="reveal"><span class="pill"><span class="pill-dot"></span> Source-first · secp256k1 · Python 3.12+</span></div>
+        <div class="reveal"><span class="eyebrow"><span class="pill-dot"></span> Open-source transaction intelligence</span></div>
         <h1 class="reveal mt-6 max-w-3xl text-display-2xl font-semibold text-balance" data-delay="80">
-          <span class="text-gradient">Understand Bitcoin</span><br />
-          <span class="text-gradient-accent">at the byte level.</span>
+          <span class="text-gradient">See exactly what</span><br />
+          <span class="text-gradient-accent">a transaction is doing.</span>
         </h1>
         <p class="reveal mt-6 max-w-xl text-pretty text-lg leading-relaxed text-ink-300 sm:text-xl" data-delay="160">
-          btx is a pure-Python toolkit for parsing transactions, extracting ECDSA and Schnorr signatures, working with PSBTs, and reasoning about secp256k1.
+          btx turns raw Bitcoin bytes into inspectable, scriptable facts — from wire format and signatures to PSBT state and secp256k1 behavior.
         </p>
         <div class="reveal mt-8 flex flex-col items-start gap-3 sm:flex-row" data-delay="240">
           <a href={`${base}#install`} class="btn-accent">Install from source <span aria-hidden="true">↗</span></a>
-          <a href="https://github.com/sachncs/btx" target="_blank" rel="noopener noreferrer" class="btn-ghost">Read the source</a>
+          <a href={`${base}/docs/getting-started`} class="btn-ghost">Explore the docs</a>
         </div>
-        <div class="reveal mt-4 flex flex-wrap items-center gap-3 text-xs text-ink-400" data-delay="300">
-          <code class="kbd">git clone …</code>
-          <span>PyPI publication is not enabled yet.</span>
+        <div class="reveal mt-5 flex flex-wrap items-center gap-x-4 gap-y-2 text-xs text-ink-400" data-delay="300">
+          <span class="flex items-center gap-2"><span class="h-1.5 w-1.5 rounded-full bg-accent-400 shadow-[0_0_12px_rgba(95,208,164,0.8)]"></span>Pure Python by default</span>
+          <span class="text-ink-600">·</span>
+          <span>Python 3.12+</span>
+          <span class="text-ink-600">·</span>
+          <span>MIT licensed</span>
         </div>
       </div>
 
       <div class="reveal" data-delay="140">
-        <div class="code-block noise shadow-card">
-          <div class="flex items-center justify-between border-b border-white/[0.06] bg-white/[0.02] px-4 py-3">
-            <span class="font-mono text-[11px] text-ink-400">quick start</span>
-            <span class="rounded-full border border-accent-500/20 bg-accent-500/10 px-2 py-0.5 font-mono text-[10px] text-accent-300">source</span>
+        <div class="inspect-card relative overflow-hidden rounded-[1.75rem] border border-white/[0.10] bg-ink-900/80 shadow-card">
+          <div class="absolute -right-24 -top-24 h-72 w-72 rounded-full bg-accent-500/10 blur-3xl"></div>
+          <div class="relative">
+            <div class="flex items-center justify-between border-b border-white/[0.07] px-5 py-4 sm:px-6">
+              <div class="flex items-center gap-3">
+                <span class="flex h-8 w-8 items-center justify-center rounded-lg border border-accent-500/20 bg-accent-500/10 text-accent-300">
+                  <svg viewBox="0 0 24 24" class="h-4 w-4" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"><path d="M4 6h16M4 12h10M4 18h16" stroke-linecap="round"/><circle cx="18" cy="12" r="2"/></svg>
+                </span>
+                <div><p class="font-mono text-[11px] uppercase tracking-[0.16em] text-ink-400">transaction surface</p><p class="mt-0.5 text-sm font-medium text-white">raw bytes → useful facts</p></div>
+              </div>
+              <span class="flex items-center gap-2 rounded-full border border-accent-500/20 bg-accent-500/10 px-2.5 py-1 font-mono text-[10px] text-accent-300"><span class="h-1.5 w-1.5 rounded-full bg-accent-400"></span>illustrative sample</span>
+            </div>
+
+            <div class="px-5 pb-5 pt-6 sm:px-6 sm:pb-6">
+              <div class="flex flex-wrap items-start justify-between gap-4">
+                <div><p class="font-mono text-[10px] uppercase tracking-[0.16em] text-ink-500">txid</p><p class="mt-1 font-mono text-sm text-ink-100">9f2c…8e44</p></div>
+                <div class="text-left sm:text-right"><p class="font-mono text-[10px] uppercase tracking-[0.16em] text-ink-500">format</p><p class="mt-1 font-mono text-sm text-accent-300">segwit v0</p></div>
+              </div>
+
+              <div class="mt-6 grid grid-cols-3 gap-2">
+                <div class="rounded-xl border border-white/[0.07] bg-white/[0.025] p-3"><p class="font-mono text-[10px] text-ink-500">inputs</p><p class="mt-1 text-xl font-semibold text-white">02</p></div>
+                <div class="rounded-xl border border-white/[0.07] bg-white/[0.025] p-3"><p class="font-mono text-[10px] text-ink-500">outputs</p><p class="mt-1 text-xl font-semibold text-white">02</p></div>
+                <div class="rounded-xl border border-accent-500/20 bg-accent-500/[0.06] p-3"><p class="font-mono text-[10px] text-accent-500/80">verified</p><p class="mt-1 text-xl font-semibold text-accent-300">yes</p></div>
+              </div>
+
+              <div class="mt-6 rounded-xl border border-white/[0.07] bg-ink-950/80 p-4">
+                <div class="flex items-center justify-between"><span class="font-mono text-[10px] uppercase tracking-[0.16em] text-ink-500">sample wire preview</span><span class="font-mono text-[10px] text-ink-500">92 bytes</span></div>
+                <div class="mt-4 flex flex-wrap gap-1.5 font-mono text-[11px]">
+                  {bytes.map((byte, index) => <span class={`byte-chip ${index === 5 || index === 6 ? 'byte-chip-accent' : ''}`}>{byte}</span>)}
+                </div>
+                <div class="mt-4 grid gap-2 text-xs sm:grid-cols-2">
+                  <div class="flex items-center justify-between rounded-lg bg-white/[0.03] px-3 py-2"><span class="text-ink-400">signature type</span><span class="font-mono text-ink-200">ECDSA / DER</span></div>
+                  <div class="flex items-center justify-between rounded-lg bg-white/[0.03] px-3 py-2"><span class="text-ink-400">sighash</span><span class="font-mono text-accent-300">SIGHASH_ALL</span></div>
+                </div>
+              </div>
+            </div>
           </div>
-          <pre class="!p-5 text-[12px] leading-loose sm:text-[13px]"><code><span class="text-ink-500">$</span> <span class="text-white">git clone</span> <span class="text-accent-300">https://github.com/sachncs/btx.git</span>
-<span class="text-ink-500">$</span> <span class="text-white">cd</span> btx
-<span class="text-ink-500">$</span> <span class="text-white">python -m venv</span> .venv
-<span class="text-ink-500">$</span> <span class="text-white">.venv/bin/python -m pip install -e</span> .
-<span class="text-ink-500">$</span> <span class="text-white">.venv/bin/btx health</span>
-<span class="text-accent-400">✓</span> <span class="text-ink-200">backend: native</span>
-<span class="text-accent-400">✓</span> <span class="text-ink-200">core imports: offline-safe</span></code></pre>
-          <div class="border-t border-white/[0.06] px-5 py-3 text-xs text-ink-400">Development: <code class="text-ink-200">python -m pip install -e ".[dev]"</code></div>
         </div>
       </div>
     </div>
-
-    <dl class="reveal mt-16 grid grid-cols-2 gap-4 border-y border-white/[0.07] py-6 sm:mt-20 sm:grid-cols-4 sm:gap-0" data-delay="340">
-      {facts.map((fact, index) => (
-        <div class={`px-2 ${index > 0 ? 'sm:border-l sm:border-white/[0.07] sm:pl-6' : ''}`}>
-          <dt class="font-mono text-[10px] uppercase tracking-[0.18em] text-ink-500">{fact.label}</dt>
-          <dd class="mt-2 text-lg font-semibold text-white sm:text-xl">{fact.value}</dd>
-        </div>
-      ))}
-    </dl>
   </div>
 </section>
