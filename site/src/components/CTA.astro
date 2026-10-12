@@ -45,8 +45,8 @@ const gitCommand = "python -m pip install 'btx @ git+https://github.com/sachncs/
           textarea.style.opacity = '0';
           document.body.appendChild(textarea);
           textarea.select();
-          const legacyDocument = document as Document & { execCommand(command: string): boolean };
-          legacyDocument.execCommand('copy');
+          const legacyCopy = Reflect.get(document, 'execCommand');
+          if (typeof legacyCopy === 'function') Reflect.apply(legacyCopy, document, ['copy']);
           textarea.remove();
         }
         const label = button.querySelector('.copy-label');
