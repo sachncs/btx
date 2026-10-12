@@ -69,6 +69,11 @@
     @apply mx-auto w-full max-w-8xl px-6 sm:px-8 lg:px-12;
   }
 
+  /* Prevent long code labels and display headings from widening mobile grids. */
+  .grid > * {
+    min-width: 0;
+  }
+
   .hairline {
     border-color: var(--hairline);
   }

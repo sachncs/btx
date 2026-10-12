@@ -1,6 +1,6 @@
 import puppeteer from 'puppeteer-core';
 
-const url = process.argv[2] || 'http://127.0.0.1:4325/btx/';
+const url = process.argv[2] || 'http://127.0.0.1:4321/btx/';
 const out = process.argv[3] || '/tmp/btx-shots/puppeteer.png';
 const width = parseInt(process.argv[4] || '1440', 10);
 const height = parseInt(process.argv[5] || '900', 10);
