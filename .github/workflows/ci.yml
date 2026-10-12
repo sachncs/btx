@@ -65,7 +65,17 @@ jobs:
         with:
           name: benchmark
           path: benchmark.json
+      - name: Check benchmark baseline
+        id: baseline
+        run: |
+          if git ls-remote --exit-code --heads origin gh-pages >/dev/null 2>&1; then
+            echo "available=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "available=false" >> "$GITHUB_OUTPUT"
+            echo "No gh-pages benchmark baseline exists; comparison will be skipped."
+          fi
       - name: Compare benchmarks to main
+        if: steps.baseline.outputs.available == 'true'
         uses: benchmark-action/github-action-benchmark@v1
         with:
           tool: 'pytest'
