@@ -3,10 +3,8 @@ name: CI
 on:
   push:
     branches: [master]
-    paths-ignore: ['*.md', 'docs/**', 'LICENSE', '.gitignore']
   pull_request:
     branches: [master]
-    paths-ignore: ['*.md', 'docs/**', 'LICENSE', '.gitignore']
   workflow_dispatch:
 
 concurrency:
@@ -108,3 +106,28 @@ jobs:
           cache-suffix: "coincurve-${{ matrix.python-version }}"
       - run: uv sync --extra dev --extra coincurve --frozen
       - run: uv run pytest tests/ -v --cov=btx --cov-report=term-missing --cov-fail-under=80
+
+  site:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1  # v7.0.1
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: npm
+          cache-dependency-path: site/package-lock.json
+      - name: Install site dependencies
+        working-directory: site
+        run: npm ci --no-audit --no-fund
+      - name: Check site
+        working-directory: site
+        run: npm run check
+      - name: Build site
+        working-directory: site
+        run: npm run build
+      - name: Verify site content
+        working-directory: site
+        run: npm run verify
+      - name: Verify Pages fallback
+        run: test -f site/dist/index.html && cp site/dist/index.html site/dist/404.html

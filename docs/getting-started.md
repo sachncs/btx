@@ -4,24 +4,34 @@ This guide will help you get up and running with the btx library quickly.
 
 ## Installation
 
-### From PyPI
-
-```bash
-pip install btx
-```
-
-With optional C-backed acceleration:
-
-```bash
-pip install btx[coincurve]
-```
-
-### From Source
+### From Source (current distribution method)
 
 ```bash
 git clone https://github.com/sachncs/btx.git
 cd btx
-pip install -e ".[dev]"
+python -m venv .venv
+.venv/bin/python -m pip install -e .
+```
+
+For development and tests, install the development extra:
+
+```bash
+.venv/bin/python -m pip install -e ".[dev]"
+```
+
+For optional C-backed acceleration:
+
+```bash
+.venv/bin/python -m pip install -e ".[coincurve]"
+```
+
+PyPI publication is planned but is not enabled yet.
+
+If you only need an installed package and do not need a checkout, install
+directly from the Git repository:
+
+```bash
+python -m pip install "btx @ git+https://github.com/sachncs/btx.git"
 ```
 
 ### Using uv (Recommended for Development)
@@ -29,7 +39,7 @@ pip install -e ".[dev]"
 ```bash
 git clone https://github.com/sachncs/btx.git
 cd btx
-./setup.sh  # Creates venv, installs deps, runs tests
+./setup.sh  # Syncs locked dev deps, installs the site, and runs validation
 ```
 
 ## Basic Usage

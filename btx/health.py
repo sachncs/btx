@@ -114,8 +114,7 @@ def health() -> dict[str, Any]:
         status["curve_operation"] = {"ok": False, "error": str(exc)}
 
     status["ok"] = bool(
-        all(status["imports"].values())
-        and status["curve_operation"].get("ok", False)
+        all(status["imports"].values()) and status["curve_operation"].get("ok", False)
     )
 
     return status

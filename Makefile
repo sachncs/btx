@@ -38,7 +38,7 @@ site-check:
 	cd site && npm run check
 
 site-build:
-	cd site && npm run build
+	cd site && npm run build && npm run verify
 	@test -f site/dist/404.html || cp site/dist/index.html site/dist/404.html
 
 test-all: lint typecheck test-cov audit site-check site-build

@@ -20,10 +20,19 @@ deployed to [GitHub Pages](https://pages.github.com/).
 
 ```bash
 cd site
-npm install
+npm ci
 npm run dev          # local dev server (http://localhost:4321/btx)
 npm run build        # production build → site/dist
 npm run preview      # preview the production build
+```
+
+The repository-level validation command also runs the Python checks and the
+site checks together:
+
+```bash
+cd ..
+make bootstrap
+make test-all
 ```
 
 ## Capture screenshots (optional)
@@ -75,3 +84,6 @@ The site is served at <https://sachncs.github.io/btx/>.
   lift on hover
 - **Motion**: staggered fade-up reveals via IntersectionObserver;
   reduced-motion respected
+
+The site intentionally uses system font fallbacks so the first render does not
+depend on a third-party font request.

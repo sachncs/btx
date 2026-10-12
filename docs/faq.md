@@ -8,12 +8,10 @@ The btx library is a pure-Python package for parsing Bitcoin transactions, extra
 
 ### Is it production-ready?
 
-Yes. The library has:
-- 99%+ test coverage
-- Strict type checking with mypy
-- Comprehensive CI/CD pipeline
-- Security scanning with pip-audit
-- Well-documented API
+The project is an actively hardened source distribution. It has type checking,
+property-based tests, CI coverage checks, dependency auditing, and a documented
+public API. It has not been independently security audited; review the
+[security policy](../SECURITY.md) before using it in a high-assurance system.
 
 ### Does it require network access?
 
@@ -30,7 +28,7 @@ Python 3.12 and later (3.12, 3.13, 3.14).
 No. `coincurve` is optional. The library includes a pure-Python backend that's always available. Install `coincurve` only if you need accelerated point multiplication:
 
 ```bash
-pip install btx[coincurve]
+.venv/bin/python -m pip install -e ".[coincurve]"
 ```
 
 ### Can I use it with virtual environments?
@@ -38,9 +36,10 @@ pip install btx[coincurve]
 Yes. We recommend using virtual environments:
 
 ```bash
+git clone https://github.com/sachncs/btx.git
+cd btx
 python -m venv .venv
-source .venv/bin/activate
-pip install btx
+.venv/bin/python -m pip install -e .
 ```
 
 ## Usage

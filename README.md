@@ -6,10 +6,9 @@
   <p align="center">Pure-Python parsing, signature extraction, and nonce-reuse analysis for the Bitcoin secp256k1 stack.</p>
   <p align="center">
     <a href="https://sachncs.github.io/btx/"><img src="https://img.shields.io/badge/website-sachncs.github.io%2Fbtx-5fd0a4?style=for-the-badge" alt="Website"></a>
-    <a href="#installation"><img src="https://img.shields.io/pypi/pyversions/btx" alt="Python"></a>
+    <a href="#installation"><img src="https://img.shields.io/badge/python-3.12%2B-3776AB" alt="Python 3.12+"></a>
     <a href="LICENSE"><img src="https://img.shields.io/badge/license-MIT-green" alt="License"></a>
     <a href="https://github.com/sachncs/btx/actions"><img src="https://img.shields.io/github/actions/workflow/status/sachncs/btx/ci.yml?branch=master" alt="CI"></a>
-    <a href="https://pypi.org/project/btx/"><img src="https://img.shields.io/pypi/v/btx" alt="PyPI"></a>
     <a href="https://github.com/sachncs/btx/stargazers"><img src="https://img.shields.io/github/stars/sachncs/btx" alt="Stars"></a>
   </p>
 </p>
@@ -44,27 +43,34 @@ optional, isolated services layer.
 
 ## Installation
 
-### From PyPI
-
-```bash
-pip install btx
-```
-
-For accelerated point multiplication via libsecp256k1 (optional):
-
-```bash
-pip install btx[coincurve]
-```
-
-### From source
+### From source (current distribution method)
 
 ```bash
 git clone https://github.com/sachncs/btx.git
 cd btx
-pip install -e ".[dev]"
+python -m venv .venv
+.venv/bin/python -m pip install -e .
 ```
 
-**Requirements**: Python ≥ 3.12, no runtime dependencies (Typer is the only runtime requirement; `coincurve` is optional).
+For development and tests:
+
+```bash
+.venv/bin/python -m pip install -e ".[dev]"
+```
+
+For optional libsecp256k1 acceleration:
+
+```bash
+.venv/bin/python -m pip install -e ".[coincurve]"
+```
+
+The package currently requires Python ≥ 3.12 and Typer at runtime. PyPI publication is planned but is not enabled yet.
+
+Alternatively, install directly from Git without keeping a checkout:
+
+```bash
+python -m pip install "btx @ git+https://github.com/sachncs/btx.git"
+```
 
 ---
 
@@ -389,7 +395,7 @@ make clean                   # Remove caches and build artifacts
 1. Bump version in `pyproject.toml`
 2. Update `CHANGELOG.md`
 3. Commit with a `version:X.Y.Z` message
-4. Tag and push — CI publishes to PyPI
+4. Tag and push only after the release environment has explicitly enabled publication
 
 ---
 

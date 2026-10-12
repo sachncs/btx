@@ -395,9 +395,7 @@ def validate_max_workers(max_workers: int) -> int:
         or isinstance(max_workers, bool)
         or max_workers < 1
     ):
-        raise ValueError(
-            f"max_workers must be a positive integer, got {max_workers!r}"
-        )
+        raise ValueError(f"max_workers must be a positive integer, got {max_workers!r}")
     return max_workers
 
 
