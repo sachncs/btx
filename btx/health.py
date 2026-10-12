@@ -86,6 +86,7 @@ def health() -> dict[str, Any]:
     """Run all health checks and return a comprehensive status dict."""
     import btx
     from btx.curve import GENERATOR_POINT, multiply
+    from btx.curve.dispatch import resolve_backend
 
     try:
         version = importlib.metadata.version("btx")
@@ -96,17 +97,38 @@ def health() -> dict[str, Any]:
         "version": version,
         "imports": check_imports(),
         "backends": check_backend(),
+        "runtime": {
+            "network": "opt-in services layer",
+            "typer": _dependency_available("typer"),
+            "coincurve": _dependency_available("coincurve"),
+        },
     }
 
     try:
         p = multiply(1, GENERATOR_POINT)
         status["curve_operation"] = {
             "ok": not p.infinity and p.x is not None,
+            "backend": type(resolve_backend()).__name__,
         }
     except Exception as exc:
         status["curve_operation"] = {"ok": False, "error": str(exc)}
 
+    status["ok"] = bool(
+        all(status["imports"].values())
+        and status["curve_operation"].get("ok", False)
+    )
+
     return status
+
+
+def _dependency_available(name: str) -> bool:
+    """Return whether an optional/runtime dependency can be imported."""
+    try:
+        import importlib.util
+
+        return importlib.util.find_spec(name) is not None
+    except (ImportError, ModuleNotFoundError, ValueError):
+        return False
 
 
 __all__ = ["health", "check_backend", "check_imports"]

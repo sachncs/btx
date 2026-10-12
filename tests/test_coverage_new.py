@@ -765,6 +765,11 @@ class TestBlockstreamProvider:
             with pytest.raises(ValueError, match="out of range"):
                 p.get_utxo_value(txid, 99)
 
+    def test_get_utxo_rejects_negative_vout(self) -> None:
+        p = mempool_space_provider()
+        with pytest.raises(ValueError, match="non-negative"):
+            p.get_utxo_value("55" * 32, -1)
+
     def test_fetch_tx_json_invalid_json(self) -> None:
         with patch(
             "btx.services.blockchain.fetch_text",
@@ -897,6 +902,14 @@ class TestMempoolSpaceProvider:
 
 
 class TestFetchText:
+    def test_rejects_non_http_url(self) -> None:
+        with pytest.raises(ValueError, match="absolute HTTP"):
+            fetch_text("file:///tmp/secret")
+
+    def test_rejects_non_positive_timeout(self) -> None:
+        with pytest.raises(ValueError, match="timeout must be positive"):
+            fetch_text("https://example.com", timeout=0)
+
     def test_http_error(self) -> None:
         from http.client import HTTPMessage
         from urllib.error import HTTPError
@@ -927,6 +940,16 @@ class TestFetchText:
         with patch("btx.services.blockchain.urlopen", return_value=mock_resp):
             result = fetch_text("http://example.com")
             assert result == "response data"
+
+    def test_rejects_oversized_response(self) -> None:
+        from btx.services.blockchain import MAX_RESPONSE_BYTES
+
+        mock_resp = MagicMock()
+        mock_resp.read.return_value = b"x" * (MAX_RESPONSE_BYTES + 1)
+        mock_resp.__enter__.return_value = mock_resp
+        with patch("btx.services.blockchain.urlopen", return_value=mock_resp):
+            with pytest.raises(OSError, match="exceeds"):
+                fetch_text("http://example.com")
 
     def test_fetch_tx_json_invalid_json(self) -> None:
         with patch(

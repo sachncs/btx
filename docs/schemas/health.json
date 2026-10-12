@@ -45,12 +45,24 @@
       "type": "object",
       "properties": {
         "ok": {"type": "boolean"},
+        "backend": {"type": "string"},
         "error": {"type": "string"}
       },
       "required": ["ok"],
       "description": "Curve arithmetic validation result."
-    }
+    },
+    "runtime": {
+      "type": "object",
+      "properties": {
+        "network": {"type": "string"},
+        "typer": {"type": "boolean"},
+        "coincurve": {"type": "boolean"}
+      },
+      "required": ["network", "typer", "coincurve"],
+      "additionalProperties": false
+    },
+    "ok": {"type": "boolean"}
   },
-  "required": ["version", "imports", "backends", "curve_operation"],
+  "required": ["version", "imports", "backends", "curve_operation", "runtime", "ok"],
   "additionalProperties": false
 }

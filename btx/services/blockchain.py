@@ -45,6 +45,7 @@ import ssl
 import time
 from typing import TYPE_CHECKING, Any
 from urllib.error import HTTPError, URLError
+from urllib.parse import urlparse
 from urllib.request import Request, urlopen
 
 from btx import __version__ as _btx_version
@@ -58,6 +59,7 @@ logger = logging.getLogger(__name__)
 
 USER_AGENT = f"btx/{_btx_version} (+https://github.com/sachncs/btx)"
 HTTP_TIMEOUT = 30
+MAX_RESPONSE_BYTES = 8 * 1024 * 1024
 MAX_RETRIES = 3
 RETRY_BACKOFF = 1.0  # seconds
 RETRYABLE_STATUSES = {429, 500, 502, 503, 504}
@@ -114,6 +116,7 @@ class BaseBlockchainProvider:
     def get_utxo_script_pubkey(self, txid: str, vout: int) -> bytes:
         """Fetch the ``scriptPubKey`` for a given UTXO."""
         validate_txid(txid)
+        validate_vout(vout)
         tx_json = self.fetch_tx_json(txid)
         outputs = tx_json.get(self.outputs_key, [])
         if vout >= len(outputs):
@@ -130,6 +133,7 @@ class BaseBlockchainProvider:
     def get_utxo_value(self, txid: str, vout: int) -> int:
         """Fetch the value in satoshis for a given UTXO."""
         validate_txid(txid)
+        validate_vout(vout)
         tx_json = self.fetch_tx_json(txid)
         outputs = tx_json.get(self.outputs_key, [])
         if vout >= len(outputs):
@@ -303,6 +307,7 @@ class GenericHttpProvider(BaseBlockchainProvider):
 
     def get_utxo_script_pubkey(self, txid: str, vout: int) -> bytes:
         validate_txid(txid)
+        validate_vout(vout)
         if self.utxo_script_path:
             path = self.utxo_script_path.format(txid=txid, vout=vout)
             url = f"{self.base_url}{path}"
@@ -318,6 +323,7 @@ class GenericHttpProvider(BaseBlockchainProvider):
 
     def get_utxo_value(self, txid: str, vout: int) -> int:
         validate_txid(txid)
+        validate_vout(vout)
         if self.utxo_value_path:
             path = self.utxo_value_path.format(txid=txid, vout=vout)
             url = f"{self.base_url}{path}"
@@ -367,6 +373,34 @@ def validate_txid(txid: str) -> str:
     return txid
 
 
+def validate_vout(vout: int) -> int:
+    """Validate an output index before it reaches a provider URL or list."""
+    if not isinstance(vout, int) or isinstance(vout, bool) or vout < 0:
+        raise ValueError(f"vout must be a non-negative integer, got {vout!r}")
+    return vout
+
+
+def validate_http_url(url: str) -> str:
+    """Allow only absolute HTTP(S) URLs for provider requests."""
+    parsed = urlparse(url)
+    if parsed.scheme not in {"http", "https"} or not parsed.netloc:
+        raise ValueError(f"URL must be an absolute HTTP(S) URL, got {url!r}")
+    return url
+
+
+def validate_max_workers(max_workers: int) -> int:
+    """Validate the concurrency limit before creating an executor."""
+    if (
+        not isinstance(max_workers, int)
+        or isinstance(max_workers, bool)
+        or max_workers < 1
+    ):
+        raise ValueError(
+            f"max_workers must be a positive integer, got {max_workers!r}"
+        )
+    return max_workers
+
+
 # ── Internal helpers ───────────────────────────────────────────────
 
 
@@ -388,12 +422,19 @@ def fetch_text(url: str, *, timeout: int = HTTP_TIMEOUT) -> str:
         OSError: On repeated network failure (wraps ``HTTPError``,
             ``URLError``).
     """
+    validate_http_url(url)
+    if timeout <= 0:
+        raise ValueError(f"timeout must be positive, got {timeout!r}")
     last_error: OSError | None = None
     for attempt in range(MAX_RETRIES):
         try:
             req = Request(url, headers={"User-Agent": USER_AGENT})
             with urlopen(req, timeout=timeout, context=SSL_CONTEXT) as resp:
-                data: bytes = resp.read()
+                data: bytes = resp.read(MAX_RESPONSE_BYTES + 1)
+                if len(data) > MAX_RESPONSE_BYTES:
+                    raise OSError(
+                        f"Response from {url} exceeds {MAX_RESPONSE_BYTES} bytes"
+                    )
                 return data.decode("utf-8")
         except HTTPError as exc:
             msg = f"HTTP {exc.code} fetching {url}: {exc.reason}"
@@ -449,6 +490,9 @@ def post_data(url: str, data: bytes, *, timeout: int = HTTP_TIMEOUT) -> str:
         OSError: On repeated network failure.
         ValueError: If the response indicates a malformed transaction.
     """
+    validate_http_url(url)
+    if timeout <= 0:
+        raise ValueError(f"timeout must be positive, got {timeout!r}")
     last_error: OSError | None = None
     for attempt in range(MAX_RETRIES):
         try:
@@ -462,7 +506,11 @@ def post_data(url: str, data: bytes, *, timeout: int = HTTP_TIMEOUT) -> str:
                 method="POST",
             )
             with urlopen(req, timeout=timeout, context=SSL_CONTEXT) as resp:
-                resp_data: bytes = resp.read()
+                resp_data: bytes = resp.read(MAX_RESPONSE_BYTES + 1)
+                if len(resp_data) > MAX_RESPONSE_BYTES:
+                    raise OSError(
+                        f"Response from {url} exceeds {MAX_RESPONSE_BYTES} bytes"
+                    )
                 return resp_data.decode("utf-8")
         except HTTPError as exc:
             msg = f"HTTP {exc.code} POST {url}: {exc.reason}"
@@ -686,6 +734,7 @@ def batch_fetch_transactions(
 
     if provider is None:
         provider = blockstream_provider()
+    validate_max_workers(max_workers)
 
     def fetch_one(txid: str) -> tuple[str, str]:
         validate_txid(txid)
@@ -699,7 +748,7 @@ def batch_fetch_transactions(
             txid, hex_data = future.result()
             results[txid] = hex_data
 
-    return results
+    return {txid: results[txid] for txid in txids}
 
 
 def batch_enrich_transactions(
@@ -727,17 +776,21 @@ def batch_enrich_transactions(
 
     if provider is None:
         provider = blockstream_provider()
+    validate_max_workers(max_workers)
 
     def enrich_one(tx_hex: str) -> tuple[list[bytes], list[int]]:
         return enrich_transaction(tx_hex, provider=provider)
 
-    results: list[tuple[list[bytes], list[int]]] = []
+    results: list[tuple[list[bytes], list[int]] | None] = [None] * len(tx_hexes)
     with ThreadPoolExecutor(max_workers=max_workers) as executor:
-        futures = [executor.submit(enrich_one, tx_hex) for tx_hex in tx_hexes]
+        futures = {
+            executor.submit(enrich_one, tx_hex): index
+            for index, tx_hex in enumerate(tx_hexes)
+        }
         for future in as_completed(futures):
-            results.append(future.result())
+            results[futures[future]] = future.result()
 
-    return results
+    return [result for result in results if result is not None]
 
 
 async def async_batch_fetch_transactions(
@@ -791,4 +844,7 @@ __all__ = [
     "enrich_transaction",
     "fetch_and_extract",
     "mempool_space_provider",
+    "validate_http_url",
+    "validate_max_workers",
+    "validate_vout",
 ]
