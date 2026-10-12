@@ -1,6 +1,6 @@
 # Clean-room validation image. The native workflow remains faster for daily work;
 # this image verifies that the repository does not depend on host environments.
-FROM node:20-bookworm
+FROM node:22-bookworm
 
 ENV UV_LINK_MODE=copy \
     UV_CACHE_DIR=/tmp/uv-cache \

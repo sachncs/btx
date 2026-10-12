@@ -87,3 +87,5 @@ The site is served at <https://sachncs.github.io/btx/>.
 
 The site intentionally uses system font fallbacks so the first render does not
 depend on a third-party font request.
+
+The site toolchain is validated with Node.js 22 or newer.
