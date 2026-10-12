@@ -25,8 +25,8 @@ exclude_patterns: list[str] = []
 
 html_theme = "alabaster"
 html_static_path: list[str] = ["_static"]
-html_logo = "logo.svg"
-html_favicon = "logo.svg"
+html_logo = "_static/logo.svg"
+html_favicon = "_static/logo.svg"
 
 napoleon_google_docstring = True
 napoleon_numpy_docstring = False
