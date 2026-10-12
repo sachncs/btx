@@ -4,7 +4,8 @@
 Confirm every phase has been completed correctly by running the full verification suite.
 
 ## Context
-All checks now pass, including the ruff format check (26.5) and the Sphinx docs build (26.9).
+All checks now pass, including the ruff format check (26.5) and the Astro
+documentation build (26.9).
 
 ## Remaining Tasks
 
@@ -15,13 +16,15 @@ All checks now pass, including the ruff format check (26.5) and the Sphinx docs 
 **Current state:**
 - Passes. `uv run ruff format btx/signature/extraction/helpers.py btx/transaction/parser.py` applied; `uv run ruff format --check btx/ tests/` now exits 0 (105 files already formatted).
 
-### Task 26.9 — Sphinx docs build (per Issue M4) — COMPLETE
+### Task 26.9 — Astro documentation build — COMPLETE
 **Acceptance Criteria:**
-- `cd docs && make html` exits 0
-- `docs/build/html/index.html` exists
+- `cd site && npm run check` exits 0
+- `cd site && npm run build && npm run verify` exits 0
 
 **Current state:**
-- Passes. Added `"sphinx>=7.3.7,<9"` to the dev extras in `pyproject.toml`, installed via `uv sync --all-extras`. `docs/Makefile` default changed to `SPHINXBUILD ?= uv run sphinx-build` so the bare `make html` uses the project venv. `cd docs && make html` now exits 0 with 0 errors (68 pre-existing "duplicate object description" warnings remain). Output lands at `docs/build/html/index.html` (the Makefile's BUILDDIR is `build`; the acceptance text's `docs/_build` path was incorrect). A `Properties:` section in the `BatchResult` docstring broke docutils parsing; reworded to prose.
+- Passes. Astro is the only documentation build system. The generated site
+  contains the standalone documentation pages under `/btx/docs/`; repository
+  Markdown is not loaded at runtime.
 
 ## Notes
 - This phase is the gate. Do not commit until every task passes.

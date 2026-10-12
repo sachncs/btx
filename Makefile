@@ -47,8 +47,7 @@ docker-test:
 	docker build --tag btx-validation .
 	docker run --rm btx-validation
 
-docs:
-	uv run sphinx-build -b html docs/source docs/build
+docs: site-check site-build
 
 clean:
 	./cleanup.sh

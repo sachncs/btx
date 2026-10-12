@@ -19,7 +19,6 @@ rm -rf btx.egg-info/
 rm -rf htmlcov/
 rm -rf dist/
 rm -rf build/
-rm -rf docs/build/
 rm -f coverage.xml
 rm -f .coverage.*
 find . \( -name '*.cover' -o -name '*,cover' \) -delete
