@@ -9,13 +9,15 @@ export interface Props {
 }
 
 const {
-  title = 'btx — The pure-Python secp256k1 toolkit for Bitcoin',
-  description = 'A precision Python library for parsing Bitcoin transactions, extracting ECDSA and Schnorr signatures, and analyzing nonce-reuse on the secp256k1 curve. Zero network dependencies. Production-grade cryptography.',
+  title = 'btx — Inspect Bitcoin transactions at the byte level',
+  description = 'A source-first Python toolkit for parsing Bitcoin transactions, extracting ECDSA and Schnorr signatures, working with PSBTs, and analyzing secp256k1 behavior.',
   ogImage = '/og-image.svg',
   canonical,
 } = Astro.props;
 
-const canonicalURL = canonical ?? new URL(Astro.url.pathname, Astro.site).toString();
+const base = import.meta.env.BASE_URL;
+const canonicalURL = canonical ?? new URL(base, Astro.site).toString();
+const faviconURL = new URL(`${base}favicon.svg`.replace('//', '/'), Astro.site).toString();
 ---
 
 <!doctype html>
@@ -32,8 +34,8 @@ const canonicalURL = canonical ?? new URL(Astro.url.pathname, Astro.site).toStri
     <link rel="canonical" href={canonicalURL} />
 
     <!-- Favicon -->
-    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
-    <link rel="apple-touch-icon" href="/favicon.svg" />
+    <link rel="icon" type="image/svg+xml" href={faviconURL} />
+    <link rel="apple-touch-icon" href={faviconURL} />
 
     <!-- Open Graph -->
     <meta property="og:type" content="website" />
@@ -49,16 +51,8 @@ const canonicalURL = canonical ?? new URL(Astro.url.pathname, Astro.site).toStri
     <meta name="twitter:description" content={description} />
     <meta name="twitter:image" content={new URL(ogImage, Astro.site).toString()} />
 
-    <!-- Preload critical font -->
-    <link rel="preconnect" href="https://fonts.googleapis.com" />
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link
-      rel="stylesheet"
-      href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap"
-    />
-
     <!-- Structured data -->
-    <script type="application/ld+json" set:html={JSON.stringify({
+    <script is:inline type="application/ld+json" set:html={JSON.stringify({
       '@context': 'https://schema.org',
       '@type': 'SoftwareApplication',
       name: 'btx',

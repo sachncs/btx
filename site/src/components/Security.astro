@@ -1,16 +1,16 @@
 ---
 const principles = [
   {
-    title: 'Air-gappable by default',
-    body: 'Network I/O is opt-in and isolated. The core library imports cleanly in fully offline environments — perfect for forensic and hardware workflows.',
+    title: 'Offline-safe core',
+    body: 'Network I/O is isolated behind the services layer. Parsing and cryptographic operations can be imported and exercised without a blockchain connection.',
   },
   {
-    title: 'Deterministic, auditable code',
-    body: 'Strict type hints, mypy in strict-ish mode, and 99%+ test coverage across the curve, encoding, and signature layers.',
+    title: 'Typed, tested boundaries',
+    body: 'The project uses type checking, property-based tests, vectors, coverage checks, and dependency auditing in its development workflow.',
   },
   {
-    title: 'No silent behaviour',
-    body: 'Every helper is a documented public symbol — re-exported from the package root. No _foo chase, no surprises.',
+    title: 'Explicit behavior',
+    body: 'Public helpers, domain errors, CLI formats, and backend selection are documented so callers can reason about failures and fallbacks.',
   },
 ];
 ---
@@ -22,13 +22,12 @@ const principles = [
         <span class="eyebrow">Security posture</span>
         <h2 class="mt-3 text-display-lg font-semibold text-balance">
           Cryptography deserves <br />
-          <span class="text-gradient-accent">cryptography-grade rigor.</span>
+          <span class="text-gradient-accent">clear boundaries.</span>
         </h2>
         <p class="mt-5 max-w-md text-pretty text-ink-300">
-          btx is built for environments where correctness is not
-          optional. Each layer is testable in isolation, each helper
-          has a public name, and there are no surprises buried in
-          private modules.
+          btx is built for environments where correctness matters. Each
+          layer is testable in isolation, network access is explicit, and
+          the public surface is designed to be inspected rather than guessed.
         </p>
 
         <div class="mt-8 space-y-5">
@@ -54,8 +53,8 @@ const principles = [
 
           <div class="relative flex h-full flex-col">
             <div class="flex items-center justify-between">
-              <span class="eyebrow">Reference implementation</span>
-              <span class="font-mono text-[11px] text-ink-400">SEC-2 v2.0</span>
+              <span class="eyebrow">Curve reference</span>
+                <span class="font-mono text-[11px] text-ink-400">secp256k1</span>
             </div>
 
             <div class="mt-8 space-y-4 font-mono text-[12px] text-ink-300">

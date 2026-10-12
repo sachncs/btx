@@ -1,9 +1,9 @@
 ---
-const metrics = [
-  { value: '886',     label: 'Tests passing',    sub: 'pytest + Hypothesis' },
-  { value: '99%',     label: 'Test coverage',    sub: 'across the core stack' },
-  { value: '0',       label: 'Runtime deps',     sub: 'Typer is the only one' },
-  { value: '3.41ms',  label: 'Per-curve-op',     sub: 'native backend · median' },
+const guarantees = [
+  { label: 'Compatibility', value: 'Python 3.12–3.14', body: 'The supported interpreter range is declared in the package metadata and exercised in CI.' },
+  { label: 'Runtime boundary', value: 'Typer + stdlib core', body: 'The CLI uses Typer; parsing and curve code stay free of network clients.' },
+  { label: 'Optional speed', value: 'coincurve backend', body: 'Install the optional extra when native libsecp256k1 throughput is appropriate.' },
+  { label: 'Standards', value: 'BIP-aware', body: 'Transaction, sighash, PSBT, Schnorr, and Taproot paths follow documented Bitcoin standards.' },
 ];
 
 const standards = [
@@ -16,53 +16,29 @@ const standards = [
 ];
 ---
 
-<section class="relative py-24 sm:py-32">
+<section id="reliability" class="relative py-24 sm:py-32">
   <div class="container-page">
-    <div class="reveal">
-      <div class="relative overflow-hidden rounded-3xl border border-white/[0.07] bg-ink-900/40 p-8 sm:p-12">
-        <div class="absolute inset-0 -z-10 opacity-[0.4]">
-          <div class="absolute inset-0 bg-grid-faint bg-grid-lg mask-fade-b"></div>
+    <div class="reveal overflow-hidden rounded-3xl border border-white/[0.07] bg-ink-900/50 p-6 sm:p-10">
+      <div class="grid items-start gap-10 lg:grid-cols-[0.75fr_1.25fr]">
+        <div>
+          <span class="eyebrow">Reliability contract</span>
+          <h2 class="mt-3 text-display-lg font-semibold text-balance">Know what runs where.</h2>
+          <p class="mt-4 max-w-md text-pretty text-ink-300">The project keeps deterministic parsing and cryptographic primitives separate from network services, optional acceleration, and development tooling.</p>
         </div>
-        <div class="absolute -top-32 left-1/2 h-[400px] w-[800px] -translate-x-1/2 rounded-full bg-[radial-gradient(closest-side,rgba(95,208,164,0.12),transparent_70%)] blur-3xl"></div>
-
-        <div class="grid items-center gap-12 lg:grid-cols-[1fr_1.4fr]">
-          <div>
-            <span class="eyebrow">By the numbers</span>
-            <h2 class="mt-3 text-display-lg font-semibold text-balance">
-              Built with the same care <br />
-              you bring to your code.
-            </h2>
-            <p class="mt-4 text-pretty text-ink-300">
-              Public benchmarks on every push. 99%+ coverage across
-              the public API. A clean slate for your most demanding
-              Bitcoin workloads.
-            </p>
-          </div>
-
-          <dl class="grid grid-cols-2 gap-px overflow-hidden rounded-2xl border border-white/[0.07] bg-white/[0.07]">
-            {metrics.map((m) => (
-              <div class="bg-ink-950/80 p-6 transition-colors hover:bg-ink-900/80">
-                <dt class="font-mono text-[11px] uppercase tracking-[0.18em] text-ink-400">{m.label}</dt>
-                <dd class="mt-2 font-display text-3xl font-semibold text-white sm:text-4xl">
-                  {m.value}
-                </dd>
-                <p class="mt-1 font-mono text-[11px] text-ink-500">{m.sub}</p>
-              </div>
-            ))}
-          </dl>
+        <div class="grid gap-px overflow-hidden rounded-2xl border border-white/[0.07] bg-white/[0.07] sm:grid-cols-2">
+          {guarantees.map((item) => (
+            <div class="bg-ink-950/90 p-5 transition-colors hover:bg-ink-900/90">
+              <p class="font-mono text-[10px] uppercase tracking-[0.18em] text-accent-400">{item.label}</p>
+              <h3 class="mt-2 text-lg font-semibold text-white">{item.value}</h3>
+              <p class="mt-2 text-sm leading-relaxed text-ink-400">{item.body}</p>
+            </div>
+          ))}
         </div>
-
-        <div class="mt-12 border-t border-white/[0.06] pt-10">
-          <p class="eyebrow">Standards implemented</p>
-          <div class="mt-4 flex flex-wrap gap-2">
-            {standards.map((s) => (
-              <div class="group flex items-center gap-2 rounded-full border border-white/[0.07] bg-white/[0.02] px-3 py-1.5 transition-colors hover:bg-white/[0.05]">
-                <span class="font-mono text-xs font-medium text-accent-400">{s.code}</span>
-                <span class="text-xs text-ink-400">·</span>
-                <span class="text-xs text-ink-300">{s.desc}</span>
-              </div>
-            ))}
-          </div>
+      </div>
+      <div class="mt-10 border-t border-white/[0.06] pt-8">
+        <p class="eyebrow">Standards represented in the codebase</p>
+        <div class="mt-4 flex flex-wrap gap-2">
+          {standards.map((standard) => <span class="pill"><span class="font-mono text-accent-400">{standard.code}</span><span class="text-ink-500">·</span>{standard.desc}</span>)}
         </div>
       </div>
     </div>

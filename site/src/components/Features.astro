@@ -15,7 +15,7 @@ const features = [
   {
     icon: 'curve',
     title: 'Pluggable curve backends',
-    desc: 'Pure Python by default. Swap in libsecp256k1 via coincurve for production throughput — same API, no rewrites.',
+    desc: 'Pure Python by default. Add libsecp256k1 through coincurve when you need a faster curve backend — the API stays the same.',
     accent: 'from-accent-600/30 to-accent-600/0',
   },
   {
@@ -33,7 +33,7 @@ const features = [
   {
     icon: 'shield',
     title: 'Air-gap friendly',
-    desc: 'Zero runtime dependencies. Network I/O lives in an isolated services layer — the core library is import-safe offline.',
+    desc: 'The core stays usable offline. Network access is isolated behind the optional services layer, so parsing does not require a blockchain connection.',
     accent: 'from-accent-600/30 to-accent-600/0',
   },
 ];
@@ -48,18 +48,18 @@ const icons: Record<string, string> = {
 };
 ---
 
-<section id="features" class="relative py-24 sm:py-32">
+<section id="capabilities" class="relative py-24 sm:py-32">
   <div class="container-page">
     <div class="mx-auto max-w-2xl text-center">
       <span class="eyebrow reveal">Capabilities</span>
       <h2 class="reveal mt-3 text-display-lg font-semibold text-balance" data-delay="80">
-        Every layer of the stack. <br class="hidden sm:block" />
-        <span class="text-gradient-accent">Audited, layered, public.</span>
+        Everything you need to inspect the stack. <br class="hidden sm:block" />
+        <span class="text-gradient-accent">Layered, typed, public.</span>
       </h2>
       <p class="reveal mt-4 text-pretty text-ink-300" data-delay="160">
         btx is organised as a strict dependency pyramid. Each layer is
-        understandable and testable in isolation — no hidden behaviour,
-        no semi-private helpers.
+        understandable and testable in isolation, with a documented public
+        surface and explicit boundaries around network access.
       </p>
     </div>
 
