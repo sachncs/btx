@@ -175,7 +175,7 @@ pre-commit install
 
 ```bash
 make test          # Run all tests
-make test-cov      # Run with coverage (99%+ required)
+make test-cov      # Run with coverage (80%+ required)
 ```
 
 ### Writing Tests
@@ -238,7 +238,7 @@ class TestMyFeature:
 
 - At least one maintainer approval required
 - All CI checks must pass
-- Code coverage must remain at 99%+
+- Code coverage must remain at or above the CI threshold of 80%
 - Address review feedback promptly
 
 ## Documentation

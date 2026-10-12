@@ -20,7 +20,7 @@ uv run pytest tests/ --cov=btx
 | `test_curve.py` | Point ops, backends, SEC encoding |
 | `test_encoding.py` | Hex, varint, DER, hashing |
 | `test_script.py` | Script parse/serialize/classify |
-| `test_transaction.py` | Tx parse, Tx struct, make_tx |
+| `test_transaction.py` | Tx parse, Tx struct, transaction builders |
 | `test_sighash.py` | Legacy, segwit, taproot sighash |
 | `test_sighash_full.py` | Comprehensive sighash test vectors (requires external JSON) |
 | `test_extraction.py` | Signature extraction (P2PKH, P2WPKH, P2SH, P2WSH, P2TR) |
@@ -55,7 +55,7 @@ uv run pytest tests/ --cov=btx --cov-fail-under=80
 ```bash
 uv run mypy btx/ tests/
 uv run ruff check btx/ tests/
-uv run yapf -d -r btx/
+uv run ruff format --check btx/ tests/
 ```
 
 ## CI Matrix
@@ -65,7 +65,8 @@ GitHub Actions runs three configurations:
 | Job | Python | Extras |
 |-----|--------|--------|
 | `test` | 3.12, 3.13 | None |
-| `test-coincurve` | 3.12, 3.13 | `[dev]` |
+| `test-coincurve` | 3.12, 3.13 | `[dev, coincurve]` |
+| `test` | 3.14 | `[dev]`, pure-Python backend |
 | `benchmark` | 3.13 | `[dev]` |
 
 ## Property-Based Tests

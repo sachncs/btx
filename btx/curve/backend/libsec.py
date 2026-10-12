@@ -5,7 +5,7 @@
 Wraps the ``coincurve`` Python bindings around Bitcoin Core's
 libsecp256k1 C library for maximum performance.  Used automatically
 when (a) the ``coincurve`` optional dependency is installed and
-(b) ``settings.default_backend == "libsecp"``.
+(b) ``BTX_DEFAULT_BACKEND=libsecp`` was set before importing btx.
 
 Because ``coincurve`` does not expose point negation, addition, or
 doubling as standalone primitives, those three methods fall back to

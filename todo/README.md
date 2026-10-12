@@ -47,7 +47,7 @@ This directory contains the atomic checklist for the refactor of `/Users/sachin/
 
 - `BitcoinError` → `BtxError`
 - `BITCOIN_LOG_LEVEL` → `BTX_LOG_LEVEL` (with backward-compat fallback + `DeprecationWarning`)
-- `pip install bitcoin` → `pip install btx`
+- `pip install bitcoin` → install from the btx Git repository until PyPI publication
 - `bitcoin` CLI binary → `btx`
 - Static-method extractors → instance-method extractors
 - `Settings` interface change (now a frozen dataclass)

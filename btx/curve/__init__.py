@@ -33,8 +33,8 @@ Backend selection
 -----------------
 
 Use :func:`set_backend` to force a backend, or set
-``settings.default_backend = "libsecp"`` (or ``"native"``) to influence
-auto-resolution via :func:`btx.curve.dispatch.resolve_backend`.
+``BTX_DEFAULT_BACKEND=libsecp`` (or ``native``) before importing btx to
+influence auto-resolution via :func:`btx.curve.dispatch.resolve_backend`.
 """
 
 from btx.curve import libsecp256k1

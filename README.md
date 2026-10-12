@@ -22,6 +22,11 @@ signatures — all on the secp256k1 curve. The core library has **no
 network dependencies**; blockchain data fetching lives behind an
 optional, isolated services layer.
 
+> **Distribution status:** btx is currently installed from source or the Git
+> repository; it is not published to PyPI yet. The pure-Python backend supports
+> Python 3.12–3.14. The optional `coincurve` backend is validated on Python
+> 3.12–3.13 while upstream packaging catches up with Python 3.14.
+
 ---
 
 ## Features
@@ -37,7 +42,7 @@ optional, isolated services layer.
 - **Pluggable Backends** — Pure Python (default) or `coincurve`/libsecp256k1
 - **CLI** — Typer-based `decode`, `extract`, `linearize`, `broadcast`, `health` commands
 - **Blockchain Providers** — Blockstream, Mempool.space, blockchain.info, plus a generic HTTP provider
-- **All-public API** — No semi-private `_foo` identifiers; every helper is a documented, importable symbol
+- **Documented API** — Stable helpers are documented and re-exported where appropriate; internal implementation details remain private
 
 ---
 
@@ -64,7 +69,8 @@ For optional libsecp256k1 acceleration:
 .venv/bin/python -m pip install -e ".[coincurve]"
 ```
 
-The package currently requires Python ≥ 3.12 and Typer at runtime. PyPI publication is planned but is not enabled yet.
+The package requires Python ≥ 3.12 and Typer at runtime. Keep the
+`coincurve` extra optional when you need the C-backed curve implementation.
 
 Alternatively, install directly from Git without keeping a checkout:
 
@@ -262,16 +268,18 @@ Layering rules:
 |----------|---------|-------------|
 | `BTX_LOG_LEVEL` | `WARNING` | Log verbosity (`DEBUG`, `INFO`, `WARNING`, `ERROR`, `CRITICAL`) |
 
-### Settings singleton
+### Settings snapshot
 
 ```python
+from dataclasses import replace
 from btx import settings
 
-settings.default_backend = "libsecp"      # or "native" / None
+libsecp_settings = replace(settings, default_backend="libsecp")
 ```
 
 `settings` is a frozen dataclass; use `dataclasses.replace(settings, ...)`
-to derive a customised copy.
+to derive a customised copy. To configure the process-wide default before
+importing btx, set `BTX_DEFAULT_BACKEND=native` or `BTX_DEFAULT_BACKEND=libsecp`.
 
 ---
 
@@ -288,7 +296,7 @@ to derive a customised copy.
 | `analyze_descriptor`, `compile_descriptor`, `extract_keys` | function | Miniscript descriptor tools |
 | `blockstream_provider`, `mempool_space_provider`, `BaseBlockchainProvider`, `BlockchainInfoProvider`, `GenericHttpProvider` | class | Blockchain data fetching |
 
-### Newly promoted helpers
+### Public helpers
 
 The following helpers are part of the public API and are also
 re-exported from their submodules:
@@ -329,7 +337,7 @@ btx/
 │   ├── extraction/      # Extractor plugin registry + engine
 │   └── linearization/   # (α, β) coefficient derivation
 └── transaction/         # Tx parse, build, serialize, fee, RBF
-tests/                   # Test suite (886 passing)
+tests/                   # Test suite; CI enforces an 80%+ coverage gate
 docs/                    # Documentation
 ```
 
@@ -338,12 +346,14 @@ docs/                    # Documentation
 ## Development
 
 ```bash
-./setup.sh                          # uv venv + sync + test
-make venv                           # same, without test
+./setup.sh                          # uv sync + site install + validation
+make bootstrap                      # install locked Python/site dependencies
 make test                           # pytest
-make typecheck                      # mypy
-make lint                           # ruff
-make test-cov                       # pytest + coverage (99%+)
+make typecheck                     # mypy
+make lint                          # ruff
+make test-cov                      # pytest + 80% coverage gate
+make test-all                      # complete native validation
+make docker-test                   # clean-room validation
 ./cleanup.sh                        # remove caches, .venv, egg-info
 ```
 
@@ -354,7 +364,8 @@ make test-cov                       # pytest + coverage (99%+)
 - Formatting: `ruff format` (PEP 8 + project rules)
 - Type hints: required on all public signatures; mypy runs in strict-ish mode
 - Docstrings: Google-style with "what" and "why"
-- **No semi-private naming (`_foo`)** — every helper is part of the documented public API and is re-exported from the appropriate `__init__.py`
+- Public APIs are documented and re-exported where appropriate; internal helpers
+  may remain private when they are not part of the supported surface.
 
 ### Commit Conventions
 
@@ -374,9 +385,9 @@ chore: update ruff config
 ## Testing
 
 ```bash
-pytest                       # 886 tests
-pytest --cov=btx         # With coverage report
-make test-cov                # Via Makefile
+uv run pytest tests/          # Full test suite
+uv run pytest tests/ --cov=btx --cov-fail-under=80
+make test-all                # Python + site validation
 ```
 
 ---

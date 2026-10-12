@@ -151,7 +151,7 @@ python -m btx.cli health
 Install the optional coincurve dependency:
 
 ```bash
-pip install btx[coincurve]
+python -m pip install -e ".[coincurve]"
 ```
 
 Or use the pure-Python backend (default):
@@ -238,7 +238,7 @@ See [SECURITY.md](../SECURITY.md) for private disclosure instructions.
 The library is open-source and undergoes:
 - Automated security scanning (pip-audit)
 - Strict type checking (mypy)
-- Comprehensive test coverage (99%+)
+- An enforced 80%+ coverage gate in CI
 - CI/CD pipeline with security checks
 
 ## License

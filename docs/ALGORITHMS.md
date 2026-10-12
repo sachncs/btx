@@ -48,7 +48,7 @@ Simple exponentiation path since p ≡ 3 mod 4. O(log p) via modular exponentiat
 hash256(data) = sha256(sha256(data))
 ```
 
-Used in `sighash_legacy`, `sighash_segwit`, and for `tx.txid()` computation.
+Used in `sighash_legacy`, `sighash_segwit`, and for `btx.transaction.txid(tx)`.
 
 ---
 

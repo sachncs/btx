@@ -54,7 +54,8 @@ raw_hex = "0200000001..."
 tx, bytes_consumed = parse_tx(bytes.fromhex(raw_hex))
 
 print(f"Parsed {len(tx.inputs)} inputs, {len(tx.outputs)} outputs")
-print(f"Transaction ID: {tx.txid().hex()}")
+from btx.transaction import txid
+print(f"Transaction ID: {txid(tx).hex()}")
 ```
 
 ### Extract Signatures
@@ -183,7 +184,8 @@ for group in groups:
 ```python
 from btx import settings
 
-settings.default_backend = "libsecp"  # Requires coincurve
+import os
+os.environ["BTX_DEFAULT_BACKEND"] = "libsecp"  # Set before importing btx
 ```
 
 `settings` is a frozen dataclass; derive customised copies with

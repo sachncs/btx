@@ -12,7 +12,7 @@ deployed to [GitHub Pages](https://pages.github.com/).
 | ------------ | -------------------------------------------- |
 | Framework    | Astro 4 (static output, islands architecture)|
 | Styling      | Tailwind CSS 3 with custom design tokens     |
-| Typography   | Inter + JetBrains Mono via Google Fonts      |
+| Typography   | System sans + system monospace fallbacks      |
 | Animation    | CSS keyframes + IntersectionObserver         |
 | Deployment   | GitHub Actions → GitHub Pages                |
 
@@ -54,7 +54,7 @@ site/
 │   ├── favicon.svg
 │   └── og-image.svg
 └── src/
-    ├── layouts/          Base HTML layout with SEO, fonts, meta
+    ├── layouts/          Base HTML layout with SEO and metadata
     ├── components/       Nav, Hero, Features, Code, Architecture,
     │                     Security, Metrics, UseCases, CTA, Footer
     ├── pages/            /index.astro (single-page experience)

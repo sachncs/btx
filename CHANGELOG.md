@@ -2,6 +2,25 @@
 
 All notable changes to this project will be documented in this file.
 
+## [Unreleased]
+
+### Fixed
+
+- CI benchmark comparison is now read-only and no longer attempts to create a
+  `gh-pages` branch without a configured Git identity.
+- The optional `coincurve` CI matrix is limited to Python 3.12 and 3.13;
+  the pure-Python backend remains covered on Python 3.14 while coincurve's
+  upstream build support catches up.
+- Documentation examples now use the immutable settings snapshot and the
+  module-level transaction helpers.
+
+### Changed
+
+- README, testing docs, site metadata, and the Open Graph image now describe
+  source/Git installation accurately; PyPI is not advertised as available.
+- Replaced the legacy letter-mark logo with a consistent transaction-graph
+  and secp256k1-curve mark across the package, docs, site, favicon, and assets.
+
 ## 0.5.0 - 2026-06-05
 
 This 0.5.0 release bundles the package rename to `btx` with an
@@ -12,7 +31,8 @@ the 0.5.0 minor.
 ### Breaking changes
 
 - **Package renamed**: `bitcoin` → `btx`. All imports become `import btx`.
-  The `pip install bitcoin` command becomes `pip install btx`. The CLI
+  The old `pip install bitcoin` command is replaced by source installation.
+  The CLI
   binary becomes `btx`. The package directory is now `btx/` and the
   distribution name is `btx`.
 - **Exception renamed**: `BitcoinError` → `BtxError`. Catch clauses
@@ -145,11 +165,12 @@ the 0.5.0 minor.
 ### Security
 
 - `pip-audit` scans for known CVEs in CI and release workflows.
-- PyPI publish uses Test PyPI dry-run before production push.
+- PyPI publication is gated behind an explicit workflow dispatch input and is
+  not enabled by version tags alone.
 - Build provenance attestation generated for every release.
 - Pip version pinned in `setup.sh` to mitigate supply-chain risk.
 
-## [Unreleased]
+## 0.5.0 post-release notes
 
 Public-API promotion and docstring expansion landed after the
 0.5.0 release.

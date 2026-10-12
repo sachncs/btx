@@ -62,7 +62,7 @@ Curve operations support pluggable backends:
 `curve/dispatch.py`.
 
 The `BTX_DEFAULT_BACKEND` environment variable selects the default
-backend at import time. `settings.default_backend` records that
+backend at import time. The immutable `settings.default_backend` value records that
 selection.
 
 ## Key Design Decisions

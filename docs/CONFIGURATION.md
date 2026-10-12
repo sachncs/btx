@@ -7,7 +7,7 @@ A global `Settings` singleton exposed as `btx.settings`:
 ```python
 from btx import settings
 
-settings.default_backend                # str | None (default None → "native")
+settings.default_backend                # immutable str | None snapshot
 ```
 
 `default_backend` is read from the `BTX_DEFAULT_BACKEND` environment
@@ -29,7 +29,7 @@ The default backend is selected at import time via the
 
 ```bash
 export BTX_DEFAULT_BACKEND=native   # activate pure Python (default)
-export BTX_DEFAULT_BACKEND=libsecp  # activate C-backed (ImportError if coincurve missing)
+export BTX_DEFAULT_BACKEND=libsecp  # set before importing btx
 ```
 
 The active backend singleton can be inspected at runtime:
