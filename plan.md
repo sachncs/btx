@@ -22,7 +22,7 @@ publication behind an explicit dispatch input and environment approval.
   claims, accessible responsive UI, and base-path-safe assets.
 - Published standalone pages for getting started, API, architecture, testing,
   security, contributing, and changelog content.
-- Removed the obsolete root Pages entrypoints (`_config.yml` and `index.md`).
+- Removed the obsolete root Pages entrypoints.
 - Rewrote the repository README as the concise source-install and contributor
   entry point.
 - Updated repository documentation to match the current provider factories,
