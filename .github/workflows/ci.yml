@@ -51,9 +51,6 @@ jobs:
 
   benchmark:
     runs-on: ubuntu-latest
-    permissions:
-      contents: write
-      deployments: write
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1  # v7.0.1
       - uses: astral-sh/setup-uv@c18668ad3cf93ea998bef934396af7bb5c839dc7  # v10.2.0
@@ -68,17 +65,6 @@ jobs:
         with:
           name: benchmark
           path: benchmark.json
-      - name: Create gh-pages branch if missing
-        run: |
-          if ! git ls-remote --exit-code --heads origin gh-pages; then
-            git checkout --orphan gh-pages
-            git reset --hard
-            git commit --allow-empty -m "Initialize gh-pages branch"
-            git push origin gh-pages
-            git checkout "${{ github.ref_name }}"
-          fi
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       - name: Compare benchmarks to main
         uses: benchmark-action/github-action-benchmark@v1
         with:
@@ -96,7 +82,9 @@ jobs:
     needs: [lint-typecheck]
     strategy:
       matrix:
-        python-version: ["3.12", "3.13", "3.14"]
+        # coincurve 21 currently does not build on Python 3.14. The core
+        # package still runs on 3.14 through its pure-Python backend.
+        python-version: ["3.12", "3.13"]
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1  # v7.0.1
       - uses: astral-sh/setup-uv@c18668ad3cf93ea998bef934396af7bb5c839dc7  # v10.2.0
