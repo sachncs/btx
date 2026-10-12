@@ -23,6 +23,8 @@ publication behind an explicit dispatch input and environment approval.
 - Published standalone pages for getting started, API, architecture, testing,
   security, contributing, and changelog content.
 - Removed the obsolete root Pages entrypoints.
+- Removed the obsolete Read the Docs configuration, docs build ignore rule,
+  and placeholder HTML docs entrypoint.
 - Rewrote the repository README as the concise source-install and contributor
   entry point.
 - Updated repository documentation to match the current provider factories,

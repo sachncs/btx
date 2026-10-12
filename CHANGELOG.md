@@ -24,6 +24,8 @@ All notable changes to this project will be documented in this file.
   independent of repository Markdown files.
 - Removed the obsolete `todo/` checklist and raised the CI coverage gate to
   90%, including explicit integration and negative-path coverage.
+- Removed the remaining Read the Docs and placeholder HTML documentation
+  artifacts so Astro is the sole published documentation surface.
 
 ## 0.5.0 - 2026-06-05
 
